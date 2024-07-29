@@ -8,9 +8,11 @@ using UnityEngine.TestTools;
 public class TestGridUtilsPlay
 {
 
-    private GridUtils gridUtility = new GridUtils();
+    private GridUtils gridUtility;
 
-    private UtilsForTests testUtility = new UtilsForTests();
+    private UtilsForTests testUtility;
+
+    private RaycastUtils raycastUtils;
 
     private GameObject testCube;
 
@@ -32,8 +34,10 @@ public class TestGridUtilsPlay
 
         Vector3 mousePos = Vector3.zero;
         Vector3 vector = Vector3.one;
+
+        Camera camera = tempSceneCamera.GetComponent<Camera>();
  
-        Assert.NotNull(gridUtility.GetFinalGridPosition(testCube, mousePos, vector, camScript));
+        Assert.NotNull(gridUtility.GetFinalGridPosition(testCube, mousePos, vector, camera, raycastUtils));
 
         
 
@@ -577,9 +581,14 @@ public class TestGridUtilsPlay
     public IEnumerator A_SetupSceneForTests()
     {
 
-        tempSceneCamera = testUtility.SetupCameraForScene(tempSceneCamera);
+        gridUtility = new GridUtils();
+        testUtility = new UtilsForTests();
+        raycastUtils = new RaycastUtils();
+
+        tempSceneCamera = testUtility.SetupCameraForScene();
         testCube = testUtility.CreateTestCubeForScene(testCube);
         camScript = tempSceneCamera.GetComponent<CameraController>();
+
 
         yield return testUtility.PauseAllTests();
 

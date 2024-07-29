@@ -16,14 +16,11 @@ public class UtilsForTests : MonoBehaviour
         
     }
 
-        #region ToolsToSmoothTheProcess
 
-    public GameObject SetupCameraForScene(GameObject tempSceneCamera)
+    public GameObject SetupCameraForScene()
     {
 
-        if (tempSceneCamera == null)
-        {
-            tempSceneCamera = new GameObject();
+            GameObject tempSceneCamera = new GameObject();
             
             tempSceneCamera.AddComponent<AudioListener>();
             tempSceneCamera.AddComponent<Camera>();
@@ -33,13 +30,7 @@ public class UtilsForTests : MonoBehaviour
             tempSceneCamera.GetComponent<Camera>().name = "Temp Camera";
 
             return tempSceneCamera;
-            //Debug.Log("Camera Created!");
-        }
-        else
-        {
-            return tempSceneCamera;
-            //Debug.Log("Old Camera in use");
-        }
+            
 
     }
 
@@ -122,5 +113,4 @@ public class UtilsForTests : MonoBehaviour
 
 
 
-    #endregion
 }

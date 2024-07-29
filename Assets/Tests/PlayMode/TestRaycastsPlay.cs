@@ -18,6 +18,8 @@ public class TestRaycastsPlay
 
     private GridUtils gridUtility = new GridUtils();
 
+    private RaycastUtils raycastUtils = new RaycastUtils();
+
 
 
     static int[] testValues = new int[] { 0, -1, 1, 100, -100 };
@@ -47,7 +49,7 @@ public class TestRaycastsPlay
 
         Vector3 mockMousePos = new Vector3(mouseX, mouseY, 0);
 
-        RaycastHit rayCollision = camScript.GetRaycastHit(mockMousePos);
+        RaycastHit rayCollision = raycastUtils.GetRaycastHitFromCameraRay(mockMousePos, tempSceneCamera.GetComponent<Camera>());
 
         
         Assert.NotNull(rayCollision);
@@ -78,7 +80,7 @@ public class TestRaycastsPlay
 
         Vector3 mockMousePos = new Vector3(mouseX, mouseY, 0);
 
-        RaycastHit rayCollision = camScript.GetRaycastHit(mockMousePos);
+        RaycastHit rayCollision = raycastUtils.GetRaycastHitFromCameraRay(mockMousePos,tempSceneCamera.GetComponent<Camera>());
 
         Assert.NotNull(rayCollision);
 
@@ -111,7 +113,7 @@ public class TestRaycastsPlay
 
         Vector3 mockMousePos = new Vector3(mouseX, mouseY, 0);
 
-        RaycastHit rayCollision = camScript.GetRaycastHit(mockMousePos);
+        RaycastHit rayCollision = raycastUtils.GetRaycastHitFromCameraRay(mockMousePos,tempSceneCamera.GetComponent<Camera>());
 
         
         Assert.NotNull(rayCollision);
@@ -140,7 +142,7 @@ public class TestRaycastsPlay
         tempSceneCamera.transform.position -= tempSceneCamera.transform.forward *2;
         tempSceneCamera.transform.LookAt(objectToHit.transform);
 
-        Collider rayCollider = camScript.GetRaycastHit(camScript.GetMouseScreenCenter(tempSceneCamera)).collider;
+        Collider rayCollider = raycastUtils.GetRaycastHitFromCameraRay(camScript.GetMouseScreenCenter(tempSceneCamera),tempSceneCamera.GetComponent<Camera>()).collider;
         
 
         //Assert
@@ -169,7 +171,7 @@ public class TestRaycastsPlay
 
         testCube.GetComponent<Collider>().tag = "Male";
 
-        Collider rayCollider = camScript.GetRaycastHit(camScript.GetMouseScreenCenter(tempSceneCamera)).collider;
+        Collider rayCollider = raycastUtils.GetRaycastHitFromCameraRay(camScript.GetMouseScreenCenter(tempSceneCamera),tempSceneCamera.GetComponent<Camera>()).collider;
         
 
         //Assert
@@ -193,7 +195,7 @@ public class TestRaycastsPlay
         testCube.tag = "TestCube";
 
 
-        Collider rayCollider = camScript.GetRaycastHit(camScript.GetMouseScreenCenter(tempSceneCamera)).collider;
+        Collider rayCollider = raycastUtils.GetRaycastHitFromCameraRay(camScript.GetMouseScreenCenter(tempSceneCamera),tempSceneCamera.GetComponent<Camera>()).collider;
         
 
         //Assert
@@ -212,7 +214,7 @@ public class TestRaycastsPlay
 
 
 
-        RaycastHit nonHit = camScript.GetRaycastHit(testUtility.GetCenterOfScreen(tempSceneCamera) * -1f);
+        RaycastHit nonHit = raycastUtils.GetRaycastHitFromCameraRay(testUtility.GetCenterOfScreen(tempSceneCamera) * -1f,tempSceneCamera.GetComponent<Camera>());
 
 
         Assert.IsNull(nonHit.collider);
@@ -237,8 +239,8 @@ public class TestRaycastsPlay
         tempSceneCamera.transform.LookAt(testCube.transform);
 
 
-        RaycastHit raycastHit = camScript.GetRaycastHit(camScript.GetMouseScreenCenter(tempSceneCamera));
-        bool canPlace = camScript.DidRayHitFindViableSurface(raycastHit);
+        RaycastHit raycastHit = raycastUtils.GetRaycastHitFromCameraRay(camScript.GetMouseScreenCenter(tempSceneCamera),tempSceneCamera.GetComponent<Camera>());
+        bool canPlace = raycastUtils.DidRayHitFindViableSurface(raycastHit);
 
         //Assert
         Assert.IsTrue(canPlace);
@@ -253,7 +255,7 @@ public class TestRaycastsPlay
     {
         testUtility  = new UtilsForTests();
 
-        tempSceneCamera = testUtility.SetupCameraForScene(tempSceneCamera);
+        tempSceneCamera = testUtility.SetupCameraForScene();
         testCube = testUtility.CreateTestCubeForScene(testCube);
         camScript = tempSceneCamera.GetComponent<CameraController>();
 

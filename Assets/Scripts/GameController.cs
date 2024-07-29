@@ -22,6 +22,12 @@ public class GameController : MonoBehaviour
 
     public List<GameObject> availableBricks;
 
+    public float spawnDistance = 5f;
+
+    private bool brickFollowCursor = false;
+
+    private GameObject mouseTargetedBrick;
+
     private int brickSelector = 0;
 
     private GameObject ghostBrick;
@@ -37,6 +43,8 @@ public class GameController : MonoBehaviour
 
     private GridUtils gridUtility;
 
+    private RaycastUtils raycastUtils;
+
 
     private Vector3 baseCellSize;
 
@@ -48,13 +56,15 @@ public class GameController : MonoBehaviour
         cameraScript = gameCamera.GetComponent<CameraController>();
 
         gridUtility = new GridUtils();
+        raycastUtils = new RaycastUtils();
+        raycastUtils.Start();
 
 
         baseCellSize = new Vector3(0.78f, 0.32f, 0.78f);
 
 
 
-        MakeGhostVersionOfCurrentBrick();
+        //MakeGhostVersionOfCurrentBrick();
 
         
     }
@@ -65,11 +75,22 @@ public class GameController : MonoBehaviour
     void Update()
     {
 
-        SpawnBrickOnMouseClick();
+    }
 
-        ProjectGhostOntoRaycastLocation(); 
+    void FixedUpdate()
+    {
+
+
+        //SpawnBrickOnMouseClick();
+
+        //ProjectGhostOntoRaycastLocation(); 
 
         ChangeBrickOnKeyboardInput();
+        SpawnBrickIntoTheAirOnKeyDown();
+        MoveBrickUnderCursorOnMouseClick();
+
+
+
     }
 
     private void MakeGhostVersionOfCurrentBrick()
@@ -112,8 +133,6 @@ public class GameController : MonoBehaviour
 
         }
 
-
-
     void ChangeBrickOnKeyboardInput()
     {
 
@@ -145,8 +164,9 @@ public class GameController : MonoBehaviour
         if (Input.GetMouseButtonUp(left))
         {
                 Vector3 mousePos = Input.mousePosition;
+                Vector3 finalGridPos = gridUtility.GetFinalGridPosition(brick, mousePos, baseCellSize, Camera.main, raycastUtils);
 
-                Vector3 brickPosition = gridUtility.GetFinalGridPosition(brick, mousePos, baseCellSize, cameraScript);
+                Vector3 brickPosition = finalGridPos;
 
                 //Gives the bricks a little randomness to make things feel less steril
                 float randX = UnityEngine.Random.Range(-0.02f,0.01f);
@@ -161,13 +181,110 @@ public class GameController : MonoBehaviour
         }
     }
 
+
+    void SpawnBrickIntoTheAirOnKeyDown()
+    {
+        if (Input.GetKeyDown("r"))
+        {
+                Vector3 spawnPos = cameraScript.transform.position + Vector3.Scale(cameraScript.transform.forward, new Vector3(1,1,spawnDistance));
+
+                Transform objectFolder = GameObject.Find("Objects").transform;
+
+
+                GameObject temporaryBrick = Instantiate(brick, spawnPos, transform.rotation, objectFolder);
+
+                
+
+
+        }
+
+    }
+
+    void MoveBrickUnderCursorOnMouseClick()
+    {
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            ToggleBrickMovementSelection();
+        }
+
+        MoveSelectedBrickIfToggled();
+
+    }
+
+    private void ToggleBrickMovementSelection()
+    {
+        RaycastHit rayHit = raycastUtils.GetRaycastHitFromCameraRay(Input.mousePosition, Camera.main);
+        if (rayHit.collider != null)
+        {
+            GameObject hitObject = rayHit.collider.gameObject;
+
+            if (!brickFollowCursor)
+            {
+                string basicTag = "Brick";
+                string[] childTags = new string[] {"Male", "Female"};
+
+                SelectObjectBasedOnTag(hitObject, basicTag, childTags);
+            }
+            else
+            {
+                brickFollowCursor = false;
+                mouseTargetedBrick = null;
+            }
+
+
+        }
+        else
+        {
+            brickFollowCursor = false;
+            mouseTargetedBrick = null;
+        }
+
+    }
+
+    private void SelectObjectBasedOnTag(GameObject hitObject, string baseObjectTag, string[] childObjectTags)
+    {
+        if (hitObject.CompareTag(baseObjectTag) && !brickFollowCursor)
+        {
+            brickFollowCursor = true;
+            mouseTargetedBrick = hitObject;
+        }
+        else
+        {
+            for(int i = 0; i < childObjectTags.Length; i++)
+            {
+                if (hitObject.CompareTag(childObjectTags[i]) && !brickFollowCursor)
+                {
+                    brickFollowCursor = true;
+                    mouseTargetedBrick = hitObject.transform.parent.gameObject;
+                    break;
+                }
+            }    
+        }
+    }
+
+    private void MoveSelectedBrickIfToggled()
+    {
+        if (brickFollowCursor && mouseTargetedBrick != null)
+        {
+            Vector3 grabPointPosition = cameraScript.transform.GetChild(0).transform.position;
+
+
+            Rigidbody brickRb = mouseTargetedBrick.GetComponent<Rigidbody>();
+
+            brickRb.MovePosition(grabPointPosition);
+        }
+    }
+
     void ProjectGhostOntoRaycastLocation()
     {
         if (ghostBrick!= null && ghostBrick.activeSelf)
             {  
                 
                 Vector3 mousePos = Input.mousePosition;
-                ghostBrick.transform.position = gridUtility.GetFinalGridPosition(ghostBrick, mousePos, baseCellSize, cameraScript);
+                Vector3 finalGridPos = gridUtility.GetFinalGridPosition(ghostBrick, mousePos, baseCellSize, Camera.main, raycastUtils);
+                
+                ghostBrick.transform.position = finalGridPos;
 
             }
     }

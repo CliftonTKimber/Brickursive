@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
+
 //using System.Numerics;
 
 //using System.Numerics;
@@ -11,16 +13,25 @@ public class CameraController : MonoBehaviour
 {
     // Start is called before the first frame update
 
-
-    private float mouseSensitivity = 10f;
-
     public float cameraMoveSpeed = 5f;
 
+    public float speedH = 2.0f;
+    public float speedV = 2.0f;
+
+    private float yaw = 0.0f;
+    private float pitch = 0.0f;
+
     private Camera cam;
+
+    private GameObject grabPoint;
 
     void Start()
     {
         cam = GetMainCamera();
+        grabPoint = transform.GetChild(0).gameObject;
+
+
+        
 
         
     }
@@ -29,33 +40,31 @@ public class CameraController : MonoBehaviour
     void Update()
     {
 
-      ControlCameraWithKeyboard();
+      
     
         
     }
 
     void FixedUpdate()
     {
-
+        ControlCameraWithKeyboard();
+        ControlCameraRotationWithMouse();
         //CreateAndUpdateRayAtCursor();
 
     }
 
 
 
-    void ControlCameraRotationWithMouse(){
+    private void ControlCameraRotationWithMouse(){
 
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * 100 * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * 100 * Time.deltaTime;
+        yaw += speedH * Input.GetAxis("Mouse X");
+        pitch -= speedV * Input.GetAxis("Mouse Y");
 
-        transform.Rotate(Vector3.up, mouseX);
-        transform.Rotate(-Vector3.right, mouseY);
-
-        
+        transform.eulerAngles = new Vector3(pitch, yaw, 0.0f);
 
     }
 
-    void ControlCameraWithKeyboard(){
+    private void ControlCameraWithKeyboard(){
 
         float vAxis = Input.GetAxis("Vertical");
         float hAxis = Input.GetAxis("Horizontal");
@@ -71,66 +80,6 @@ public class CameraController : MonoBehaviour
             transform.Translate(-Vector3.up * cameraMoveSpeed * Time.deltaTime, Space.Self);
         
 
-
-    }
-
-
-
-
-///Raycast stuff
-///
-
-public RaycastHit CastPhysicsRay(Vector3 startPos, Vector3 lookDirection)
-    {
-        Color rayColor = Color.red;
-        if(Physics.Raycast(startPos, lookDirection, out RaycastHit hitInfo, 50f))
-            {
-            Debug.DrawRay(startPos, lookDirection, rayColor);
-            //Debug.Log(startPos + " " + lookDirection);
-            return hitInfo;    
-            
-            }
-            
-        else
-            {
-            Debug.DrawRay(startPos, lookDirection, rayColor);
-            return hitInfo; //empty
-           
-            }
-        
-        
-        
-    }
-
-    public Ray GetRayCastFromCameraTowardsCursor(Vector3 mousePosition){
-
-        if(cam == null)
-            cam = GetMainCamera();
-
-
-        Ray ray = cam.ScreenPointToRay(mousePosition);
-
-        return ray;
-       
-
-    }
-
-
-    public Vector3 GetRaycastHitPosition(Vector3 mousePosition){
-
-        Ray mouseRay = GetRayCastFromCameraTowardsCursor(mousePosition);
-        RaycastHit rayHit = CastPhysicsRay(mouseRay.origin, mouseRay.direction);
-
-        return rayHit.point;
-
-    }
-    public RaycastHit GetRaycastHit(Vector3 mousePosition){
-
-        Ray mouseRay = GetRayCastFromCameraTowardsCursor(mousePosition);
-        RaycastHit rayHit = CastPhysicsRay(mouseRay.origin, mouseRay.direction);
-
-
-        return rayHit;
 
     }
 
@@ -161,33 +110,28 @@ public RaycastHit CastPhysicsRay(Vector3 startPos, Vector3 lookDirection)
 
     }
 
-    public bool IsPositionAvailable(GridUtils gridUtilScript, GameObject targetBrick, RaycastHit rayHit)
+    public Vector3 GetMousePositionMappedToScreen()
     {
-        bool boolA = DidRayHitFindViableSurface(rayHit);
-        //SHOULD LATER FIND WAYS TO STOP CALLING THIS EXPENSIVE FUNCTION WHEN UNEEDED
-        bool boolB = gridUtilScript.IsBrickWithinSurroundingObjects(targetBrick);
+        Camera mainCam = GetMainCamera();
+        Vector3 screenCenter = GetMouseScreenCenter(GetMainCamera().gameObject);
 
-        return boolA && !boolB;
+        float xScalar = screenCenter.x;
+        float yScalar = screenCenter.y;
+
+
+        Vector3 mappedPosX = new Vector3((Input.mousePosition.x - screenCenter.x) / xScalar, 0 ,0);
+
+        Vector3 mappedPosY = new Vector3(0, (Input.mousePosition.y - screenCenter.y)/yScalar, 0);
+
+
+        Vector3 normalizedPos = mappedPosX + mappedPosY;
+        normalizedPos.z = 0f;
+
+        return  normalizedPos;
+
     }
 
-    public bool DidRayHitFindViableSurface(RaycastHit rayHit)
-    {
 
-        if(rayHit.collider == null)
-            return false;
-
-        String colliderTag = rayHit.collider.tag;
-
-        if(colliderTag == "Male")
-            return true;
-        else if (colliderTag == "Female")
-            return true;
-        else
-            return false;
-
-
-    }
-      
 
 
    

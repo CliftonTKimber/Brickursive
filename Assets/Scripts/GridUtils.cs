@@ -8,9 +8,6 @@ public class GridUtils
 {
     // Start is called before the first frame update
 
-    //private float cellWidth = 0.78f;
-    //private float cellHeight = 0.32f;
-    //private float cellLength = 0.78f;
     void Start()
     {
         
@@ -23,32 +20,23 @@ public class GridUtils
     }
 
 
-    public Vector3 GetPosition(Vector3 rayPosition){
-
-        Vector3 newPosition = Vector3.zero;
-
-        newPosition += rayPosition;
-
-        return newPosition;
-    }
-
-   public Vector3 GetFinalGridPosition(GameObject targetBrick, Vector3 mousePosition, Vector3 cellSize, CameraController camera){
+   public Vector3 GetFinalGridPosition(GameObject targetBrick, Vector3 mousePosition, Vector3 cellSize, Camera camera, RaycastUtils raycastUtils){
 
             if(camera == null)
             {
-                throw new MissingReferenceException("Scene CameraController is Missing");
+                throw new NullReferenceException("Camera 'camera' is Null");
                 
             }
 
-            RaycastHit rayHit = camera.GetRaycastHit(mousePosition);
+            RaycastHit rayHit = raycastUtils.GetRaycastHitFromCameraRay(mousePosition, camera);
             if(rayHit.collider != null)
             {   Vector3 rayPosition = rayHit.point;
 
-                if(camera.IsPositionAvailable(this, targetBrick,rayHit))
+                if(raycastUtils.IsPositionAvailable(this, targetBrick,rayHit))
                 {
 
 
-                    Vector3 gridPosition = GetVectorConvertToGridPosition(rayPosition, cellSize);
+                    Vector3 gridPosition = ConvertVectorToGridPosition(rayPosition, cellSize);
 
                     Vector3 brickOffset = GetBottomLeftCornerOfObject(targetBrick);
 
@@ -73,13 +61,8 @@ public class GridUtils
     }
 
     public Vector3 GetBottomLeftCornerOfObject(GameObject targetObject){
-
-        float widthOffset  = targetObject.transform.localScale.x / 2;
-        float heightOffset = targetObject.transform.localScale.y / 2;
-        float lengthOffset = targetObject.transform.localScale.z / 2;
-
-        
-        Vector3 cornerPosition = new Vector3(widthOffset, heightOffset, lengthOffset);
+        Vector3 vertexPos = Vector3.one;
+        Vector3 cornerPosition = GetCubeVertex(targetObject, vertexPos);
 
         return cornerPosition;
 
@@ -92,7 +75,6 @@ public class GridUtils
         float heightOffset = targetObject.transform.localScale.y / 2 * targetVertex.y;
         float lengthOffset = targetObject.transform.localScale.z / 2 * targetVertex.z;
 
-        
         Vector3 vertexPosition = new Vector3(widthOffset, heightOffset, lengthOffset);
 
         return vertexPosition;
@@ -106,7 +88,7 @@ public class GridUtils
         float heightOffset = 0;
         if (colliderTag == "Female")
         {
-            Debug.Log("Hit the bottom!");
+            //Debug.Log("Hit the bottom!");
             heightOffset = cellSize.z / 2;
         }
 
@@ -134,7 +116,7 @@ public class GridUtils
             throw new ArgumentOutOfRangeException("Every part of Vector3 cellSize must be larger than 0");
     }
 
-    public Vector3 GetVectorConvertToGridPosition(Vector3 targetVector, Vector3 cellSize)
+    public Vector3 ConvertVectorToGridPosition(Vector3 targetVector, Vector3 cellSize)
     {
 
         if(cellSize.x > 0 && cellSize.y > 0 && cellSize.z > 0){
@@ -152,9 +134,10 @@ public class GridUtils
     }
 
 
-    public Vector3 GetCollisionFaceFromRaycast(CameraController camera, Vector3 mousePosition)
+    //Broken
+    public Vector3 GetCollisionFaceFromRaycast(RaycastUtils raycastUtils, Camera camera, Vector3 mousePosition)
     {
-        RaycastHit rayHit = camera.GetRaycastHit(mousePosition); // <-- Problem Child.
+        RaycastHit rayHit = raycastUtils.GetRaycastHitFromCameraRay(mousePosition, camera); // <-- Problem Child.
 
         
         if (rayHit.collider != null)
@@ -221,8 +204,6 @@ public class GridUtils
 
 
     public Vector3 ReturnVectorAsPositiveAndNotZero(Vector3 targetVector)
-
-
     {
 
         if (targetVector.x == 0)
@@ -266,6 +247,8 @@ public class GridUtils
     }
 
 #region BrickCollision
+
+    //Broken
     public bool IsBrickWithinSurroundingObjects(GameObject targetBrick)
     {
 
@@ -276,7 +259,7 @@ public class GridUtils
 
         List<Bounds> objectsBounds = ReturnBoundsFromGivenColliders(objectsColliders);
 
-        bool isInside = IsBrickDimensionsOverlappingAnyBounds(targetBrick, objectsBounds);
+        bool isInside = IsBrickVerticesWithinAnyBounds(targetBrick, objectsBounds);
 
 
         return isInside;
@@ -284,7 +267,6 @@ public class GridUtils
 
     public List<Bounds> ReturnBoundsFromGivenColliders(Collider[] givenColliders)
     {
-
         List<Bounds> allBounds = new List<Bounds>();
 
         for(int i = 0; i < givenColliders.Length; i++)
@@ -305,7 +287,7 @@ public class GridUtils
     }
 
 
-    public bool IsBrickDimensionsOverlappingAnyBounds(GameObject targetBrick, List<Bounds> bounds)
+    public bool IsBrickVerticesWithinAnyBounds(GameObject targetBrick, List<Bounds> bounds)
     {
         ///Not strict bounds, reduce by part of cellSize?
         Vector3[] vertices = GetAllCubeVertices(targetBrick);
@@ -332,32 +314,24 @@ public class GridUtils
 
     public Vector3[] GetAllCubeVertices(GameObject targetObject)
     {
-        Vector3[] vertices = new Vector3[8];
+        int vertCount = 8;
+        Vector3[] vertices = new Vector3[vertCount];
         Vector3 tempV;
-        for(int i = 0; i < 8; i++){
+
+        for(int i = 0; i < vertCount; i++)
+        {
             tempV = Vector3.zero;
-            string iString = Convert.ToString(i, toBase: 2);
+            string binaryNumber = Convert.ToString(i, toBase: 2);
 
-            if(iString.Length == 2)
-            {
-                iString = "0" + iString;
-            }
-            if(iString.Length == 1)
-            {
-                iString = "00" + iString;
-            }
-            
+            MakeBitStringFitRequiredLength(binaryNumber, 3);
 
-            for (int j = 0; j < iString.Length; j++)
-
+            for (int j = 0; j < binaryNumber.Length; j++)
             {
                 int n = 1;
-                if(iString[j] == '1')
+                if(binaryNumber[j] == '1')
                     n = -1;
                     
-
                 tempV[j] = n;                      
-
             }
 
             vertices.Append(GetCubeVertex(targetObject, tempV));
@@ -365,6 +339,19 @@ public class GridUtils
             }
 
         return vertices;
+
+    }
+
+
+    public string MakeBitStringFitRequiredLength(string bitString, int reqLength)
+    {
+        for(int i = 0; i < reqLength - bitString.Length; i++)
+        {
+            bitString = "0" + bitString;
+        }
+
+        return bitString;
+
 
     }
 

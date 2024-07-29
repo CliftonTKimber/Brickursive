@@ -7,10 +7,8 @@ public class BrickBehavior : MonoBehaviour
 {
     // Start is called before the first frame update
 
-    public bool isColliding;
     void Start()
     {
-        isColliding = false;
         
     }
 
@@ -24,19 +22,16 @@ public class BrickBehavior : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         
-      //  isColliding = true;
     }
     private void OnTriggerStay(Collider other)
     {
-        //Requires RigidBody
-        isColliding = true;
+
 
 
     }
 
     private void OnTriggerExit(Collider other){
 
-        isColliding = false;
 
     }
 }

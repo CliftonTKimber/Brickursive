@@ -20,33 +20,7 @@ public class TestGridUtils
         // Use the Assert class to test conditions
     }
 
-    [Test]
 
-    public void GetPositionVector3()
-    
-    {
-        Vector3 gridVector = gridUtility.GetPosition(Vector3.zero);
-
-        Assert.IsNotNull(gridVector);
-
-    }
-
-    [Test]
-    [TestCase(1,2,3)]
-    [TestCase(-1,-2,-3)]
-    [TestCase(0.25f,0.25f,0.25f)]
-
-    public void ReturnPositionOfRay(float first, float second, float third)
-    {
-        Vector3 givenVector = new Vector3(first,second,third);
-
-
-        Vector3 rayVector = gridUtility.GetPosition(givenVector);
-
-
-        Assert.AreEqual(expected: givenVector, actual: rayVector);
-
-    }
 
     [Test]
 
@@ -95,7 +69,7 @@ public class TestGridUtils
 
         Vector3 localVector = Vector3.one;
 
-        Vector3 worldVector = gridUtility.GetVectorConvertToGridPosition(localVector, Vector3.one * 1.2f);
+        Vector3 worldVector = gridUtility.ConvertVectorToGridPosition(localVector, Vector3.one * 1.2f);
 
 
         Assert.AreNotEqual(expected: localVector, actual: worldVector);
@@ -116,7 +90,7 @@ public class TestGridUtils
 
         Vector3 cellSize = new Vector3(first,  second,  third);
 
-        Vector3 gridVector = gridUtility.GetVectorConvertToGridPosition(localVector, cellSize);
+        Vector3 gridVector = gridUtility.ConvertVectorToGridPosition(localVector, cellSize);
 
         bool vectorIsTooLarge;
 
@@ -145,7 +119,7 @@ public class TestGridUtils
 
         Vector3 cellSize = new Vector3(first, second, third);
 
-        Vector3 gridVector = gridUtility.GetVectorConvertToGridPosition(localVector, cellSize);
+        Vector3 gridVector = gridUtility.ConvertVectorToGridPosition(localVector, cellSize);
 
         bool vectorIsTooLarge;
 
@@ -211,7 +185,7 @@ public class TestGridUtils
 
         Vector3 cellSize = new Vector3(first,second,third);
 
-        Vector3 gridVector = gridUtility.GetVectorConvertToGridPosition(stepsVector, cellSize);
+        Vector3 gridVector = gridUtility.ConvertVectorToGridPosition(stepsVector, cellSize);
 
        
      
@@ -254,7 +228,7 @@ public class TestGridUtils
 
         Assert.Throws<ArgumentOutOfRangeException>
         ( 
-            delegate {  gridUtility.GetVectorConvertToGridPosition(Vector3.one, Vector3.one * lowNumber); } 
+            delegate {  gridUtility.ConvertVectorToGridPosition(Vector3.one, Vector3.one * lowNumber); } 
         );
 
     }

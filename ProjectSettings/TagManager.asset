@@ -8,6 +8,7 @@ TagManager:
   - TestCube
   - Male
   - Female
+  - Brick
   layers:
   - Default
   - TransparentFX
