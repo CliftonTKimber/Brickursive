@@ -1,14 +1,24 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class BrickBehavior : MonoBehaviour
 {
-    // Start is called before the first frame update
 
+
+
+    public bool isHeld;
+
+    private RaycastUtils raycastUtils;
+    private GridUtils gridUtils;
+
+    private List<RaycastHit> hitList;
     void Start()
     {
+        isHeld = true;
+        raycastUtils = new RaycastUtils();
         
     }
 
@@ -17,6 +27,18 @@ public class BrickBehavior : MonoBehaviour
     {
         
     }
+
+    void FixedUpdate()
+    {
+
+
+    }
+
+
+    
+
+
+    
 
 
     private void OnTriggerEnter(Collider other)

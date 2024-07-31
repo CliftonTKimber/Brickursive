@@ -69,7 +69,7 @@ public class TestGridUtils
 
         Vector3 localVector = Vector3.one;
 
-        Vector3 worldVector = gridUtility.ConvertVectorToGridPosition(localVector, Vector3.one * 1.2f);
+        Vector3 worldVector = gridUtility.ConvertVectorToSteppedGridPosition(localVector, Vector3.one * 1.2f);
 
 
         Assert.AreNotEqual(expected: localVector, actual: worldVector);
@@ -90,7 +90,7 @@ public class TestGridUtils
 
         Vector3 cellSize = new Vector3(first,  second,  third);
 
-        Vector3 gridVector = gridUtility.ConvertVectorToGridPosition(localVector, cellSize);
+        Vector3 gridVector = gridUtility.ConvertVectorToSteppedGridPosition(localVector, cellSize);
 
         bool vectorIsTooLarge;
 
@@ -119,7 +119,7 @@ public class TestGridUtils
 
         Vector3 cellSize = new Vector3(first, second, third);
 
-        Vector3 gridVector = gridUtility.ConvertVectorToGridPosition(localVector, cellSize);
+        Vector3 gridVector = gridUtility.ConvertVectorToSteppedGridPosition(localVector, cellSize);
 
         bool vectorIsTooLarge;
 
@@ -185,7 +185,7 @@ public class TestGridUtils
 
         Vector3 cellSize = new Vector3(first,second,third);
 
-        Vector3 gridVector = gridUtility.ConvertVectorToGridPosition(stepsVector, cellSize);
+        Vector3 gridVector = gridUtility.ConvertVectorToSteppedGridPosition(stepsVector, cellSize);
 
        
      
@@ -228,10 +228,138 @@ public class TestGridUtils
 
         Assert.Throws<ArgumentOutOfRangeException>
         ( 
-            delegate {  gridUtility.ConvertVectorToGridPosition(Vector3.one, Vector3.one * lowNumber); } 
+            delegate {  gridUtility.ConvertVectorToSteppedGridPosition(Vector3.one, Vector3.one * lowNumber); } 
         );
 
     }
+
+    #region  GetDifferenceBetweenPositionAndGridPosition
+
+
+
+
+    [Test]
+
+
+    public void GetDifferenceBetweenPositionAndGridPosition_ReturnsVector()
+    {
+
+
+
+        var possibleVector = gridUtility.GetDifferenceBetweenPositionAndGridPosition(Vector3.one, Vector3.one);
+
+
+        Assert.AreEqual(typeof(Vector3), actual: possibleVector.GetType());
+
+
+    }
+
+    [Test]
+    [TestCase(1,1,1)]
+    [TestCase(0.25f,0.25f,0.25f)]
+
+
+
+    public void GetDifferenceBetweenPositionAndGridPosition_IfVectorsEqual_ReturnZero(float first, float second, float third)
+
+    {
+        Vector3 paramVector = new Vector3(first, second, third);
+
+        Vector3 targetVector = paramVector;
+        Vector3 cellSize = paramVector;
+
+
+
+        Vector3 diffVector = gridUtility.GetDifferenceBetweenPositionAndGridPosition(targetVector, cellSize);
+
+
+        Assert.AreEqual(0f, diffVector.x);
+
+    }
+
+    [Test]
+    [TestCase(0,0,0)]
+    [TestCase(0,-1,-1)]
+    [TestCase(0.25f,0,0.25f)]
+    [TestCase(1,1,0)]
+
+
+    public void GetDifferenceBetweenPositionAndGridPosition_IfCellSizePartIsLessOrEqualToZero_ThrowException(float first, float second, float third)
+
+    {
+        Vector3 paramVector = new Vector3(first, second, third);
+
+        Vector3 targetVector = paramVector;
+        Vector3 cellSize = paramVector;
+
+
+
+         Assert.Throws<ArgumentException>
+        ( 
+            delegate {  gridUtility.GetDifferenceBetweenPositionAndGridPosition(targetVector, cellSize); } 
+        );
+
+    }
+
+
+    [Test]
+    [TestCase(1,1,1)]
+    [TestCase(0.25f,0.25f,0.25f)]
+    [TestCase(10.25f,10.25f,10.25f)]
+
+
+
+    public void GetDifferenceBetweenPositionAndGridPosition_ReturnsOffset(float first, float second, float third)
+
+    {
+        Vector3 paramVector = new Vector3(first, second, third);
+        Vector3 offsetVector = new Vector3(0.11f, 0.11f, 0.11f);
+
+        Vector3 targetVector = paramVector + offsetVector;
+        Vector3 cellSize = paramVector;
+
+
+
+        Vector3 diffVector = gridUtility.GetDifferenceBetweenPositionAndGridPosition(targetVector, cellSize);
+
+
+        bool vectorsAreEqual = diffVector == offsetVector;
+
+        Debug.Log("Expected: " + offsetVector + " Actual: " + diffVector);
+
+
+        Assert.IsTrue(vectorsAreEqual);
+
+    }
+
+    [Test]
+    [TestCase(1,1,1,0.25f,0.25f,0.25f)]
+    [TestCase(0.3f,0.3f,0.3f, 0.15f,0.15f,0.15f)]
+    [TestCase(10.25f,53.3f,22.14f, 0.25f,0.26f,0.27f)]
+
+    public void GetDifferenceBetweenPositionAndGridPositionUsingDifferentPositionsAndSizes_ReturnsOffset(float xOne, float yOne, float zOne, float xTwo, float yTwo, float zTwo)
+
+    {
+        Vector3 paramVector = new Vector3(xOne, yOne, zOne);
+        Vector3 offsetVector = new Vector3(0.11f, 0.11f, 0.11f);
+
+        Vector3 targetVector = paramVector + offsetVector;
+        Vector3 cellSize = new Vector3(xTwo, yTwo, zTwo);
+
+
+
+        Vector3 diffVector = gridUtility.GetDifferenceBetweenPositionAndGridPosition(targetVector, cellSize);
+
+
+        bool vectorsAreEqual = diffVector == offsetVector;
+
+        //Debug.Log("Expected: " + offsetVector + " Actual: " + diffVector);
+
+        Assert.IsTrue(vectorsAreEqual);
+
+    }
+
+    #endregion
 
 
 

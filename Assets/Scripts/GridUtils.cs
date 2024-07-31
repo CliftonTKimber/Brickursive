@@ -7,10 +7,13 @@ using UnityEngine;
 public class GridUtils
 {
     // Start is called before the first frame update
+    public Vector3 baseCellSize;
+    private RaycastUtils raycastUtils;
 
-    void Start()
+    public void Start()
     {
-        
+        baseCellSize = new Vector3(0.78f, 0.32f, 0.78f);
+        raycastUtils = new();
     }
 
     // Update is called once per frame
@@ -19,38 +22,93 @@ public class GridUtils
         
     }
 
+    public bool SnapObjectToGrid(GameObject targetObject,  bool objectIsHeld,  GameController gameController, float raycastLength= 0.25f)
+    {
+        if (objectIsHeld)
+        {
+            List<RaycastHit> hitList = raycastUtils.GetRaycastHitsFromChildrenBasedOnTags(targetObject, raycastLength);
 
-   public Vector3 GetFinalGridPosition(GameObject targetBrick, Vector3 mousePosition, Vector3 cellSize, Camera camera, RaycastUtils raycastUtils){
-
-            if(camera == null)
+            for(int i = 0; i < hitList.Count; i++)
             {
-                throw new NullReferenceException("Camera 'camera' is Null");
-                
-            }
+                if(hitList[i].collider != null)
+                {
+                    RaycastHit rayHit = hitList[i];
+                    GameObject hitObject = rayHit.collider.gameObject;
+                    Debug.Log(hitObject);
+                    if(hitObject.CompareTag("Male"))
+                    {
+                       
 
-            RaycastHit rayHit = raycastUtils.GetRaycastHitFromCameraRay(mousePosition, camera);
+                        PutObjectOntoGrid(targetObject, rayHit, hitObject, gameController);
+  
+                        return false;
+                    }
+                    else if(hitObject.CompareTag("Female"))
+                    {
+                        PutObjectOntoGrid(targetObject, rayHit, hitObject, gameController);
+                        
+
+                        return false;
+                    }
+                }
+            }
+            return objectIsHeld;   
+        }
+        return objectIsHeld;
+    }
+
+    private void PutObjectOntoGrid(GameObject targetObject, RaycastHit rayHit, GameObject hitObject, GameController gameController)
+    {
+        hitObject = hitObject.transform.parent.gameObject;
+        Vector3 finalPos = GetFinalGridPosition(targetObject, rayHit, baseCellSize, raycastUtils);
+
+        targetObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+        targetObject.GetComponent<Rigidbody>().excludeLayers = 7; //Bricks
+
+        targetObject.transform.rotation = hitObject.transform.rotation;
+        targetObject.transform.position = finalPos;
+        targetObject.transform.parent = hitObject.transform;
+
+        if(targetObject.name != "Ghost Object")
+            {gameController.SetObjectAndChildrenColliderEnabled(targetObject, true);}
+    }
+
+    public Vector3 GetFinalGridPosition(GameObject targetBrick, RaycastHit rayHit, Vector3 cellSize, RaycastUtils raycastUtils){
+
+
+            //RaycastHit rayHit = raycastUtils.GetRaycastHitFromCameraRay(mousePosition, camera);
             if(rayHit.collider != null)
             {   Vector3 rayPosition = rayHit.point;
 
+            
                 if(raycastUtils.IsPositionAvailable(this, targetBrick,rayHit))
                 {
 
 
-                    Vector3 gridPosition = ConvertVectorToGridPosition(rayPosition, cellSize);
+                    Vector3 gridPosition = ConvertVectorToSteppedGridPosition(rayPosition, cellSize);
+
+                    Vector3 hitSideOffset = GetFemaleSideOffset(targetBrick,rayHit.collider.gameObject, cellSize);
+
+                    Vector3 objectDisplacedPos = GetDifferenceBetweenPositionAndGridPosition(rayHit.collider.transform.position, cellSize);
 
                     Vector3 brickOffset = GetBottomLeftCornerOfObject(targetBrick);
 
-                    Vector3 cellOffset = GetBottomMiddleOfCellPosition(cellSize, rayHit.collider.tag);
 
-                    Vector3 finalPosition = gridPosition + brickOffset - cellOffset;
+
+                    Vector3 finalPosition = gridPosition - brickOffset - hitSideOffset  + objectDisplacedPos;
+
+                    //Debug.DrawLine(rayPosition, gridPosition);
+                    //Debug.DrawLine(gridPosition, gridPosition - brickOffset);
+
+
 
                     return finalPosition;
                 }
                 else
-                {
-                    //Debug.Log("Position unavailable");
-                    return -Vector3.one;
-                }
+                    {
+                        //Debug.Log("Position unavailable");
+                        return -Vector3.one;
+                    }
             }
             else
             {
@@ -60,9 +118,22 @@ public class GridUtils
 
     }
 
+    private static Vector3 GetFemaleSideOffset(GameObject targetObject, GameObject hitObject, Vector3 cellSize)
+    {
+        Vector3 hitSideOffset = new(0, cellSize.y/2, 0);
+        if (hitObject.CompareTag("Female"))
+        {
+            hitSideOffset.y = (targetObject.transform.localScale.y) + cellSize.y/2;
+        }
+
+        return hitSideOffset;
+    }
+
     public Vector3 GetBottomLeftCornerOfObject(GameObject targetObject){
-        Vector3 vertexPos = Vector3.one;
+        Vector3 vertexPos = new(1,-1,1); //BL - closest
         Vector3 cornerPosition = GetCubeVertex(targetObject, vertexPos);
+
+        //Debug.DrawLine(targetObject.transform.position, targetObject.transform.position+ cornerPosition);
 
         return cornerPosition;
 
@@ -92,10 +163,22 @@ public class GridUtils
             heightOffset = cellSize.z / 2;
         }
 
-        float widthOffset  = cellSize.x / 2;
-        float lengthOffset = cellSize.z / 2;
+        float widthOffset  = cellSize.x /2;
+        float lengthOffset = cellSize.z /2;
 
         
+        Vector3 newPosition = new Vector3(widthOffset, heightOffset, lengthOffset);
+
+        return newPosition;
+
+    }
+
+     public Vector3 GetBottomLeftCornerOfCellPosition(Vector3 cellSize)
+    {
+        float widthOffset  = cellSize.x / 2;
+        float heightOffset = cellSize.y / 2;
+        float lengthOffset = cellSize.z / 2;
+ 
         Vector3 newPosition = new Vector3(widthOffset, heightOffset, lengthOffset);
 
         return newPosition;
@@ -106,6 +189,13 @@ public class GridUtils
     
     {
         if(cellSize.x > 0 && cellSize.y > 0 && cellSize.z > 0){
+
+
+            Vector3 sizeOffset = GetBottomLeftCornerOfCellPosition(cellSize);
+            //sizeOffset.y = 0;
+            targetVector += sizeOffset;
+
+
             targetVector.x = Mathf.RoundToInt(targetVector.x / cellSize.x);
             targetVector.y = Mathf.RoundToInt(targetVector.y / cellSize.y);
             targetVector.z = Mathf.RoundToInt(targetVector.z / cellSize.z);
@@ -116,7 +206,7 @@ public class GridUtils
             throw new ArgumentOutOfRangeException("Every part of Vector3 cellSize must be larger than 0");
     }
 
-    public Vector3 ConvertVectorToGridPosition(Vector3 targetVector, Vector3 cellSize)
+    public Vector3 ConvertVectorToSteppedGridPosition(Vector3 targetVector, Vector3 cellSize)
     {
 
         if(cellSize.x > 0 && cellSize.y > 0 && cellSize.z > 0){
@@ -131,6 +221,23 @@ public class GridUtils
         }
         else
             throw new ArgumentOutOfRangeException("Every part of Vector3 cellSize must be larger than 0");
+    }
+
+    public Vector3 GetDifferenceBetweenPositionAndGridPosition(Vector3 targetVector, Vector3 cellSize)
+    {
+        if(IsAnyPartOfVectorLessOrEqualToZero(cellSize))
+        {
+            throw new ArgumentException("No part of Vector3 cellSize may be Less than or Equal to 0.");
+        }
+
+
+        targetVector.x = Modulo(targetVector.x, cellSize.x);
+        targetVector.y = Modulo(targetVector.y, cellSize.y);
+        targetVector.z = Modulo(targetVector.z, cellSize.z);
+
+        //Debug.Log(targetVector);
+
+        return targetVector;        
     }
 
 
@@ -246,6 +353,28 @@ public class GridUtils
 
     }
 
+    public bool IsAnyPartOfVectorLessOrEqualToZero(Vector3 targetVector)
+    {
+        bool isBool = false;
+
+        if(targetVector.x <= 0f)
+        {
+            isBool = true;
+        }
+        if(targetVector.y <= 0f)
+        {
+             isBool = true;
+        }
+        if(targetVector.z <= 0f)
+        {
+            isBool = true;
+        }
+
+        return isBool;
+
+
+    }
+
 #region BrickCollision
 
     //Broken
@@ -311,6 +440,8 @@ public class GridUtils
 
     }
 
+#endregion
+#region 
 
     public Vector3[] GetAllCubeVertices(GameObject targetObject)
     {
@@ -355,5 +486,18 @@ public class GridUtils
 
     }
 
+
+    public float Modulo(float number, float divider)
+    {
+        float remainder = number % divider;
+        if ((remainder<0 && divider>0) || (remainder>0 && divider<0)) {
+            remainder += divider;
+        }
+        return remainder;
+    }
 #endregion
+
+
+
+
 }

@@ -20,6 +20,8 @@ public class TestRaycastsPlay
 
     private RaycastUtils raycastUtils = new RaycastUtils();
 
+    private bool isSceneSetup = false;
+
 
 
     static int[] testValues = new int[] { 0, -1, 1, 100, -100 };
@@ -133,9 +135,10 @@ public class TestRaycastsPlay
     public IEnumerator RayCollisionGetsCollider()
     {
         //Assign
+        TrySetupScene();
 
 
-        GameObject objectToHit = testUtility.CreateTestCubeForScene(testCube);
+        GameObject objectToHit = testCube;
 
 
         //Act
@@ -159,7 +162,9 @@ public class TestRaycastsPlay
     public IEnumerator RayCollisionCanFindMaleCollider()
     {
         //Assign
-
+        TrySetupScene();
+        TryTeardown();
+        TrySetupScene(false);
 
         GameObject objectToHit = testCube;
     
@@ -168,6 +173,9 @@ public class TestRaycastsPlay
         //Act
         tempSceneCamera.transform.position -= tempSceneCamera.transform.forward;
         tempSceneCamera.transform.LookAt(objectToHit.transform);
+
+
+
 
         testCube.GetComponent<Collider>().tag = "Male";
 
@@ -179,7 +187,7 @@ public class TestRaycastsPlay
 
 
         
-        yield return testUtility.PauseAllTests();
+        yield return testUtility.PauseAllTests(1);
 
     }
 
@@ -187,6 +195,9 @@ public class TestRaycastsPlay
     public IEnumerator RayCollisionCanFindNotMaleCollider()
     {
         //Assign
+        TrySetupScene();
+        TryTeardown();
+        TrySetupScene(false);
 
         //Act
         tempSceneCamera.transform.position -= tempSceneCamera.transform.forward;
@@ -248,24 +259,166 @@ public class TestRaycastsPlay
         
         yield return testUtility.PauseAllTests();
     }
+    #endregion
 
     [UnityTest]
 
     public IEnumerator A_SetupSceneForTests()
     {
+        TrySetupScene();
+        yield return testUtility.PauseAllTests(1);
+    }
+
+   
+
+    #region Testing GetRaycastHitsFromChildrenBasedOnTags
+
+    [UnityTest]
+
+    public IEnumerator GetRaycastHitsFromChildrenBasedOnTags_IsNotEmpty()
+    {
+        TrySetupScene();
+
+        var possibleList = raycastUtils.GetRaycastHitsFromChildrenBasedOnTags(testCube);
+
+        Assert.IsNotEmpty(possibleList);
+        
+
+        yield return testUtility.PauseAllTests();
+    }
+
+    [UnityTest]
+    public IEnumerator GetRaycastHitsFromChildrenBasedOnTags_CanGetCollisionFromAbove()
+    {
+
+        TrySetupScene();
+
+        
+
+        GameObject newCube = testUtility.CreateTestCubeForScene();
+        newCube.transform.position += new Vector3(0,2,0);
+
+        yield return testUtility.PauseAllTests(1);
+
+
+        List<RaycastHit> hitList = raycastUtils.GetRaycastHitsFromChildrenBasedOnTags(testCube);
+
+        int upHits = 0;
+
+        for(int i = 0; i < hitList.Count; i++)
+        {
+            if(hitList[i].collider != null)
+            {
+                upHits++;
+            }
+
+        }
+        
+        Assert.Greater(upHits, 0);
+
+        yield return testUtility.PauseAllTests();
+    }
+
+    [UnityTest]
+    public IEnumerator GetRaycastHitsFromChildrenBasedOnTags_CanGetCollisionFromBelow()
+    {
+
+        TrySetupScene();
+
+        
+
+        GameObject newCube = testUtility.CreateTestCubeForScene();
+        newCube.transform.position += new Vector3(0,-2,0);
+
+        yield return testUtility.PauseAllTests(1);
+
+
+        List<RaycastHit> hitList = raycastUtils.GetRaycastHitsFromChildrenBasedOnTags(testCube);
+
+        int hits = 0;
+
+        for(int i = 0; i < hitList.Count; i++)
+        {
+            if(hitList[i].collider != null)
+            {
+                hits++;
+            }
+
+        }
+        
+        Assert.Greater(hits, 0);
+
+        yield return testUtility.PauseAllTests();
+    }
+
+    [UnityTest]
+    public IEnumerator GetRaycastHitsFromChildrenBasedOnTags_CanRetrieveTags()
+    {
+
+        TrySetupScene();
+
+        
+
+        GameObject newCube = testUtility.CreateTestCubeForScene();
+        newCube.transform.position += new Vector3(0,-2,0);
+
+        yield return testUtility.PauseAllTests(1);
+
+
+        List<RaycastHit> hitList = raycastUtils.GetRaycastHitsFromChildrenBasedOnTags(testCube);
+
+        string hitTag = "";
+
+        for(int i = 0; i < hitList.Count; i++)
+        {
+            if(hitList[i].collider != null)
+            {
+                hitTag = hitList[i].collider.tag;
+                break;
+            }
+
+        }
+        
+        Assert.IsNotEmpty(hitTag);
+
+        yield return testUtility.PauseAllTests();
+    }
+
+
+    #endregion
+   
+        
+    #region Methods That Must Be In this File
+
+    private void TrySetupScene(bool includeChildren = true)
+    {
+        if(!isSceneSetup){
         testUtility  = new UtilsForTests();
 
         tempSceneCamera = testUtility.SetupCameraForScene();
-        testCube = testUtility.CreateTestCubeForScene(testCube);
+        testCube = testUtility.CreateTestCubeForScene(includeChildren);
         camScript = tempSceneCamera.GetComponent<CameraController>();
 
-        yield return testUtility.PauseAllTests(2);
+        isSceneSetup = true;
+
+        testUtility.PauseAllTests(1);
+        }
+
 
     }
 
-   #endregion
+    private void TryTeardown()
+    {
+
+        if(isSceneSetup){
+            testUtility.DestroyAllObjects();
+            testUtility.PauseAllTests(1);
+
+            isSceneSetup = false;
+        }
+
+    }
 
 
-   
-        
+    #endregion
 }

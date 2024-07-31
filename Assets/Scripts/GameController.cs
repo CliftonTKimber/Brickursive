@@ -7,6 +7,7 @@ using UnityEditor.Overlays;
 
 //using System.Numerics;
 using UnityEngine;
+using UnityEngine.Animations;
 
 
 
@@ -57,14 +58,16 @@ public class GameController : MonoBehaviour
 
         gridUtility = new GridUtils();
         raycastUtils = new RaycastUtils();
+        gridUtility.Start();
         raycastUtils.Start();
+        
 
 
-        baseCellSize = new Vector3(0.78f, 0.32f, 0.78f);
+        baseCellSize = gridUtility.baseCellSize;
 
 
 
-        //MakeGhostVersionOfCurrentBrick();
+        MakeGhostVersionOfCurrentBrick();
 
         
     }
@@ -83,7 +86,7 @@ public class GameController : MonoBehaviour
 
         //SpawnBrickOnMouseClick();
 
-        //ProjectGhostOntoRaycastLocation(); 
+        ProjectGhostOntoRaycastLocation(); 
 
         ChangeBrickOnKeyboardInput();
         SpawnBrickIntoTheAirOnKeyDown();
@@ -105,6 +108,7 @@ public class GameController : MonoBehaviour
             bool doCollide = false;
             ghostBrick.GetComponent<BoxCollider>().enabled = doCollide;
 
+            ghostBrick.name = "Ghost Brick";
 
            
 
@@ -122,8 +126,8 @@ public class GameController : MonoBehaviour
             }
 
 
-            BoxCollider[] childColliders;
-            childColliders = ghostBrick.GetComponentsInChildren<BoxCollider>();
+            Collider[] childColliders;
+            childColliders = ghostBrick.GetComponentsInChildren<Collider>();
 
             for(int i = 0; i < childColliders.Length; i++){
                 childColliders[i].enabled = doCollide;
@@ -163,8 +167,8 @@ public class GameController : MonoBehaviour
         int left = 0;
         if (Input.GetMouseButtonUp(left))
         {
-                Vector3 mousePos = Input.mousePosition;
-                Vector3 finalGridPos = gridUtility.GetFinalGridPosition(brick, mousePos, baseCellSize, Camera.main, raycastUtils);
+                RaycastHit rayHit = raycastUtils.GetRaycastHitFromCameraRay(Input.mousePosition, Camera.main);
+                Vector3 finalGridPos = gridUtility.GetFinalGridPosition(brick, rayHit, baseCellSize, raycastUtils);
 
                 Vector3 brickPosition = finalGridPos;
 
@@ -214,7 +218,7 @@ public class GameController : MonoBehaviour
 
     private void ToggleBrickMovementSelection()
     {
-        RaycastHit rayHit = raycastUtils.GetRaycastHitFromCameraRay(Input.mousePosition, Camera.main);
+        RaycastHit rayHit = raycastUtils.GetRaycastHitFromCameraRay(Input.mousePosition, Camera.main, 20f);
         if (rayHit.collider != null)
         {
             GameObject hitObject = rayHit.collider.gameObject;
@@ -222,73 +226,165 @@ public class GameController : MonoBehaviour
             if (!brickFollowCursor)
             {
                 string basicTag = "Brick";
-                string[] childTags = new string[] {"Male", "Female"};
+                string[] childTags = new string[] {"Male", "Female"}; 
 
-                SelectObjectBasedOnTag(hitObject, basicTag, childTags);
+                SelectObjectBasedOnTag(hitObject.transform, basicTag, childTags);
             }
             else
             {
+                if(mouseTargetedBrick != null)
+                    SetObjectAndChildrenColliderEnabled(mouseTargetedBrick, true);
                 brickFollowCursor = false;
                 mouseTargetedBrick = null;
+
             }
 
 
         }
         else
         {
+            if(mouseTargetedBrick != null)
+                SetObjectAndChildrenColliderEnabled(mouseTargetedBrick, true);
             brickFollowCursor = false;
             mouseTargetedBrick = null;
         }
 
     }
-
-    private void SelectObjectBasedOnTag(GameObject hitObject, string baseObjectTag, string[] childObjectTags)
+ 
+    private void SelectObjectBasedOnTag(Transform hitTransform, string baseObjectTag, string[] childObjectTags)
     {
-        if (hitObject.CompareTag(baseObjectTag) && !brickFollowCursor)
+        if (hitTransform.CompareTag(baseObjectTag) && !brickFollowCursor)
         {
             brickFollowCursor = true;
-            mouseTargetedBrick = hitObject;
+            mouseTargetedBrick = hitTransform.gameObject;
         }
         else
         {
             for(int i = 0; i < childObjectTags.Length; i++)
             {
-                if (hitObject.CompareTag(childObjectTags[i]) && !brickFollowCursor)
+                if (hitTransform.CompareTag(childObjectTags[i]) && !brickFollowCursor)
                 {
                     brickFollowCursor = true;
-                    mouseTargetedBrick = hitObject.transform.parent.gameObject;
+                    mouseTargetedBrick = IfChildReturnUpperMostParentBesidesRoot(hitTransform.gameObject);
+
+                    SetObjectAndChildrenColliderEnabled(mouseTargetedBrick, false);
+                   // mouseTargetedBrick = hitObject.transform.parent.gameObject;
                     break;
                 }
             }    
         }
     }
 
+    private GameObject IfChildReturnParent(GameObject targetObject, string excludeObjectName = "Objects")
+    {
+        Transform parentTransform = targetObject.transform.parent;
+        if(parentTransform != null && parentTransform.name != excludeObjectName)
+        {
+            return parentTransform.gameObject;
+        }
+        else 
+        {
+            return targetObject;
+        }
+
+
+    }
+
+    private GameObject IfChildReturnUpperMostParentBesidesRoot(GameObject targetObject, string excludeObjectName = "Objects")
+    {
+
+        int arbNumber = 100;
+
+        Transform parentTransform = targetObject.transform.parent;
+        //Debug.Log(parentTransform);
+        if(parentTransform != null && parentTransform.name != "Objects")
+        {
+            for(int i = 0; i < arbNumber; i++)
+            {
+                parentTransform = targetObject.transform.parent;
+                
+                if(parentTransform.name != excludeObjectName)
+                {    
+                    targetObject = parentTransform.gameObject;      
+                }
+                else
+                {
+                    break;
+                }
+            }  
+            
+            return targetObject;
+        }
+        else 
+        {
+            return targetObject;
+        }
+
+
+    }
     private void MoveSelectedBrickIfToggled()
     {
+
         if (brickFollowCursor && mouseTargetedBrick != null)
         {
+            
             Vector3 grabPointPosition = cameraScript.transform.GetChild(0).transform.position;
 
 
             Rigidbody brickRb = mouseTargetedBrick.GetComponent<Rigidbody>();
 
             brickRb.MovePosition(grabPointPosition);
+            
+            Vector3 tempPos = mouseTargetedBrick.transform.position;
+
+            gridUtility.SnapObjectToGrid(mouseTargetedBrick, brickFollowCursor, this);
+            if(tempPos != mouseTargetedBrick.transform.position) //did it snap?
+            {
+                mouseTargetedBrick = null;
+                brickFollowCursor = false;
+
+            }
+            
         }
     }
 
-    void ProjectGhostOntoRaycastLocation()
+    private void ProjectGhostOntoRaycastLocation()
     {
-        if (ghostBrick!= null && ghostBrick.activeSelf)
+        if (ghostBrick!= null && mouseTargetedBrick)
             {  
                 
-                Vector3 mousePos = Input.mousePosition;
-                Vector3 finalGridPos = gridUtility.GetFinalGridPosition(ghostBrick, mousePos, baseCellSize, Camera.main, raycastUtils);
+
+                ghostBrick.SetActive(true);
+
+                Vector3 tempPos = mouseTargetedBrick.transform.position;
+                ghostBrick.transform.position = tempPos;
                 
-                ghostBrick.transform.position = finalGridPos;
+                gridUtility.SnapObjectToGrid(ghostBrick, brickFollowCursor, this, 6f);
+
+                ghostBrick.transform.parent = GameObject.Find("Objects").transform;
+
+                SetObjectAndChildrenColliderEnabled(ghostBrick, false);
+
+                if(ghostBrick.transform.position == tempPos) //did it NOT snap?
+            {
+                //ghostBrick.SetActive(false);
+
+            }
 
             }
     }
 
+    public void SetObjectAndChildrenColliderEnabled(GameObject targetObject, bool doCollision)
+    {
+        Collider[] childColliders;
+        childColliders = targetObject.GetComponentsInChildren<Collider>();
+
+        for(int i = 0; i < childColliders.Length; i++){
+            childColliders[i].enabled = doCollision;
+        }
+
+        targetObject.GetComponent<Collider>().enabled = doCollision;
+    }
 
     void ShrinkBoxColliderbounds(GameObject targetBrick)
     {
@@ -297,6 +393,39 @@ public class GameController : MonoBehaviour
 
 
     }
+
+
+
+    /*
+        TODO:
+        
+        Add Snapping logic to Moved Bricks - Raycast from all Brick Male & Female Colliders
+
+        Add Inheritence Logic after Snapping into Place.
+        
+
+        Modify Snapping Logic to work from any Angle. Snap must be relative to place being snapped.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    */
 
 
 

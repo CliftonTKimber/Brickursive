@@ -35,18 +35,27 @@ public class UtilsForTests : MonoBehaviour
     }
 
 
-    public GameObject CreateTestCubeForScene(GameObject testCube)
+    public GameObject CreateTestCubeForScene(bool includeChildren = true)
     {
-        if(testCube == null)
-        {
             GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-
             cube.tag = "TestCube";
 
+            if(includeChildren)
+            {
+                GameObject maleSocket = new GameObject();
+                maleSocket.tag = "Male";
+                maleSocket.AddComponent<BoxCollider>();
+                maleSocket.transform.SetParent(cube.transform);
+
+                GameObject femaleSocket = new GameObject();
+                femaleSocket.tag = "Female";
+                femaleSocket.AddComponent<BoxCollider>();
+                femaleSocket.transform.SetParent(cube.transform);
+            }
+
+            
+
             return cube;
-        }
-        else
-            return testCube;
 
     }
 

@@ -28,7 +28,8 @@ public class CameraController : MonoBehaviour
     void Start()
     {
         cam = GetMainCamera();
-        grabPoint = transform.GetChild(0).gameObject;
+        grabPoint = CreateGrabPoint();
+
 
 
         
@@ -131,7 +132,21 @@ public class CameraController : MonoBehaviour
 
     }
 
+    private GameObject CreateGrabPoint()
+    {
 
+
+        GameObject newObject = new GameObject();
+        newObject.name = "Grab Point";
+        newObject.transform.position = new Vector3(0,0,5f) + transform.position;
+        newObject.transform.SetParent(transform);
+
+
+
+        return newObject;
+
+
+    }
 
 
    
