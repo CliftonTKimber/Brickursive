@@ -367,7 +367,6 @@ GameObject:
   - component: {fileID: 8702431319738084347}
   - component: {fileID: 1032300984697107531}
   - component: {fileID: 7477464069308551620}
-  - component: {fileID: -600851843020665248}
   - component: {fileID: -2283859887038992132}
   m_Layer: 10
   m_Name: 4x2 Brick
@@ -468,19 +467,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &-600851843020665248
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8149261047733055879}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7b0a8dd70f7d7624e968da4883e15941, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  isHeld: 0
 --- !u!54 &-2283859887038992132
 Rigidbody:
   m_ObjectHideFlags: 0

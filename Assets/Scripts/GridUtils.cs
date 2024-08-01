@@ -10,10 +10,13 @@ public class GridUtils
     public Vector3 baseCellSize;
     private RaycastUtils raycastUtils;
 
-    public void Start()
+    private GameController gameController;
+
+    public void Start(GameController passGameController)
     {
         baseCellSize = new Vector3(0.78f, 0.32f, 0.78f);
         raycastUtils = new();
+        gameController = passGameController;
     }
 
     // Update is called once per frame
@@ -22,7 +25,7 @@ public class GridUtils
         
     }
 
-    public bool SnapObjectToGrid(GameObject targetObject,  bool objectIsHeld,  GameController gameController, float raycastLength= 0.25f)
+    public void SnapObjectToGrid(GameObject targetObject, GameObject movableGrid,  bool objectIsHeld,   float raycastLength= 0.25f)
     {
         if (objectIsHeld)
         {
@@ -34,39 +37,53 @@ public class GridUtils
                 {
                     RaycastHit rayHit = hitList[i];
                     GameObject hitObject = rayHit.collider.gameObject;
-                    Debug.Log(hitObject);
-                    if(hitObject.CompareTag("Male"))
-                    {
-                       
 
-                        PutObjectOntoGrid(targetObject, rayHit, hitObject, gameController);
-  
-                        return false;
-                    }
-                    else if(hitObject.CompareTag("Female"))
+                    if(hitObject.CompareTag("Male") || hitObject.CompareTag("Female") )
                     {
-                        PutObjectOntoGrid(targetObject, rayHit, hitObject, gameController);
+                        GameObject trueHitObject = hitObject.transform.parent.gameObject;
+                        Vector3 worldPos = trueHitObject.transform.localToWorldMatrix.GetPosition();
+                        Vector3 gridStartPos = GetTopOfClosestLeftCornerOfObject(trueHitObject) + worldPos;
+
+                        movableGrid.transform.position = gridStartPos; 
+                        movableGrid.transform.rotation = trueHitObject.transform.rotation;
                         
-
-                        return false;
-                    }
+                        PutObjectOntoGrid(targetObject, movableGrid, rayHit, trueHitObject, hitObject.tag);
+                    } 
                 }
             }
-            return objectIsHeld;   
         }
-        return objectIsHeld;
     }
 
-    private void PutObjectOntoGrid(GameObject targetObject, RaycastHit rayHit, GameObject hitObject, GameController gameController)
+    
+
+    private void PutObjectOntoGrid(GameObject targetObject, GameObject movableGrid, RaycastHit rayHit, GameObject hitObject, string sideHitTag = "Male")
     {
-        hitObject = hitObject.transform.parent.gameObject;
-        Vector3 finalPos = GetFinalGridPosition(targetObject, rayHit, baseCellSize, raycastUtils);
+        Grid grid = movableGrid.GetComponent<Grid>();
+        Vector3Int gridCoords =  grid.WorldToCell(rayHit.point);
+        
+        Vector3 cellCenter = grid.GetCellCenterWorld(gridCoords);
+
+        Vector3 brickOffset = new(targetObject.transform.localScale.x / 2, targetObject.transform.localScale.y/2, targetObject.transform.localScale.z / 2);
+        Vector3 cellOffset = new(0.78f / 2, 0.32f / 2, 0.78f / 2);
+
+        if(sideHitTag == "Female")
+        {
+            brickOffset -= new Vector3(0, targetObject.transform.localScale.y, 0);
+
+        }
+
 
         targetObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
         targetObject.GetComponent<Rigidbody>().excludeLayers = 7; //Bricks
 
+
+        Vector3 brickCenter = Vector3.Scale(Vector3.one, new Vector3(.5f, .5f, .5f));
+        Vector3 weirdRotation = hitObject.transform.rotation * Vector3.one;
+
+        Vector3 rotatedPos = Vector3.Scale( (cellCenter + brickOffset - cellOffset), weirdRotation);
+
         targetObject.transform.rotation = hitObject.transform.rotation;
-        targetObject.transform.position = finalPos;
+        targetObject.transform.position = cellCenter + brickOffset - cellOffset ;
         targetObject.transform.parent = hitObject.transform;
 
         if(targetObject.name != "Ghost Object")
@@ -91,11 +108,11 @@ public class GridUtils
 
                     Vector3 objectDisplacedPos = GetDifferenceBetweenPositionAndGridPosition(rayHit.collider.transform.position, cellSize);
 
-                    Vector3 brickOffset = GetBottomLeftCornerOfObject(targetBrick);
+                    //Vector3 brickOffset = GetBottomLeftCornerOfObject(targetBrick);
 
 
 
-                    Vector3 finalPosition = gridPosition - brickOffset - hitSideOffset  + objectDisplacedPos;
+                    Vector3 finalPosition = gridPosition; //brickOffset - hitSideOffset  + objectDisplacedPos;
 
                     //Debug.DrawLine(rayPosition, gridPosition);
                     //Debug.DrawLine(gridPosition, gridPosition - brickOffset);
@@ -129,8 +146,19 @@ public class GridUtils
         return hitSideOffset;
     }
 
-    public Vector3 GetBottomLeftCornerOfObject(GameObject targetObject){
-        Vector3 vertexPos = new(1,-1,1); //BL - closest
+   private Vector3 GetTopOfClosestLeftCornerOfObject(GameObject targetObject)
+    {
+        Vector3 vertexPos = new(-1,1,-1); //BL - closest
+        Vector3 cornerPosition = GetCubeVertex(targetObject, vertexPos);
+
+        //Debug.DrawLine(targetObject.transform.position, targetObject.transform.position+ cornerPosition, Color.red, 5f);
+
+        return cornerPosition;
+
+    }
+   
+    public Vector3 GetBottomOfClosestLeftCornerOfObject(GameObject targetObject){
+        Vector3 vertexPos = new(-1,-1,-1); //BL - closest
         Vector3 cornerPosition = GetCubeVertex(targetObject, vertexPos);
 
         //Debug.DrawLine(targetObject.transform.position, targetObject.transform.position+ cornerPosition);
@@ -142,9 +170,10 @@ public class GridUtils
 
     public Vector3 GetCubeVertex(GameObject targetObject, Vector3 targetVertex)
     {
-        float widthOffset  = targetObject.transform.localScale.x / 2 * targetVertex.x;
-        float heightOffset = targetObject.transform.localScale.y / 2 * targetVertex.y;
-        float lengthOffset = targetObject.transform.localScale.z / 2 * targetVertex.z;
+        //Lossy chosen to give World coords
+        float widthOffset  = targetObject.transform.lossyScale.x / 2 * targetVertex.x;
+        float heightOffset = targetObject.transform.lossyScale.y / 2 * targetVertex.y;
+        float lengthOffset = targetObject.transform.lossyScale.z / 2 * targetVertex.z;
 
         Vector3 vertexPosition = new Vector3(widthOffset, heightOffset, lengthOffset);
 
@@ -154,7 +183,19 @@ public class GridUtils
 
     }
 
-    public Vector3 GetBottomMiddleOfCellPosition(Vector3 cellSize, string colliderTag = "Male")
+    public Vector3 GetCenterOfCell_FoundAtClosestBottomLeft(GameObject targetObject, Vector3 cellSize)
+    {
+        Vector3 cblCorner = GetBottomOfClosestLeftCornerOfObject(targetObject);
+        Vector3 cellCenter = new(cellSize.x / 2 ,cellSize.y / 2 ,cellSize.z / 2);
+
+        Vector3 cblCellPos = cblCorner + cellCenter;
+
+        return cblCellPos;
+
+
+
+    }
+    public Vector3 GetTopOrBottomCenterOfCellPosition(Vector3 cellSize, string colliderTag = "Male")
     {
         float heightOffset = 0;
         if (colliderTag == "Female")

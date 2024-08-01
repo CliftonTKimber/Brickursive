@@ -49,17 +49,22 @@ public class GameController : MonoBehaviour
 
     private Vector3 baseCellSize;
 
+
     public float divideAmout = 2f;
+
+    public GameObject movableGrid;
 
     void Start()
     {
         brick = availableBricks[0];
         cameraScript = gameCamera.GetComponent<CameraController>();
+        movableGrid = CreateMovableGrid();
 
         gridUtility = new GridUtils();
         raycastUtils = new RaycastUtils();
-        gridUtility.Start();
+        gridUtility.Start(this);
         raycastUtils.Start();
+
         
 
 
@@ -337,7 +342,9 @@ public class GameController : MonoBehaviour
             
             Vector3 tempPos = mouseTargetedBrick.transform.position;
 
-            gridUtility.SnapObjectToGrid(mouseTargetedBrick, brickFollowCursor, this);
+            gridUtility.SnapObjectToGrid(mouseTargetedBrick, movableGrid, brickFollowCursor);
+
+            
             if(tempPos != mouseTargetedBrick.transform.position) //did it snap?
             {
                 mouseTargetedBrick = null;
@@ -359,7 +366,7 @@ public class GameController : MonoBehaviour
                 Vector3 tempPos = mouseTargetedBrick.transform.position;
                 ghostBrick.transform.position = tempPos;
                 
-                gridUtility.SnapObjectToGrid(ghostBrick, brickFollowCursor, this, 6f);
+                gridUtility.SnapObjectToGrid(ghostBrick, movableGrid, brickFollowCursor,  6f);
 
                 ghostBrick.transform.parent = GameObject.Find("Objects").transform;
 
@@ -367,7 +374,7 @@ public class GameController : MonoBehaviour
 
                 if(ghostBrick.transform.position == tempPos) //did it NOT snap?
             {
-                //ghostBrick.SetActive(false);
+                ghostBrick.SetActive(false);
 
             }
 
@@ -394,7 +401,23 @@ public class GameController : MonoBehaviour
 
     }
 
+    private GameObject CreateMovableGrid()
+    {
+        GameObject gridObject = new();
+        gridObject.name = "Movable Grid";
 
+        //SetParent has WorldPositionStays argument that can decide if world/local values should be used
+
+        //gridObject.transform.SetParent(gameObject.transform);
+
+
+        Grid grid = gridObject.AddComponent<Grid>();
+
+        grid.cellSize = new Vector3(0.78f, 0.32f, 0.78f);     
+
+        return gridObject;
+
+    }
 
     /*
         TODO:

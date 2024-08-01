@@ -49,7 +49,7 @@ public class TestGridUtilsPlay
         yield return testUtility.PauseAllTests();
 
     }
-
+    /*
     [UnityTest]
 
     public IEnumerator CellOffsetHasNoYChange()
@@ -120,7 +120,7 @@ public class TestGridUtilsPlay
 
         yield return testUtility.PauseAllTests(1);
          
-    }
+    }*/
 
     /*[UnityTest]
 

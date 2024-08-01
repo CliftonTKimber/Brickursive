@@ -7,7 +7,7 @@ public class RaycastUtils
 {
 
 
-
+    private GridUtils gridUtils;
     public void Start()
     {
 
@@ -66,7 +66,7 @@ public class RaycastUtils
     }
 
 
-    public List<RaycastHit> GetRaycastHitsFromChildrenBasedOnTags(GameObject targetObject, float rayLength=2f)
+    public List<RaycastHit> GetRaycastHitsFromChildrenBasedOnTags(GameObject targetObject, float rayLength=2f, bool shootFromNearCorner = true)
     {
         List<RaycastHit> hitList = new List<RaycastHit>();
         for (int i = 0; i < targetObject.transform.childCount; i++)
@@ -78,16 +78,29 @@ public class RaycastUtils
 
                 Vector3 lookDirection = childTr.up;
                 Vector3 parentScale = targetObject.transform.localScale;
-                Vector3 childPos = childTr.position + (targetObject.transform.rotation * new Vector3(0, parentScale.y / 2 , 0));
+
+                Vector3 pos = childTr.position;
+
+                if (shootFromNearCorner)
+                {
+                    Vector3 nearCorner = new(parentScale.x / 2, parentScale.y/2, parentScale.z / 2);
+                    Vector3 cellCenter = new(0.78f / 2, 0, 0.78f / 2);
+                    pos = childTr.position - nearCorner + cellCenter;
+                }
+
+
                 if(childTr.CompareTag("Female"))
                 {
-                    lookDirection = Vector3.Scale(lookDirection, new Vector3(1,-1,1)); //lookdire = down
-                    childPos = childTr.position - (targetObject.transform.rotation * new Vector3(0, parentScale.y / 2 , 0));
+                    pos -= new Vector3(0,parentScale.y,0);
+                    lookDirection = Vector3.Scale(lookDirection, new Vector3(-1,-1,-1)); 
                 }
+
+                Vector3 rayOrigin = pos + (targetObject.transform.rotation * new Vector3(0, parentScale.y , 0));
+
 
                 PreventRaycastFromHittingOriginObject(childTr.gameObject);
 
-                RaycastHit rayHit = GetRaycastHitFromPhysicsRaycast(childPos, lookDirection, rayLength);
+                RaycastHit rayHit = GetRaycastHitFromPhysicsRaycast(rayOrigin, lookDirection, rayLength);
 
                 hitList.Add(rayHit);  
             }

@@ -8,6 +8,7 @@ using System.Runtime.Serialization;
 //using System.Numerics;
 
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CameraController : MonoBehaviour
 {
@@ -25,10 +26,13 @@ public class CameraController : MonoBehaviour
 
     private GameObject grabPoint;
 
+
     void Start()
     {
         cam = GetMainCamera();
         grabPoint = CreateGrabPoint();
+
+        
 
 
 
@@ -149,6 +153,7 @@ public class CameraController : MonoBehaviour
     }
 
 
+    
    
 
 }

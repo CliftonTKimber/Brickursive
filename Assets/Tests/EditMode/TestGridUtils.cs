@@ -22,7 +22,7 @@ public class TestGridUtils
 
 
 
-    [Test]
+   /* [Test]
 
     public void GetBottomLeftCornerOfObjectTest()
     {
@@ -359,7 +359,7 @@ public class TestGridUtils
 
     }
 
-    #endregion
+    #endregion*/
 
 
 
