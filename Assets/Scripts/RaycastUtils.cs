@@ -75,23 +75,31 @@ public class RaycastUtils
 
             if(childTr.CompareTag("Male") || childTr.CompareTag("Female"))
             {
+                //Male/Female Colliders MUST NOT take up the same space, or it messes up detection when rotating. Give other box colliders
+                //a scale of .97 across the board to fix this.
 
                 Vector3 lookDirection = childTr.up;
                 Vector3 parentScale = targetObject.transform.localScale;
+                Quaternion partentRotation = targetObject.transform.rotation;
 
                 Vector3 pos = childTr.position;
 
                 if (shootFromNearCorner)
                 {
                     Vector3 nearCorner = new(parentScale.x / 2, parentScale.y/2, parentScale.z / 2);
+                    nearCorner = partentRotation * nearCorner;
+
                     Vector3 cellCenter = new(0.78f / 2, 0, 0.78f / 2);
-                    pos = childTr.position - nearCorner + cellCenter;
+                    cellCenter = partentRotation * cellCenter;
+
+                    pos =  childTr.position - nearCorner + cellCenter;
                 }
 
 
                 if(childTr.CompareTag("Female"))
                 {
-                    pos -= new Vector3(0,parentScale.y,0);
+                    Vector3 scaleOffset = new (0, parentScale.y, 0) ;
+                    pos -= partentRotation * scaleOffset;
                     lookDirection = Vector3.Scale(lookDirection, new Vector3(-1,-1,-1)); 
                 }
 

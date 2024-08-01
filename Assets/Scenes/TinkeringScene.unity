@@ -148,23 +148,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4879001213690342024, guid: 4417a495e2227c24a88b32d8a56efe26, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0.83940524
       objectReference: {fileID: 0}
     - target: {fileID: 4879001213690342024, guid: 4417a495e2227c24a88b32d8a56efe26, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0.3085976
       objectReference: {fileID: 0}
     - target: {fileID: 4879001213690342024, guid: 4417a495e2227c24a88b32d8a56efe26, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 0.1623845
       objectReference: {fileID: 0}
     - target: {fileID: 4879001213690342024, guid: 4417a495e2227c24a88b32d8a56efe26, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0.41689056
       objectReference: {fileID: 0}
     - target: {fileID: 4879001213690342024, guid: 4417a495e2227c24a88b32d8a56efe26, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
+      value: 22.5
       objectReference: {fileID: 0}
     - target: {fileID: 4879001213690342024, guid: 4417a495e2227c24a88b32d8a56efe26, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
@@ -680,7 +680,6 @@ GameObject:
   - component: {fileID: 963194226}
   - component: {fileID: 963194229}
   - component: {fileID: 963194230}
-  - component: {fileID: 963194231}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -808,30 +807,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
---- !u!114 &963194231
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 963194225}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a8695521f0d02e499659fee002a26c2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Padding:
-    m_Left: 0
-    m_Right: 0
-    m_Top: 0
-    m_Bottom: 0
-  m_ChildAlignment: 0
-  m_StartCorner: 0
-  m_StartAxis: 0
-  m_CellSize: {x: 100, y: 100}
-  m_Spacing: {x: 0, y: 0}
-  m_Constraint: 0
-  m_ConstraintCount: 2
 --- !u!4 &1172389474 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4879001213690342024, guid: 4417a495e2227c24a88b32d8a56efe26, type: 3}

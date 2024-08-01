@@ -364,6 +364,7 @@ public class GameController : MonoBehaviour
                 ghostBrick.SetActive(true);
 
                 Vector3 tempPos = mouseTargetedBrick.transform.position;
+                ghostBrick.transform.rotation = mouseTargetedBrick.transform.rotation;
                 ghostBrick.transform.position = tempPos;
                 
                 gridUtility.SnapObjectToGrid(ghostBrick, movableGrid, brickFollowCursor,  6f);
@@ -374,7 +375,7 @@ public class GameController : MonoBehaviour
 
                 if(ghostBrick.transform.position == tempPos) //did it NOT snap?
             {
-                ghostBrick.SetActive(false);
+                //ghostBrick.SetActive(false);
 
             }
 
@@ -412,8 +413,15 @@ public class GameController : MonoBehaviour
 
 
         Grid grid = gridObject.AddComponent<Grid>();
+        MeshFilter filter = gridObject.AddComponent<MeshFilter>();
+        MeshRenderer renderer = gridObject.AddComponent<MeshRenderer>();
 
-        grid.cellSize = new Vector3(0.78f, 0.32f, 0.78f);     
+
+        grid.cellSize = new Vector3(0.78f, 0.32f, 0.78f);  
+        filter.mesh = Resources.Load<Mesh>("Capsule");
+        renderer.material = Resources.Load<Material>("Default");
+
+         
 
         return gridObject;
 

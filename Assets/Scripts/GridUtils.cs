@@ -42,7 +42,9 @@ public class GridUtils
                     {
                         GameObject trueHitObject = hitObject.transform.parent.gameObject;
                         Vector3 worldPos = trueHitObject.transform.localToWorldMatrix.GetPosition();
-                        Vector3 gridStartPos = GetTopOfClosestLeftCornerOfObject(trueHitObject) + worldPos;
+                        Vector3 gridStartPos = trueHitObject.transform.rotation *GetTopOfClosestLeftCornerOfObject(trueHitObject)
+                         + worldPos; 
+
 
                         movableGrid.transform.position = gridStartPos; 
                         movableGrid.transform.rotation = trueHitObject.transform.rotation;
@@ -60,15 +62,21 @@ public class GridUtils
     {
         Grid grid = movableGrid.GetComponent<Grid>();
         Vector3Int gridCoords =  grid.WorldToCell(rayHit.point);
+
+        Debug.Log(gridCoords);
         
         Vector3 cellCenter = grid.GetCellCenterWorld(gridCoords);
 
-        Vector3 brickOffset = new(targetObject.transform.localScale.x / 2, targetObject.transform.localScale.y/2, targetObject.transform.localScale.z / 2);
+        Vector3 brickOffset = new(targetObject.transform.lossyScale.x / 2, targetObject.transform.lossyScale.y/2, targetObject.transform.lossyScale.z / 2);
+        brickOffset = hitObject.transform.rotation * brickOffset; //ESSENTIAL! ALLOWS ROTATIONS TO BE INCORPERATED
+
+
         Vector3 cellOffset = new(0.78f / 2, 0.32f / 2, 0.78f / 2);
 
         if(sideHitTag == "Female")
         {
-            brickOffset -= new Vector3(0, targetObject.transform.localScale.y, 0);
+            Vector3 scaleOffset = new Vector3(0, targetObject.transform.lossyScale.y, 0);
+            brickOffset -= hitObject.transform.rotation * scaleOffset;
 
         }
 
@@ -77,13 +85,11 @@ public class GridUtils
         targetObject.GetComponent<Rigidbody>().excludeLayers = 7; //Bricks
 
 
-        Vector3 brickCenter = Vector3.Scale(Vector3.one, new Vector3(.5f, .5f, .5f));
-        Vector3 weirdRotation = hitObject.transform.rotation * Vector3.one;
+        Vector3 newPos = cellCenter + brickOffset - cellOffset;
 
-        Vector3 rotatedPos = Vector3.Scale( (cellCenter + brickOffset - cellOffset), weirdRotation);
 
         targetObject.transform.rotation = hitObject.transform.rotation;
-        targetObject.transform.position = cellCenter + brickOffset - cellOffset ;
+        targetObject.transform.position = newPos;
         targetObject.transform.parent = hitObject.transform;
 
         if(targetObject.name != "Ghost Object")
