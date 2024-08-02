@@ -47,7 +47,7 @@ public class GameController : MonoBehaviour
     private RaycastUtils raycastUtils;
 
 
-    private Vector3 baseCellSize;
+    public Vector3 baseCellSize;
 
 
     public float divideAmout = 2f;
@@ -58,7 +58,9 @@ public class GameController : MonoBehaviour
     {
         brick = availableBricks[0];
         cameraScript = gameCamera.GetComponent<CameraController>();
+        baseCellSize = new(0.78f, 0.32f, 0.78f);
         movableGrid = CreateMovableGrid();
+        
 
         gridUtility = new GridUtils();
         raycastUtils = new RaycastUtils();
@@ -68,11 +70,11 @@ public class GameController : MonoBehaviour
         
 
 
-        baseCellSize = gridUtility.baseCellSize;
+        
 
 
 
-        MakeGhostVersionOfCurrentBrick();
+        MakeGhostVersionOfCurrentBrick(brick);
 
         
     }
@@ -101,13 +103,13 @@ public class GameController : MonoBehaviour
 
     }
 
-    private void MakeGhostVersionOfCurrentBrick()
+    private void MakeGhostVersionOfCurrentBrick(GameObject chosenBrick)
         {
             if(ghostBrick!=null){
                 Destroy(ghostBrick);
             }
 
-            ghostBrick = Instantiate(brick, transform.position, transform.rotation);
+            ghostBrick = Instantiate(chosenBrick, transform.position, transform.rotation);
 
 
             bool doCollide = false;
@@ -151,7 +153,7 @@ public class GameController : MonoBehaviour
              {
                 brickSelector++;   
                 brick = availableBricks[brickSelector];
-                MakeGhostVersionOfCurrentBrick();
+                MakeGhostVersionOfCurrentBrick(brick);
             }
         }
         else if(Input.GetKeyDown("o"))
@@ -160,45 +162,20 @@ public class GameController : MonoBehaviour
              {
                 brickSelector--;
                 brick = availableBricks[brickSelector];
-                MakeGhostVersionOfCurrentBrick();
+                MakeGhostVersionOfCurrentBrick(brick);
              }
         }
 
         
     }
 
-    void SpawnBrickOnMouseClick()
-    {
-        int left = 0;
-        if (Input.GetMouseButtonUp(left))
-        {
-                RaycastHit rayHit = raycastUtils.GetRaycastHitFromCameraRay(Input.mousePosition, Camera.main);
-                Vector3 finalGridPos = gridUtility.GetFinalGridPosition(brick, rayHit, baseCellSize, raycastUtils);
-
-                Vector3 brickPosition = finalGridPos;
-
-                //Gives the bricks a little randomness to make things feel less steril
-                float randX = UnityEngine.Random.Range(-0.02f,0.01f);
-                float randY = UnityEngine.Random.Range(-0.02f,0.01f);
-                float randZ = UnityEngine.Random.Range(-0.02f,0.01f);
-
-
-                GameObject temporaryBrick = Instantiate(brick, brickPosition, transform.rotation);
-
-                temporaryBrick.transform.localScale += new Vector3(randX, randY, randZ);   
-
-        }
-    }
-
-
     void SpawnBrickIntoTheAirOnKeyDown()
     {
         if (Input.GetKeyDown("r"))
         {
-                Vector3 spawnPos = cameraScript.transform.position + Vector3.Scale(cameraScript.transform.forward, new Vector3(1,1,spawnDistance));
+                Vector3 spawnPos = cameraScript.transform.GetChild(0).position;
 
                 Transform objectFolder = GameObject.Find("Objects").transform;
-
 
                 GameObject temporaryBrick = Instantiate(brick, spawnPos, transform.rotation, objectFolder);
 
@@ -273,26 +250,11 @@ public class GameController : MonoBehaviour
                     mouseTargetedBrick = IfChildReturnUpperMostParentBesidesRoot(hitTransform.gameObject);
 
                     SetObjectAndChildrenColliderEnabled(mouseTargetedBrick, false);
-                   // mouseTargetedBrick = hitObject.transform.parent.gameObject;
+                    MakeGhostVersionOfCurrentBrick(mouseTargetedBrick);
                     break;
                 }
             }    
         }
-    }
-
-    private GameObject IfChildReturnParent(GameObject targetObject, string excludeObjectName = "Objects")
-    {
-        Transform parentTransform = targetObject.transform.parent;
-        if(parentTransform != null && parentTransform.name != excludeObjectName)
-        {
-            return parentTransform.gameObject;
-        }
-        else 
-        {
-            return targetObject;
-        }
-
-
     }
 
     private GameObject IfChildReturnUpperMostParentBesidesRoot(GameObject targetObject, string excludeObjectName = "Objects")
@@ -364,9 +326,8 @@ public class GameController : MonoBehaviour
                 ghostBrick.SetActive(true);
 
                 Vector3 tempPos = mouseTargetedBrick.transform.position;
-                ghostBrick.transform.rotation = mouseTargetedBrick.transform.rotation;
-                ghostBrick.transform.position = tempPos;
-                
+                ghostBrick.transform.SetPositionAndRotation(tempPos, mouseTargetedBrick.transform.rotation);
+
                 gridUtility.SnapObjectToGrid(ghostBrick, movableGrid, brickFollowCursor,  6f);
 
                 ghostBrick.transform.parent = GameObject.Find("Objects").transform;
@@ -374,10 +335,10 @@ public class GameController : MonoBehaviour
                 SetObjectAndChildrenColliderEnabled(ghostBrick, false);
 
                 if(ghostBrick.transform.position == tempPos) //did it NOT snap?
-            {
-                //ghostBrick.SetActive(false);
+                {
+                    ghostBrick.SetActive(false);
 
-            }
+                }
 
             }
     }
@@ -394,34 +355,20 @@ public class GameController : MonoBehaviour
         targetObject.GetComponent<Collider>().enabled = doCollision;
     }
 
-    void ShrinkBoxColliderbounds(GameObject targetBrick)
-    {
-        Vector3 boxSize = targetBrick.GetComponent<BoxCollider>().size;
-        targetBrick.GetComponent<BoxCollider>().size = Vector3.Scale(new Vector3(0.1f,0.1f,0.1f), boxSize);
-
-
-    }
-
+  
     private GameObject CreateMovableGrid()
     {
         GameObject gridObject = new();
         gridObject.name = "Movable Grid";
-
-        //SetParent has WorldPositionStays argument that can decide if world/local values should be used
-
-        //gridObject.transform.SetParent(gameObject.transform);
-
 
         Grid grid = gridObject.AddComponent<Grid>();
         MeshFilter filter = gridObject.AddComponent<MeshFilter>();
         MeshRenderer renderer = gridObject.AddComponent<MeshRenderer>();
 
 
-        grid.cellSize = new Vector3(0.78f, 0.32f, 0.78f);  
-        filter.mesh = Resources.Load<Mesh>("Capsule");
-        renderer.material = Resources.Load<Material>("Default");
-
-         
+        grid.cellSize = new Vector3(0.78f, 0.32f, 0.78f); 
+        //filter.mesh = Resources.Load<Mesh>("Plane");
+        //renderer.material = Resources.Load<Material>("Default");
 
         return gridObject;
 

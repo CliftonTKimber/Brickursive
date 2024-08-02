@@ -27,14 +27,12 @@ public class RaycastUtils
         if(Physics.Raycast(startPos, lookDirection, out RaycastHit hitInfo, rayLength))
             {
             Vector3 scaledDirection = Vector3.Scale(lookDirection, new Vector3(rayLength,rayLength,rayLength) );
-            Debug.DrawRay(startPos, scaledDirection, rayColor);
             return hitInfo;     
             }
   
         else
             {
             Vector3 scaledDirection = Vector3.Scale(lookDirection, new Vector3(rayLength,rayLength,rayLength) );
-            Debug.DrawRay(startPos, scaledDirection, Color.red, rayLength);
             return hitInfo; //empty   
             }
         
@@ -71,58 +69,58 @@ public class RaycastUtils
         List<RaycastHit> hitList = new List<RaycastHit>();
         for (int i = 0; i < targetObject.transform.childCount; i++)
         {
-            Transform childTr = targetObject.transform.GetChild(i);
-
-            if(childTr.CompareTag("Male") || childTr.CompareTag("Female"))
-            {
-                //Male/Female Colliders MUST NOT take up the same space, or it messes up detection when rotating. Give other box colliders
-                //a scale of .97 across the board to fix this.
-
-                Vector3 lookDirection = childTr.up;
-                Vector3 parentScale = targetObject.transform.localScale;
-                Quaternion partentRotation = targetObject.transform.rotation;
-
-                Vector3 pos = childTr.position;
-
-                if (shootFromNearCorner)
-                {
-                    Vector3 nearCorner = new(parentScale.x / 2, parentScale.y/2, parentScale.z / 2);
-                    nearCorner = partentRotation * nearCorner;
-
-                    Vector3 cellCenter = new(0.78f / 2, 0, 0.78f / 2);
-                    cellCenter = partentRotation * cellCenter;
-
-                    pos =  childTr.position - nearCorner + cellCenter;
-                }
-
-
-                if(childTr.CompareTag("Female"))
-                {
-                    Vector3 scaleOffset = new (0, parentScale.y, 0) ;
-                    pos -= partentRotation * scaleOffset;
-                    lookDirection = Vector3.Scale(lookDirection, new Vector3(-1,-1,-1)); 
-                }
-
-                Vector3 rayOrigin = pos + (targetObject.transform.rotation * new Vector3(0, parentScale.y , 0));
-
-
-                PreventRaycastFromHittingOriginObject(childTr.gameObject);
-
-                RaycastHit rayHit = GetRaycastHitFromPhysicsRaycast(rayOrigin, lookDirection, rayLength);
-
-                hitList.Add(rayHit);  
-            }
+            Transform childTransform = targetObject.transform.GetChild(i);
+            AddRaycastHitIfCorrectChildTag(hitList, targetObject, childTransform, rayLength, shootFromNearCorner);
         }
         return hitList;
     }
 
-    private void ResetBoxColliders(GameObject targetObject)
+    private void AddRaycastHitIfCorrectChildTag(List<RaycastHit> hitList, GameObject targetObject, Transform childTransform,  float rayLength, bool shootFromNearCorner)
     {
-        BoxCollider boxCollider =  targetObject.GetComponent<BoxCollider>();
-        if(boxCollider != null)
+        if (childTransform.CompareTag("Male") || childTransform.CompareTag("Female"))
         {
-            boxCollider.enabled = true;
+            //Male/Female Colliders MUST NOT take up the same space as the parent collider, or it messes up detection when rotating. Give other box colliders
+            //a scale of .97 across the board to fix this.
+
+            Vector3 lookDirection = childTransform.up;
+            Vector3 parentScale = targetObject.transform.localScale;
+            Quaternion partentRotation = targetObject.transform.rotation;
+
+            Vector3 pos = childTransform.position;
+            pos = AdjustRaycastOriginIfTrue(shootFromNearCorner, childTransform, parentScale, partentRotation, pos);
+
+            if (childTransform.CompareTag("Female"))
+            {
+                Vector3 scaleOffset = new(0, parentScale.y, 0);
+                pos -= partentRotation * scaleOffset;
+                lookDirection = Vector3.Scale(lookDirection, new Vector3(-1, -1, -1));
+            }
+
+            Vector3 rayOrigin = pos + (targetObject.transform.rotation * new Vector3(0, parentScale.y, 0));
+
+
+            PreventRaycastFromHittingOriginObject(childTransform.gameObject);
+
+            RaycastHit rayHit = GetRaycastHitFromPhysicsRaycast(rayOrigin, lookDirection, rayLength);
+
+            hitList.Add(rayHit);
         }
+    }
+
+    private static Vector3 AdjustRaycastOriginIfTrue(bool shootFromNearCorner, Transform childTr, Vector3 parentScale, Quaternion partentRotation, Vector3 pos)
+    {
+        if (shootFromNearCorner)
+        {
+            Vector3 nearCorner = new(parentScale.x / 2, parentScale.y / 2, parentScale.z / 2);
+            nearCorner = partentRotation * nearCorner;
+
+            Vector3 cellCenter = new(0.78f / 2, 0, 0.78f / 2);
+            cellCenter = partentRotation * cellCenter;
+
+            pos = childTr.position - nearCorner + cellCenter;
+        }
+
+        return pos;
     }
 
     public void PreventRaycastFromHittingOriginObject(GameObject targetObject)
@@ -132,33 +130,7 @@ public class RaycastUtils
         {
             boxCollider.enabled = false;
         }
-
-    }
-    public bool IsPositionAvailable(GridUtils gridUtilScript, GameObject targetBrick, RaycastHit rayHit)
-    {
-        bool boolA = DidRayHitFindViableSurface(rayHit);
-        //SHOULD LATER FIND WAYS TO STOP CALLING THIS EXPENSIVE FUNCTION WHEN UNEEDED
-        bool boolB = gridUtilScript.IsBrickWithinSurroundingObjects(targetBrick);
-
-        return boolA && !boolB;
     }
 
-    public bool DidRayHitFindViableSurface(RaycastHit rayHit)
-    {
-
-        if(rayHit.collider == null)
-            return false;
-
-        string colliderTag = rayHit.collider.tag;
-
-        if(colliderTag == "Male")
-            return true;
-        else if (colliderTag == "Female")
-            return true;
-        else
-            return false;
-
-
-    }
       
 }

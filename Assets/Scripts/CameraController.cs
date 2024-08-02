@@ -140,9 +140,10 @@ public class CameraController : MonoBehaviour
     {
 
 
-        GameObject newObject = new GameObject();
+        GameObject newObject = new();
         newObject.name = "Grab Point";
-        newObject.transform.position = new Vector3(0,0,5f) + transform.position;
+        Vector3 newPos = new(0,0,5f);
+        newObject.transform.position = transform.rotation * newPos + transform.position;
         newObject.transform.SetParent(transform);
 
 

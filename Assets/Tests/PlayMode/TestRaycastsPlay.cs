@@ -235,31 +235,7 @@ public class TestRaycastsPlay
     }
    #endregion
 
-   #region 
 
-    [UnityTest]
-
-    public IEnumerator DidRayHitViableSurfaceIsTrue([ValueSource("testTagStrings")] string tagString)
-    {
-        //Assign
-
-        testCube.GetComponent<Collider>().tag = tagString;
-    
-        //Act
-        tempSceneCamera.transform.position -= tempSceneCamera.transform.forward;
-        tempSceneCamera.transform.LookAt(testCube.transform);
-
-
-        RaycastHit raycastHit = raycastUtils.GetRaycastHitFromCameraRay(camScript.GetMouseScreenCenter(tempSceneCamera),tempSceneCamera.GetComponent<Camera>());
-        bool canPlace = raycastUtils.DidRayHitFindViableSurface(raycastHit);
-
-        //Assert
-        Assert.IsTrue(canPlace);
-
-        
-        yield return testUtility.PauseAllTests();
-    }
-    #endregion
 
     [UnityTest]
 
