@@ -24,7 +24,7 @@ public class CameraController : MonoBehaviour
 
     private Camera cam;
 
-    private GameObject grabPoint;
+    public GameObject grabPoint;
 
 
     void Start()
@@ -54,6 +54,7 @@ public class CameraController : MonoBehaviour
     {
         ControlCameraWithKeyboard();
         ControlCameraRotationWithMouse();
+        ControlGrabPointWithKeyboard();
         //CreateAndUpdateRayAtCursor();
 
     }
@@ -84,6 +85,21 @@ public class CameraController : MonoBehaviour
         else if (Input.GetKey("left shift"))
             transform.Translate(-Vector3.up * cameraMoveSpeed * Time.deltaTime, Space.Self);
         
+
+
+    }
+    private void ControlGrabPointWithKeyboard()
+    {
+        if (Input.GetKey("1"))
+        {
+            grabPoint.transform.Translate( transform.forward, Space.World );
+            
+        }
+         else if (Input.GetKey("2"))
+        {
+            grabPoint.transform.Translate(Vector3.Scale(transform.forward, new Vector3(-1,-1,-1) ), Space.World );
+        }
+
 
 
     }

@@ -2,12 +2,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static GameConfig;
 
 public class RaycastUtils
 {
 
-
-    private GridUtils gridUtils;
     public void Start()
     {
 
@@ -22,19 +21,34 @@ public class RaycastUtils
 
 
     public RaycastHit GetRaycastHitFromPhysicsRaycast(Vector3 startPos, Vector3 lookDirection, float rayLength = 10f)
-        {
+    {
         Color rayColor = Color.green;
         if(Physics.Raycast(startPos, lookDirection, out RaycastHit hitInfo, rayLength))
-            {
-            Vector3 scaledDirection = Vector3.Scale(lookDirection, new Vector3(rayLength,rayLength,rayLength) );
+        {
             return hitInfo;     
-            }
+        }
   
         else
-            {
-            Vector3 scaledDirection = Vector3.Scale(lookDirection, new Vector3(rayLength,rayLength,rayLength) );
+        {
+            //Debug.DrawRay(startPos, lookDirection);
             return hitInfo; //empty   
-            }
+        }    
+    }
+
+    public RaycastHit RED_GetRaycastHitFromPhysicsRaycast(Vector3 startPos, Vector3 lookDirection, float rayLength = 10f)
+        {
+        Color rayColor = Color.red;
+        if(Physics.Raycast(startPos, lookDirection, out RaycastHit hitInfo, rayLength))
+        {
+            Debug.DrawRay(startPos, lookDirection, Color.green);
+            return hitInfo;     
+        }
+  
+        else
+        {
+            Debug.DrawRay(startPos, lookDirection, rayColor);
+            return hitInfo; //empty   
+        }
         
         
         
@@ -77,7 +91,7 @@ public class RaycastUtils
 
     private void AddRaycastHitIfCorrectChildTag(List<RaycastHit> hitList, GameObject targetObject, Transform childTransform,  float rayLength, bool shootFromNearCorner)
     {
-        if (childTransform.CompareTag("Male") || childTransform.CompareTag("Female"))
+        if (childTransform.CompareTag(SOCKET_TAG_MALE) || childTransform.CompareTag(SOCKET_TAG_FEMALE))
         {
             //Male/Female Colliders MUST NOT take up the same space as the parent collider, or it messes up detection when rotating. Give other box colliders
             //a scale of .97 across the board to fix this.
@@ -89,11 +103,11 @@ public class RaycastUtils
             Vector3 pos = childTransform.position;
             pos = AdjustRaycastOriginIfTrue(shootFromNearCorner, childTransform, parentScale, partentRotation, pos);
 
-            if (childTransform.CompareTag("Female"))
+            if (childTransform.CompareTag(SOCKET_TAG_FEMALE))
             {
                 Vector3 scaleOffset = new(0, parentScale.y, 0);
                 pos -= partentRotation * scaleOffset;
-                lookDirection = Vector3.Scale(lookDirection, new Vector3(-1, -1, -1));
+                lookDirection = -lookDirection;
             }
 
             Vector3 rayOrigin = pos + (targetObject.transform.rotation * new Vector3(0, parentScale.y, 0));
@@ -114,7 +128,7 @@ public class RaycastUtils
             Vector3 nearCorner = new(parentScale.x / 2, parentScale.y / 2, parentScale.z / 2);
             nearCorner = partentRotation * nearCorner;
 
-            Vector3 cellCenter = new(0.78f / 2, 0, 0.78f / 2);
+            Vector3 cellCenter = new(BASE_CELL_SIZE.x / 2, 0, BASE_CELL_SIZE.z / 2);
             cellCenter = partentRotation * cellCenter;
 
             pos = childTr.position - nearCorner + cellCenter;
@@ -125,12 +139,102 @@ public class RaycastUtils
 
     public void PreventRaycastFromHittingOriginObject(GameObject targetObject)
     {
-        BoxCollider boxCollider =  targetObject.GetComponent<BoxCollider>();
-        if(boxCollider != null)
+        Collider collider =  targetObject.GetComponent<Collider>();
+        if(collider != null)
         {
-            boxCollider.enabled = false;
+            collider.enabled = false;
         }
     }
 
-      
+    public void CastRaycastsFromEachCell(GameObject targetObject)
+    {
+
+        List<GameObject> allSockets = GetChildSocketsRecursive(targetObject);
+
+        for(int i = 0; i < allSockets.Count; i++)
+        {
+           GameObject brickSocket = allSockets[i];
+
+           Vector3 gridUnitScale = GridUtils.ScaleToGridUnits(brickSocket);
+
+            CastFromEachSocket(brickSocket, gridUnitScale);
+
+        }
+
+        
+
+        /// Get every object within targetobject until all sockets have been found
+        /// split sockets into cells
+        /// cast rays from each cell
+
+
+    }
+
+
+    public List<GameObject> GetChildSocketsRecursive(GameObject targetObject)
+    {
+        List<GameObject> allSockets = new();
+        for (int i = 0; i < targetObject.transform.childCount; i++)
+        {
+            GameObject child = targetObject.transform.GetChild(i).gameObject;
+            if (child.CompareTag(SOCKET_TAG_MALE) || child.CompareTag(SOCKET_TAG_FEMALE))
+            {
+                allSockets.Add(child);
+            }
+            else if (child.CompareTag(BASE_BRICK_TAG))
+            {
+                List<GameObject> grandChildren = GetChildSocketsRecursive(child);
+                for(int j = 0; j < grandChildren.Count; j++)
+                {
+                    GameObject grandChild = grandChildren[j];
+                    allSockets.Add(grandChild);
+                }
+            }
+        }
+
+        return allSockets;
+    }     
+
+    public void CastFromEachSocket(GameObject targetObject, Vector3 gridScale)
+    {
+        Vector3 lookDir = targetObject.transform.up;
+        float yOffset = 0.025f;
+        float heightOffset = targetObject.transform.parent.transform.lossyScale.y;
+        if(targetObject.CompareTag(SOCKET_TAG_FEMALE))
+        {
+            lookDir = Vector3.Scale(lookDir, new Vector3(-1,-1,-1));
+            yOffset = -0.025f;
+            heightOffset = 0;
+        }
+        Vector3 cornerOffset = GridUtils.GetBottomOfClosestLeftCornerOfObject(targetObject);
+        cornerOffset.y += yOffset + heightOffset;
+        Vector3 centerCellOffset = Vector3.Scale(BASE_CELL_SIZE, new Vector3(0.5f, 0f, 0.5f));
+
+        for(int i = 0; i < gridScale.x; i++)
+        {
+            for(int j = 0; j < gridScale.z; j++)
+            {
+                
+                Vector3 unitOffset = Vector3.Scale(new Vector3(i,0,j), BASE_CELL_SIZE); 
+                
+                unitOffset = targetObject.transform.rotation * (unitOffset + centerCellOffset + cornerOffset );
+
+                Vector3 newPos = targetObject.transform.position;
+
+                newPos = newPos + unitOffset;
+
+
+                
+                RED_GetRaycastHitFromPhysicsRaycast(newPos, lookDir);
+            }
+
+
+        }
+
+
+
+
+
+    }
+
 }

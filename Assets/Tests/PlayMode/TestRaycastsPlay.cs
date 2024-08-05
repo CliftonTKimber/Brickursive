@@ -236,6 +236,56 @@ public class TestRaycastsPlay
    #endregion
 
 
+    [UnityTest]
+
+    public IEnumerator Test_GetChildSocketsRecursive()
+    
+    {
+        TrySetupScene();
+
+        GameObject newCube = testUtility.CreateTestCubeForScene(true);
+        GameObject newCube2 = testUtility.CreateTestCubeForScene(true);
+        GameObject newCube3 = testUtility.CreateTestCubeForScene(true);
+
+        newCube3.transform.parent = newCube2.transform;
+        newCube2.transform.parent = newCube.transform;
+        newCube.transform.parent = testCube.transform;
+
+
+
+        List<GameObject> allSockets = raycastUtils.GetChildSocketsRecursive(testCube);
+
+
+        Assert.Equals(8, allSockets);
+
+        yield return testUtility.PauseAllTests();
+    }
+
+    [UnityTest]
+
+    public IEnumerator Test_CastRaycastsFromEachCell()
+    
+    {
+        TrySetupScene();
+
+        GameObject newCube = testUtility.CreateTestCubeForScene(true);
+        GameObject newCube2 = testUtility.CreateTestCubeForScene(true);
+        GameObject newCube3 = testUtility.CreateTestCubeForScene(true);
+
+        newCube3.transform.parent = newCube2.transform;
+        newCube2.transform.parent = newCube.transform;
+        newCube.transform.parent = testCube.transform;
+
+        raycastUtils.CastRaycastsFromEachCell(testCube);
+
+
+
+
+        yield return testUtility.PauseAllTests(2);
+    }
+
+
+
 
     [UnityTest]
 

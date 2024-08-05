@@ -1,13 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor.Overlays;
+using static GameConfig;
 
 
 //using System.Numerics;
 using UnityEngine;
-using UnityEngine.Animations;
 
 
 
@@ -46,19 +44,16 @@ public class GameController : MonoBehaviour
 
     private RaycastUtils raycastUtils;
 
-
     public Vector3 baseCellSize;
 
-
-    public float divideAmout = 2f;
-
     public GameObject movableGrid;
+
 
     void Start()
     {
         brick = availableBricks[0];
         cameraScript = gameCamera.GetComponent<CameraController>();
-        baseCellSize = new(0.78f, 0.32f, 0.78f);
+        baseCellSize = BASE_CELL_SIZE;
         movableGrid = CreateMovableGrid();
         
 
@@ -103,6 +98,7 @@ public class GameController : MonoBehaviour
 
     }
 
+  
     private void MakeGhostVersionOfCurrentBrick(GameObject chosenBrick)
         {
             if(ghostBrick!=null){
@@ -115,22 +111,23 @@ public class GameController : MonoBehaviour
             bool doCollide = false;
             ghostBrick.GetComponent<BoxCollider>().enabled = doCollide;
 
-            ghostBrick.name = "Ghost Brick";
+            ghostBrick.name = GHOST_BRICK_NAME;
 
            
 
             if (ghostBrick.GetComponent<MeshRenderer>() != null)
-                ghostBrick.GetComponent<MeshRenderer>().material = ghostMaterial;
-
             {
-                MeshRenderer[] children;
-                children = ghostBrick.GetComponentsInChildren<MeshRenderer>();
-
-                //Debug.Log(children.Length);
-                for(int i = 0; i < children.Length; i++){
-                    children[i].material = ghostMaterial;
-                }
+                ghostBrick.GetComponent<MeshRenderer>().material = ghostMaterial;
             }
+
+            
+            MeshRenderer[] children;
+            children = ghostBrick.GetComponentsInChildren<MeshRenderer>();
+
+            for(int i = 0; i < children.Length; i++){
+                children[i].material = ghostMaterial;
+            }
+            
 
 
             Collider[] childColliders;
@@ -173,15 +170,11 @@ public class GameController : MonoBehaviour
     {
         if (Input.GetKeyDown("r"))
         {
-                Vector3 spawnPos = cameraScript.transform.GetChild(0).position;
+                Vector3 spawnPos = cameraScript.grabPoint.transform.position;
 
                 Transform objectFolder = GameObject.Find("Objects").transform;
 
-                GameObject temporaryBrick = Instantiate(brick, spawnPos, transform.rotation, objectFolder);
-
-                
-
-
+                Instantiate(brick, spawnPos, transform.rotation, objectFolder);
         }
 
     }
@@ -194,28 +187,32 @@ public class GameController : MonoBehaviour
             ToggleBrickMovementSelection();
         }
 
+
         MoveSelectedBrickIfToggled();
 
     }
 
     private void ToggleBrickMovementSelection()
     {
-        RaycastHit rayHit = raycastUtils.GetRaycastHitFromCameraRay(Input.mousePosition, Camera.main, 20f);
+        RaycastHit rayHit = raycastUtils.GetRaycastHitFromPhysicsRaycast(cameraScript.transform.position, cameraScript.transform.forward, RAY_LENGTH_FOR_BRICK_SELECTION);
         if (rayHit.collider != null)
         {
             GameObject hitObject = rayHit.collider.gameObject;
 
             if (!brickFollowCursor)
             {
-                string basicTag = "Brick";
-                string[] childTags = new string[] {"Male", "Female"}; 
+                string basicTag = BASE_BRICK_TAG;
+                string[] childTags = new string[] {SOCKET_TAG_MALE, SOCKET_TAG_FEMALE}; 
 
                 SelectObjectBasedOnTag(hitObject.transform, basicTag, childTags);
             }
             else
             {
                 if(mouseTargetedBrick != null)
+                {
                     SetObjectAndChildrenColliderEnabled(mouseTargetedBrick, true);
+                }
+
                 brickFollowCursor = false;
                 mouseTargetedBrick = null;
 
@@ -226,7 +223,9 @@ public class GameController : MonoBehaviour
         else
         {
             if(mouseTargetedBrick != null)
+            {
                 SetObjectAndChildrenColliderEnabled(mouseTargetedBrick, true);
+            }
             brickFollowCursor = false;
             mouseTargetedBrick = null;
         }
@@ -239,6 +238,11 @@ public class GameController : MonoBehaviour
         {
             brickFollowCursor = true;
             mouseTargetedBrick = hitTransform.gameObject;
+            /*if(!Input.GetKey("left ctrl"))
+            {  
+                IfHasChildrenDetatch(mouseTargetedBrick);
+            }*/
+
         }
         else
         {
@@ -247,9 +251,24 @@ public class GameController : MonoBehaviour
                 if (hitTransform.CompareTag(childObjectTags[i]) && !brickFollowCursor)
                 {
                     brickFollowCursor = true;
-                    mouseTargetedBrick = IfChildReturnUpperMostParentBesidesRoot(hitTransform.gameObject);
+                    /*if(Input.GetKey("left ctrl"))
+                    {*/
+                        mouseTargetedBrick = IfChildReturnUpperMostParentBesidesRoot(hitTransform.gameObject);
+                        brickFollowCursor = true;
+                    /*}
+                    else
+                    {
+                        //Debug.Log("work");
+
+                        mouseTargetedBrick = IfSocketReturnBrick(hitTransform.gameObject);
+                        mouseTargetedBrick.transform.parent = GameObject.Find("Objects").transform;
+                        IfHasChildrenDetatch(mouseTargetedBrick);
+                        brickFollowCursor = true;
+                    }*/
+
 
                     SetObjectAndChildrenColliderEnabled(mouseTargetedBrick, false);
+
                     MakeGhostVersionOfCurrentBrick(mouseTargetedBrick);
                     break;
                 }
@@ -264,7 +283,7 @@ public class GameController : MonoBehaviour
 
         Transform parentTransform = targetObject.transform.parent;
         //Debug.Log(parentTransform);
-        if(parentTransform != null && parentTransform.name != "Objects")
+        if(parentTransform != null && parentTransform.name != OBJECT_FOLDER_NAME)
         {
             for(int i = 0; i < arbNumber; i++)
             {
@@ -289,22 +308,72 @@ public class GameController : MonoBehaviour
 
 
     }
+    
+    private GameObject IfSocketReturnBrick(GameObject targetObject)
+    {
+        
+
+        if(targetObject.transform.CompareTag(SOCKET_TAG_MALE) ||targetObject.transform.CompareTag(SOCKET_TAG_FEMALE))
+        {
+            //Debug.Log("Male or Female");
+            return targetObject.transform.parent.gameObject;
+        }
+        else 
+        {
+            //Debug.Log("Just Brick");
+
+            return targetObject;
+        }
+
+
+    }
+   
+    private void IfHasChildrenDetatch(GameObject targetObject)
+    {
+
+        if(targetObject.transform.childCount > 0)
+        {
+            for(int i = 0; i < targetObject.transform.childCount; i++)
+            {
+                
+                GameObject child = targetObject.transform.GetChild(i).gameObject;
+                if(child.CompareTag(BASE_BRICK_TAG))
+                {
+                    child.transform.parent = GameObject.Find(OBJECT_FOLDER_NAME).transform;
+
+                }
+                else
+                {
+                }
+
+            }
+
+        }
+
+
+    }
     private void MoveSelectedBrickIfToggled()
     {
 
         if (brickFollowCursor && mouseTargetedBrick != null)
         {
-            
-            Vector3 grabPointPosition = cameraScript.transform.GetChild(0).transform.position;
 
+            
+            Vector3 grabPointPosition = cameraScript.grabPoint.transform.position; //Child1 = grabpoint
+            
+             //Make Rigidbody able to move
 
             Rigidbody brickRb = mouseTargetedBrick.GetComponent<Rigidbody>();
+            brickRb.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+            brickRb.GetComponent<Rigidbody>().excludeLayers = 0; //nothing
 
             brickRb.MovePosition(grabPointPosition);
             
             Vector3 tempPos = mouseTargetedBrick.transform.position;
 
             gridUtility.SnapObjectToGrid(mouseTargetedBrick, movableGrid, brickFollowCursor);
+
+            raycastUtils.CastRaycastsFromEachCell(mouseTargetedBrick);
 
             
             if(tempPos != mouseTargetedBrick.transform.position) //did it snap?
@@ -325,16 +394,16 @@ public class GameController : MonoBehaviour
 
                 ghostBrick.SetActive(true);
 
-                Vector3 tempPos = mouseTargetedBrick.transform.position;
-                ghostBrick.transform.SetPositionAndRotation(tempPos, mouseTargetedBrick.transform.rotation);
+                Vector3 targetBrickPos = mouseTargetedBrick.transform.position;
+                ghostBrick.transform.SetPositionAndRotation(targetBrickPos, mouseTargetedBrick.transform.rotation);
 
                 gridUtility.SnapObjectToGrid(ghostBrick, movableGrid, brickFollowCursor,  6f);
 
-                ghostBrick.transform.parent = GameObject.Find("Objects").transform;
+                ghostBrick.transform.parent = GameObject.Find(OBJECT_FOLDER_NAME).transform;
 
                 SetObjectAndChildrenColliderEnabled(ghostBrick, false);
 
-                if(ghostBrick.transform.position == tempPos) //did it NOT snap?
+                if(ghostBrick.transform.position == targetBrickPos) 
                 {
                     ghostBrick.SetActive(false);
 
@@ -358,15 +427,17 @@ public class GameController : MonoBehaviour
   
     private GameObject CreateMovableGrid()
     {
-        GameObject gridObject = new();
-        gridObject.name = "Movable Grid";
+        GameObject gridObject = new()
+        {
+            name = "Movable Grid"
+        };
 
         Grid grid = gridObject.AddComponent<Grid>();
         MeshFilter filter = gridObject.AddComponent<MeshFilter>();
         MeshRenderer renderer = gridObject.AddComponent<MeshRenderer>();
 
 
-        grid.cellSize = new Vector3(0.78f, 0.32f, 0.78f); 
+        grid.cellSize = BASE_CELL_SIZE; 
         //filter.mesh = Resources.Load<Mesh>("Plane");
         //renderer.material = Resources.Load<Material>("Default");
 
@@ -377,13 +448,6 @@ public class GameController : MonoBehaviour
     /*
         TODO:
         
-        Add Snapping logic to Moved Bricks - Raycast from all Brick Male & Female Colliders
-
-        Add Inheritence Logic after Snapping into Place.
-        
-
-        Modify Snapping Logic to work from any Angle. Snap must be relative to place being snapped.
-
 
 
 

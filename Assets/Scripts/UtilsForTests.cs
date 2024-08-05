@@ -38,7 +38,7 @@ public class UtilsForTests : MonoBehaviour
     public GameObject CreateTestCubeForScene(bool includeChildren = true)
     {
             GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            cube.tag = "TestCube";
+            cube.tag = "Brick";//"TestCube";
 
             if(includeChildren)
             {
