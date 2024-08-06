@@ -1,12 +1,16 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using log4net.DateFormatter;
 using UnityEngine;
 using static GameConfig;
 
 public class RaycastUtils
 {
 
+    public List<Vector3> rayGridOrigins;
+
+    public List<RaycastHit> hitList;
     public void Start()
     {
 
@@ -20,39 +24,29 @@ public class RaycastUtils
     }
 
 
-    public RaycastHit GetRaycastHitFromPhysicsRaycast(Vector3 startPos, Vector3 lookDirection, float rayLength = 10f)
+    public RaycastHit GetRaycastHitFromPhysicsRaycast(Vector3 startPos, Vector3 lookDirection, float rayLength, bool doDraw = true)
     {
         Color rayColor = Color.green;
         if(Physics.Raycast(startPos, lookDirection, out RaycastHit hitInfo, rayLength))
         {
+            if(doDraw)
+            {
+                Debug.DrawRay(startPos, lookDirection, rayColor);
+            }
+
             return hitInfo;     
         }
   
         else
         {
-            //Debug.DrawRay(startPos, lookDirection);
+            if(doDraw)
+            {
+                Debug.DrawRay(startPos, lookDirection, Color.red);
+            }
             return hitInfo; //empty   
         }    
     }
 
-    public RaycastHit RED_GetRaycastHitFromPhysicsRaycast(Vector3 startPos, Vector3 lookDirection, float rayLength = 10f)
-        {
-        Color rayColor = Color.red;
-        if(Physics.Raycast(startPos, lookDirection, out RaycastHit hitInfo, rayLength))
-        {
-            Debug.DrawRay(startPos, lookDirection, Color.green);
-            return hitInfo;     
-        }
-  
-        else
-        {
-            Debug.DrawRay(startPos, lookDirection, rayColor);
-            return hitInfo; //empty   
-        }
-        
-        
-        
-    }
 
     public Ray GetRayFromCameraTowardsCursor(Vector3 mousePosition, Camera cam){
 
@@ -146,27 +140,30 @@ public class RaycastUtils
         }
     }
 
-    public void CastRaycastsFromEachCell(GameObject targetObject)
+    public void GetRaycstHitsFromEveryGridUnit(GameObject targetObject, float raycastLength)
     {
+        hitList = new();
+        rayGridOrigins = new();
+
 
         List<GameObject> allSockets = GetChildSocketsRecursive(targetObject);
 
         for(int i = 0; i < allSockets.Count; i++)
         {
-           GameObject brickSocket = allSockets[i];
+            GameObject brickSocket = allSockets[i];
 
-           Vector3 gridUnitScale = GridUtils.ScaleToGridUnits(brickSocket);
+            Vector3 gridUnitScale = GridUtils.ObjectScaleToGridUnits(brickSocket);
 
-            CastFromEachSocket(brickSocket, gridUnitScale);
+            List<RaycastHit> cellHits = GetRaycastHitFromEachCell(brickSocket, gridUnitScale, raycastLength);
 
+            for(int j = 0; j < cellHits.Count; j++)
+            {
+                
+                hitList.Add(cellHits[j]);
+                
+            }
+            
         }
-
-        
-
-        /// Get every object within targetobject until all sockets have been found
-        /// split sockets into cells
-        /// cast rays from each cell
-
 
     }
 
@@ -174,13 +171,16 @@ public class RaycastUtils
     public List<GameObject> GetChildSocketsRecursive(GameObject targetObject)
     {
         List<GameObject> allSockets = new();
+
         for (int i = 0; i < targetObject.transform.childCount; i++)
         {
             GameObject child = targetObject.transform.GetChild(i).gameObject;
+
             if (child.CompareTag(SOCKET_TAG_MALE) || child.CompareTag(SOCKET_TAG_FEMALE))
             {
                 allSockets.Add(child);
             }
+
             else if (child.CompareTag(BASE_BRICK_TAG))
             {
                 List<GameObject> grandChildren = GetChildSocketsRecursive(child);
@@ -195,46 +195,76 @@ public class RaycastUtils
         return allSockets;
     }     
 
-    public void CastFromEachSocket(GameObject targetObject, Vector3 gridScale)
+    public List<RaycastHit> GetRaycastHitFromEachCell(GameObject targetObject, Vector3 gridCount, float raycastLength)
     {
+        List<RaycastHit> allRayHits = new();
+
         Vector3 lookDir = targetObject.transform.up;
-        float yOffset = 0.025f;
+        float clearColliderOffset = 0.025f;
         float heightOffset = targetObject.transform.parent.transform.lossyScale.y;
+
         if(targetObject.CompareTag(SOCKET_TAG_FEMALE))
         {
-            lookDir = Vector3.Scale(lookDir, new Vector3(-1,-1,-1));
-            yOffset = -0.025f;
+            lookDir = -lookDir;
+            clearColliderOffset *= -1;
             heightOffset = 0;
         }
+
         Vector3 cornerOffset = GridUtils.GetBottomOfClosestLeftCornerOfObject(targetObject);
-        cornerOffset.y += yOffset + heightOffset;
+        cornerOffset.y += clearColliderOffset + heightOffset;
+
         Vector3 centerCellOffset = Vector3.Scale(BASE_CELL_SIZE, new Vector3(0.5f, 0f, 0.5f));
 
-        for(int i = 0; i < gridScale.x; i++)
+        for(int i = 0; i < gridCount.x; i++)
         {
-            for(int j = 0; j < gridScale.z; j++)
+            for(int j = 0; j < gridCount.z; j++)
             {
                 
                 Vector3 unitOffset = Vector3.Scale(new Vector3(i,0,j), BASE_CELL_SIZE); 
-                
                 unitOffset = targetObject.transform.rotation * (unitOffset + centerCellOffset + cornerOffset );
 
-                Vector3 newPos = targetObject.transform.position;
+                Vector3 newPos = targetObject.transform.position + unitOffset;
 
-                newPos = newPos + unitOffset;
+                RaycastHit rayHit = GetRaycastHitFromPhysicsRaycast(newPos, lookDir, raycastLength);
 
+                //do not add hit if null or if self
+                if(rayHit.collider != null && rayHit.collider.transform.parent != targetObject.transform.parent && IsRayHitOppositeSocket(targetObject, rayHit))
+                {
+                    GameObject targetBrick = targetObject.transform.parent.gameObject;
+                    rayGridOrigins.Add(GridUtils.GetGridPositionLocalToObject(targetBrick, newPos) );
 
-                
-                RED_GetRaycastHitFromPhysicsRaycast(newPos, lookDir);
+                    allRayHits.Add(rayHit);
+                }
             }
 
 
         }
 
+        return allRayHits;
+    }
 
 
+    public bool IsRayHitOppositeSocket(GameObject originObject, RaycastHit raycastHit)
+    {
+        bool isOpposite = false;
+        if(raycastHit.collider != null){
+            if(originObject.CompareTag(SOCKET_TAG_MALE))
+            {
+                if(raycastHit.collider.CompareTag(SOCKET_TAG_FEMALE))
+                {
+                    isOpposite = true;
+                }
+            }
+            else if (originObject.CompareTag(SOCKET_TAG_FEMALE))
+            {
+                if(raycastHit.collider.CompareTag(SOCKET_TAG_MALE))
+                {
+                    isOpposite = true;
+                }
+            }
+        }
 
-
+        return isOpposite;
     }
 
 }

@@ -371,9 +371,8 @@ public class GameController : MonoBehaviour
             
             Vector3 tempPos = mouseTargetedBrick.transform.position;
 
-            gridUtility.SnapObjectToGrid(mouseTargetedBrick, movableGrid, brickFollowCursor);
+            gridUtility.NEW_SnapObjectToGrid(mouseTargetedBrick, movableGrid, brickFollowCursor, 0.25f);
 
-            raycastUtils.CastRaycastsFromEachCell(mouseTargetedBrick);
 
             
             if(tempPos != mouseTargetedBrick.transform.position) //did it snap?
@@ -397,7 +396,7 @@ public class GameController : MonoBehaviour
                 Vector3 targetBrickPos = mouseTargetedBrick.transform.position;
                 ghostBrick.transform.SetPositionAndRotation(targetBrickPos, mouseTargetedBrick.transform.rotation);
 
-                gridUtility.SnapObjectToGrid(ghostBrick, movableGrid, brickFollowCursor,  6f);
+                gridUtility.NEW_SnapObjectToGrid(ghostBrick, movableGrid, brickFollowCursor,  10f);
 
                 ghostBrick.transform.parent = GameObject.Find(OBJECT_FOLDER_NAME).transform;
 

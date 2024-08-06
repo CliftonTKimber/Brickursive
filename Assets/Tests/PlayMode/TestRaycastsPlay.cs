@@ -276,7 +276,7 @@ public class TestRaycastsPlay
         newCube2.transform.parent = newCube.transform;
         newCube.transform.parent = testCube.transform;
 
-        raycastUtils.CastRaycastsFromEachCell(testCube);
+        raycastUtils.GetRaycstHitsFromEveryGridUnit(testCube, 1f);
 
 
 

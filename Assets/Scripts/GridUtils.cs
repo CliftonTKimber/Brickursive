@@ -37,6 +37,57 @@ public class GridUtils
         }
     }
 
+    public void NEW_SnapObjectToGrid(GameObject targetObject, GameObject movableGrid,  bool objectIsHeld,   float raycastLength = 0.25f)
+    {
+        if (objectIsHeld)
+        {
+            raycastUtils.GetRaycstHitsFromEveryGridUnit(targetObject, raycastLength);
+
+            List<RaycastHit> hitList = raycastUtils.hitList;
+            List<Vector3> rayGridOrigins = raycastUtils.rayGridOrigins;
+            if(hitList.Count > 0)
+            {
+                RaycastHit chosenHit = hitList[0];
+                Vector3 hitOrigin = rayGridOrigins[0];
+                for(int i = 0; i < hitList.Count; i++)
+                {
+                    Vector3 firstDistance = (targetObject.transform.rotation * targetObject.transform.position + hitOrigin) - chosenHit.transform.position;
+
+
+                    Vector3 secondDistance = (targetObject.transform.rotation * targetObject.transform.position + rayGridOrigins[i]) - hitList[i].transform.position;
+
+
+                    //closest hit // Closest nuber to 0
+                    if(Mathf.Abs(firstDistance.magnitude) > Mathf.Abs(secondDistance.magnitude) )
+                    {
+                        chosenHit = hitList[i];
+                        hitOrigin = rayGridOrigins[i];
+                    }
+
+                }
+
+                NEW_CycleThroughHitsAndPlaceObjectOnMovableGrid(targetObject, movableGrid, chosenHit, hitOrigin);
+
+            }
+            
+        }
+    }
+
+
+    public void NEW_CycleThroughHitsAndPlaceObjectOnMovableGrid(GameObject targetObject, GameObject movableGrid, RaycastHit rayHit, Vector3 gridHitOrigin)
+    {
+
+                GameObject hitObject = rayHit.collider.gameObject;
+
+                if (hitObject.CompareTag(SOCKET_TAG_MALE) || hitObject.CompareTag(SOCKET_TAG_FEMALE))
+                {
+                    GameObject trueHitObject = hitObject.transform.parent.gameObject;
+
+                    MoveGridToTargetObjectPositionAndOrientation(movableGrid, trueHitObject);
+                    NEW_PutObjectOntoGrid(targetObject, movableGrid, rayHit, trueHitObject, gridHitOrigin);
+                }
+
+    }
     public void CycleThroughHitsAndPlaceObjectOnMovableGrid(GameObject targetObject, GameObject movableGrid, List<RaycastHit> hitList)
     {
         for (int i = 0; i < hitList.Count; i++)
@@ -74,6 +125,54 @@ public class GridUtils
         movableGrid.transform.SetPositionAndRotation(gridStartPos, targetObject.transform.rotation);
     }
 
+
+    public void NEW_PutObjectOntoGrid(GameObject targetObject, GameObject movableGrid, RaycastHit rayHit, GameObject hitObject, Vector3 gridHitOrigin)
+    {
+        Quaternion hitRotation = hitObject.transform.rotation;
+
+        Grid grid = movableGrid.GetComponent<Grid>();
+
+        Vector3Int gridCoords = grid.WorldToCell(rayHit.point);
+
+        Vector3 cellCenter = grid.GetCellCenterWorld(gridCoords);
+
+        Vector3 brickOffset = GetTopOfFarthestRightCornerOfObject(targetObject);
+        Vector3 rotatedBrickOffset = hitRotation * brickOffset;
+        Vector3 rotatedCellOffset  = hitRotation * GetCellCenter(baseCellSize);
+
+        gridHitOrigin.y = 0;
+        gridHitOrigin = Vector3.Scale(gridHitOrigin, BASE_CELL_SIZE);
+        gridHitOrigin = hitRotation * gridHitOrigin;
+
+
+
+        if (hitObject.CompareTag(SOCKET_TAG_FEMALE) )
+        {
+            Vector3 scaleOffset = new Vector3(0, targetObject.transform.lossyScale.y, 0);
+            rotatedBrickOffset -= hitRotation * scaleOffset;
+        }
+
+        Vector3 endPos = cellCenter + rotatedBrickOffset - rotatedCellOffset - gridHitOrigin;// - rayOriginOffset;
+
+
+        targetObject.transform.SetPositionAndRotation(endPos, hitRotation);
+        targetObject.transform.parent = hitObject.transform;
+
+        FreezeObjectSoItRemainsRelativeToParent(targetObject);
+        ReenableColliders(targetObject);
+
+    }
+
+    public Vector3 GetRayOriginCellPosition(GameObject targetObject, RaycastHit rayHit)
+    {
+        Vector3 position = new();
+        //RaycastHit reverseHit = raycastUtils.GetRaycastHitFromPhysicsRaycast(rayHit.point, rayHit.normal, 10f);
+
+        return position;
+
+
+
+    }
     public void PutObjectOntoGrid(GameObject targetObject, GameObject movableGrid, RaycastHit rayHit, GameObject hitObject, string sideHitTag = "Male")
     {
         Grid grid = movableGrid.GetComponent<Grid>();
@@ -169,7 +268,7 @@ public class GridUtils
         return cellCenter;
     }
 
-    public static Vector3 ScaleToGridUnits(GameObject targetObject)
+    public static Vector3 ObjectScaleToGridUnits(GameObject targetObject)
 
     {
         Vector3 unitSize = new();
@@ -180,6 +279,36 @@ public class GridUtils
         unitSize.z = Mathf.RoundToInt(objectScale.z / BASE_CELL_SIZE.z);
 
         return unitSize;
+    }
+
+    public static Vector3 ReturnVectorAsGridPosition(Vector3 worldPosition)
+    {
+        Vector3 gridPosition = new();
+
+        gridPosition.x = Mathf.RoundToInt(worldPosition.x / BASE_CELL_SIZE.x);
+        gridPosition.y = Mathf.RoundToInt(worldPosition.y / BASE_CELL_SIZE.y);
+        gridPosition.z = Mathf.RoundToInt(worldPosition.z / BASE_CELL_SIZE.z);
+
+        return gridPosition;
+    }
+
+    public static Vector3 GetGridPositionLocalToObject(GameObject targetObject, Vector3 rayOrigin)
+    {
+        Vector3 localGridPosition = new();
+        Quaternion objectRotation = targetObject.transform.rotation;
+
+        Vector3 objectCorner = GetBottomOfClosestLeftCornerOfObject(targetObject);
+        Vector3 cornerCell = objectCorner + GetCellCenter(BASE_CELL_SIZE);
+        Vector3 objectPosition = targetObject.transform.position;
+
+        //cornerCell = objectRotation * cornerCell;
+        //objectPosition = objectRotation * objectPosition;
+
+        objectPosition += cornerCell - rayOrigin;
+
+        localGridPosition = ReturnVectorAsGridPosition(-objectPosition);
+
+        return localGridPosition;
     }
     
 
