@@ -94,6 +94,7 @@ GameObject:
   - component: {fileID: 1858990866918359767}
   - component: {fileID: 5930504594620459481}
   - component: {fileID: -8883377365451883114}
+  - component: {fileID: -3096183232164539026}
   m_Layer: 10
   m_Name: Stud
   m_TagString: Brick
@@ -169,6 +170,19 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &-3096183232164539026
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2330714913456528594}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b0a8dd70f7d7624e968da4883e15941, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isHeld: 0
 --- !u!1 &4841093261190119929
 GameObject:
   m_ObjectHideFlags: 0

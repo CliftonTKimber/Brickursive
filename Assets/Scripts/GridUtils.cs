@@ -106,7 +106,7 @@ public class GridUtils
 
         Vector3 endPos = GetFinalGridPositionIncludingRotation(targetObject, hitSocket, movableGrid, rayHit, gridHitOrigin);
 
-
+     
         targetObject.transform.SetPositionAndRotation(endPos, hitRotation);
         targetObject.transform.parent = hitBrick.transform;
 
@@ -130,8 +130,9 @@ public class GridUtils
         Vector3 rotatedBrickOffset = hitRotation * brickOffset;
         Vector3 rotatedCellOffset  = hitRotation * GetCellCenter(baseCellSize);
 
-        gridHitOrigin.y = 0;
+        //gridHitOrigin.y = 0;
         gridHitOrigin = Vector3.Scale(gridHitOrigin, BASE_CELL_SIZE);
+        Debug.Log(gridHitOrigin);
         gridHitOrigin = hitRotation * gridHitOrigin;
 
         if (hitSocket.CompareTag(SOCKET_TAG_FEMALE) )
@@ -162,6 +163,8 @@ public class GridUtils
             gameController.SetObjectAndChildrenColliderEnabled(targetObject, true);
         }
     }
+
+
     
     private static Vector3 GetTopOfClosestLeftCornerOfObject(GameObject targetObject)
     {
@@ -238,21 +241,27 @@ public class GridUtils
         return gridPosition;
     }
 
-    public static Vector3 GetGridPositionLocalToObject(GameObject targetObject, Vector3 rayOrigin)
+    public static Vector3 GetGridPositionLocalToObject(GameObject targetObject, GameObject parentObject, Vector3 rayOrigin)
     {
         Vector3 localGridPosition = new();
-        Quaternion objectRotation = targetObject.transform.rotation;
 
-        Vector3 objectCorner = GetBottomOfClosestLeftCornerOfObject(targetObject);
-        Vector3 cornerCell = objectCorner + GetCellCenter(BASE_CELL_SIZE);
-        Vector3 objectPosition = targetObject.transform.position;
+        Vector3 objectCorner = GetBottomOfClosestLeftCornerOfObject(parentObject);
+        Vector3 cellOffset = GetCellCenter(BASE_CELL_SIZE);
+        cellOffset.y = 0;
 
-        //cornerCell = objectRotation * cornerCell;
-        //objectPosition = objectRotation * objectPosition;
+        if(targetObject.CompareTag(SOCKET_TAG_MALE))
+        {
+            cellOffset.y = targetObject.transform.lossyScale.y;
+        }
+
+        Vector3 cornerCell = objectCorner + cellOffset;
+        Vector3 objectPosition = parentObject.transform.position;
 
         objectPosition += cornerCell - rayOrigin;
 
         localGridPosition = ReturnVectorAsGridPosition(-objectPosition);
+
+        Debug.Log(localGridPosition);
 
         return localGridPosition;
     }

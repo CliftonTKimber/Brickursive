@@ -4,11 +4,13 @@ using System.Collections.Generic;
 using log4net.DateFormatter;
 using UnityEngine;
 using static GameConfig;
+using static GameController;
 
 public class RaycastUtils
 {
 
     public List<Vector3> rayGridOrigins;
+    public List<Vector3> rayGridOrigins_2;
 
     public List<RaycastHit> hitList;
     public void Start()
@@ -148,17 +150,23 @@ public class RaycastUtils
 
         List<GameObject> allSockets = GetChildSocketsRecursive(targetObject);
 
+
         for(int i = 0; i < allSockets.Count; i++)
         {
             GameObject brickSocket = allSockets[i];
 
 
             List<RaycastHit> cellHits = GetRaycastHitFromEachCell(brickSocket);
+            List<Vector3> hitOrigins = GetRayOriginFromEachCell(brickSocket);
 
             for(int j = 0; j < cellHits.Count; j++)
             {
-                
-                hitList.Add(cellHits[j]);
+
+                if (cellHits[j].collider.transform.parent != targetObject.transform.parent && IsRayHitOppositeSocket(brickSocket, cellHits[j]) )
+                {
+                            hitList.Add(cellHits[j]); 
+                            rayGridOrigins.Add(hitOrigins[j]); 
+                }
                 
             }
             
@@ -203,16 +211,32 @@ public class RaycastUtils
         Vector3 lookDir = vectorArray[0];
         Vector3 firstCellOffset = vectorArray[1];
 
-        allRayHits = CycleThroughBrickCellsAndReturnHitsAndSetRayOrigins(allRayHits, targetObject, lookDir, firstCellOffset);
+        allRayHits = CycleThroughBrickCellsAndReturnHits(allRayHits, targetObject, lookDir, firstCellOffset);
 
         return allRayHits;
     }
 
-    public List<RaycastHit> CycleThroughBrickCellsAndReturnHitsAndSetRayOrigins(List<RaycastHit> allRayHits, GameObject targetObject, Vector3 lookDirection, Vector3 firstCellOffset)
+    public List<Vector3> GetRayOriginFromEachCell(GameObject targetObject)
+    {
+        List<Vector3> allOrigins = new();
+
+        Vector3 []vectorArray = GetLookDirectionAndFirstCellOffset(targetObject);
+
+        Vector3 lookDir = vectorArray[0];
+        Vector3 firstCellOffset = vectorArray[1];
+
+        allOrigins = CycleThroughBrickCellsAndReturnRayOrigins(targetObject, lookDir, firstCellOffset);
+
+        return allOrigins;
+    }
+
+    public List<RaycastHit> CycleThroughBrickCellsAndReturnHits(List<RaycastHit> allRayHits, GameObject targetObject, Vector3 lookDirection, Vector3 firstCellOffset)
     {
 
         Vector3 gridCount = GridUtils.ObjectScaleToGridUnits(targetObject);
-        float raycastLength = GetRaycastLengthForBrickType(targetObject);
+        
+        GameObject highestParent = IfChildReturnUpperMostParentBesidesRoot(targetObject); 
+        float raycastLength = GetRaycastLengthForBrickType(highestParent);
 
         for(int i = 0; i < gridCount.x; i++)
         {
@@ -227,17 +251,61 @@ public class RaycastUtils
                 RaycastHit rayHit = GetRaycastHitFromPhysicsRaycast(newPos, lookDirection, raycastLength);
 
                 //do not add hit if null or if self
-                if(rayHit.collider != null && rayHit.collider.transform.parent != targetObject.transform.parent && IsRayHitOppositeSocket(targetObject, rayHit))
+                if(rayHit.collider != null)
                 {
-                    GameObject targetBrick = targetObject.transform.parent.gameObject;
-                    rayGridOrigins.Add(GridUtils.GetGridPositionLocalToObject(targetBrick, newPos) );
+                    GameObject highestHitParent = IfChildReturnUpperMostParentBesidesRoot(rayHit.collider.gameObject).gameObject;
 
-                    allRayHits.Add(rayHit);
+                    if(highestHitParent != highestParent)
+                    {
+                        allRayHits.Add(rayHit);
+                    }
                 }
             }
         }
 
         return allRayHits;
+    }
+    public List<Vector3> CycleThroughBrickCellsAndReturnRayOrigins(GameObject targetObject, Vector3 lookDirection, Vector3 firstCellOffset)
+    {
+
+        Vector3 gridCount = GridUtils.ObjectScaleToGridUnits(targetObject);
+
+        GameObject highestParent = IfChildReturnUpperMostParentBesidesRoot(targetObject); 
+        float raycastLength = GetRaycastLengthForBrickType(highestParent);
+
+
+
+        List<Vector3> originList = new();
+
+        for(int i = 0; i < gridCount.x; i++)
+        {
+            for(int j = 0; j < gridCount.z; j++)
+            {
+                
+                Vector3 unitOffset = Vector3.Scale(new Vector3(i,0,j), BASE_CELL_SIZE); 
+                unitOffset = targetObject.transform.rotation * (unitOffset + firstCellOffset);
+
+                Vector3 newPos = targetObject.transform.position + unitOffset;
+
+                RaycastHit rayHit = GetRaycastHitFromPhysicsRaycast(newPos, lookDirection, raycastLength);
+
+                //do not add hit if null or if self
+                if(rayHit.collider != null)
+                {
+
+                    GameObject highestHitParent = IfChildReturnUpperMostParentBesidesRoot(rayHit.collider.gameObject).gameObject;
+
+                    if(highestHitParent != highestParent)
+                    {
+                        originList.Add(GridUtils.GetGridPositionLocalToObject(targetObject, highestParent, newPos) );
+                    }
+
+
+                }
+            }
+        }
+
+        return originList;
     }
 
     public Vector3[] GetLookDirectionAndFirstCellOffset(GameObject targetObject)
@@ -289,13 +357,20 @@ public class RaycastUtils
         return isOpposite;
     }
 
-
     public float GetRaycastLengthForBrickType(GameObject targetObject)
     {
 
         float raycastLength = RAY_LENGTH_FOR_SNAPPING;
 
-        if(targetObject.transform.parent.name == GHOST_BRICK_NAME)
+
+        string targetName = targetObject.name;
+
+        if(targetObject.transform.parent != null && targetObject.transform.parent.name != OBJECT_FOLDER_NAME)
+        {
+            targetName = targetObject.transform.parent.name;
+        }
+
+        if(targetName == GHOST_BRICK_NAME)
         {
             raycastLength = RAY_LENGTH_FOR_GHOST_SNAPPING;
         }

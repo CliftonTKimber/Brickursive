@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static GameConfig;
+
 
 public class BrickBehavior : MonoBehaviour
 {
@@ -11,14 +13,10 @@ public class BrickBehavior : MonoBehaviour
 
     public bool isHeld;
 
-    private RaycastUtils raycastUtils;
-    private GridUtils gridUtils;
 
-    private List<RaycastHit> hitList;
     void Start()
     {
-        isHeld = true;
-        raycastUtils = new RaycastUtils();
+        isHeld = false;
         
     }
 
@@ -43,6 +41,8 @@ public class BrickBehavior : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+
+
         
     }
     private void OnTriggerStay(Collider other)
@@ -56,4 +56,6 @@ public class BrickBehavior : MonoBehaviour
 
 
     }
+
+
 }

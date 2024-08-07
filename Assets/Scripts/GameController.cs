@@ -239,11 +239,17 @@ public class GameController : MonoBehaviour
         if (hitTransform.CompareTag(baseObjectTag) && !brickFollowCursor)
         {
             brickFollowCursor = true;
-            mouseTargetedBrick = hitTransform.gameObject;
+            mouseTargetedBrick = IfChildReturnUpperMostParentBesidesRoot(hitTransform.gameObject);
+
+            //mouseTargetedBrick = hitTransform.gameObject;
             /*if(!Input.GetKey("left ctrl"))
             {  
                 IfHasChildrenDetatch(mouseTargetedBrick);
             }*/
+
+            SetObjectAndChildrenColliderEnabled(mouseTargetedBrick, false);
+
+            MakeGhostVersionOfCurrentBrick(mouseTargetedBrick);
 
         }
         else
@@ -256,6 +262,7 @@ public class GameController : MonoBehaviour
                     /*if(Input.GetKey("left ctrl"))
                     {*/
                         mouseTargetedBrick = IfChildReturnUpperMostParentBesidesRoot(hitTransform.gameObject);
+
                         brickFollowCursor = true;
                     /*}
                     else
@@ -278,20 +285,19 @@ public class GameController : MonoBehaviour
         }
     }
 
-    private GameObject IfChildReturnUpperMostParentBesidesRoot(GameObject targetObject, string excludeObjectName = "Objects")
+    static public GameObject IfChildReturnUpperMostParentBesidesRoot(GameObject targetObject, string excludeObjectName = "Objects")
     {
 
         int arbNumber = 100;
 
         Transform parentTransform = targetObject.transform.parent;
-        //Debug.Log(parentTransform);
         if(parentTransform != null && parentTransform.name != OBJECT_FOLDER_NAME)
         {
             for(int i = 0; i < arbNumber; i++)
             {
                 parentTransform = targetObject.transform.parent;
                 
-                if(parentTransform.name != excludeObjectName)
+                if(parentTransform != null && parentTransform.name != excludeObjectName)
                 {    
                     targetObject = parentTransform.gameObject;      
                 }
@@ -365,11 +371,13 @@ public class GameController : MonoBehaviour
             
              //Make Rigidbody able to move
 
-            Rigidbody brickRb = mouseTargetedBrick.GetComponent<Rigidbody>();
-            brickRb.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-            brickRb.GetComponent<Rigidbody>().excludeLayers = 0; //nothing
+            //Rigidbody brickRb = mouseTargetedBrick.GetComponent<Rigidbody>();
+            //brickRb.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+            //brickRb.GetComponent<Rigidbody>().excludeLayers = 0; //nothing
 
-            brickRb.MovePosition(grabPointPosition);
+            //brickRb.MovePosition(grabPointPosition);
+
+            mouseTargetedBrick.transform.position = grabPointPosition;
             
             Vector3 tempPos = mouseTargetedBrick.transform.position;
 
@@ -406,7 +414,7 @@ public class GameController : MonoBehaviour
 
                 if(ghostBrick.transform.position == targetBrickPos) 
                 {
-                    ghostBrick.SetActive(false);
+                    //ghostBrick.SetActive(false);
 
                 }
 
