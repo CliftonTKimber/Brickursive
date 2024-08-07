@@ -205,6 +205,8 @@ public class GameController : MonoBehaviour
                 string[] childTags = new string[] {SOCKET_TAG_MALE, SOCKET_TAG_FEMALE}; 
 
                 SelectObjectBasedOnTag(hitObject.transform, basicTag, childTags);
+                //SetObjectAndChildrenColliderEnabled(mouseTargetedBrick, true);
+
             }
             else
             {
@@ -371,7 +373,7 @@ public class GameController : MonoBehaviour
             
             Vector3 tempPos = mouseTargetedBrick.transform.position;
 
-            gridUtility.NEW_SnapObjectToGrid(mouseTargetedBrick, movableGrid, brickFollowCursor, 0.25f);
+            gridUtility.SnapObjectToGrid(mouseTargetedBrick, movableGrid, brickFollowCursor, 0.25f);
 
 
             
@@ -396,7 +398,7 @@ public class GameController : MonoBehaviour
                 Vector3 targetBrickPos = mouseTargetedBrick.transform.position;
                 ghostBrick.transform.SetPositionAndRotation(targetBrickPos, mouseTargetedBrick.transform.rotation);
 
-                gridUtility.NEW_SnapObjectToGrid(ghostBrick, movableGrid, brickFollowCursor,  10f);
+                gridUtility.SnapObjectToGrid(ghostBrick, movableGrid, brickFollowCursor,  10f);
 
                 ghostBrick.transform.parent = GameObject.Find(OBJECT_FOLDER_NAME).transform;
 
@@ -413,14 +415,14 @@ public class GameController : MonoBehaviour
 
     public void SetObjectAndChildrenColliderEnabled(GameObject targetObject, bool doCollision)
     {
+        targetObject.GetComponent<Collider>().enabled = doCollision;
+
         Collider[] childColliders;
         childColliders = targetObject.GetComponentsInChildren<Collider>();
 
         for(int i = 0; i < childColliders.Length; i++){
             childColliders[i].enabled = doCollision;
         }
-
-        targetObject.GetComponent<Collider>().enabled = doCollision;
     }
 
   

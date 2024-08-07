@@ -27,46 +27,39 @@ public class GridUtils
         
     }
 
+
+
     public void SnapObjectToGrid(GameObject targetObject, GameObject movableGrid,  bool objectIsHeld,   float raycastLength = 0.25f)
     {
         if (objectIsHeld)
         {
-            List<RaycastHit> hitList = raycastUtils.GetRaycastHitsFromChildrenBasedOnTags(targetObject, raycastLength);
-
-            CycleThroughHitsAndPlaceObjectOnMovableGrid(targetObject, movableGrid, hitList);
-        }
-    }
-
-    public void NEW_SnapObjectToGrid(GameObject targetObject, GameObject movableGrid,  bool objectIsHeld,   float raycastLength = 0.25f)
-    {
-        if (objectIsHeld)
-        {
-            raycastUtils.GetRaycstHitsFromEveryGridUnit(targetObject, raycastLength);
+            raycastUtils.GetRaycstHitsFromEveryGridUnit(targetObject);
 
             List<RaycastHit> hitList = raycastUtils.hitList;
             List<Vector3> rayGridOrigins = raycastUtils.rayGridOrigins;
-            if(hitList.Count > 0)
+
+            if(hitList.Count > 0 && rayGridOrigins.Count == hitList.Count)
             {
                 RaycastHit chosenHit = hitList[0];
                 Vector3 hitOrigin = rayGridOrigins[0];
+
                 for(int i = 0; i < hitList.Count; i++)
                 {
-                    Vector3 firstDistance = (targetObject.transform.rotation * targetObject.transform.position + hitOrigin) - chosenHit.transform.position;
+                    Vector3 first_rotatedRayOriginPosition = targetObject.transform.rotation * targetObject.transform.position + hitOrigin;
+                    Vector3 firstDistance = first_rotatedRayOriginPosition - chosenHit.transform.position;
 
+                    Vector3 second_rotatedRayOriginPosition = targetObject.transform.rotation * targetObject.transform.position + rayGridOrigins[i];
+                    Vector3 secondDistance = second_rotatedRayOriginPosition - hitList[i].transform.position;
 
-                    Vector3 secondDistance = (targetObject.transform.rotation * targetObject.transform.position + rayGridOrigins[i]) - hitList[i].transform.position;
-
-
-                    //closest hit // Closest nuber to 0
+                    //closest hit // Closest number to 0
                     if(Mathf.Abs(firstDistance.magnitude) > Mathf.Abs(secondDistance.magnitude) )
                     {
                         chosenHit = hitList[i];
                         hitOrigin = rayGridOrigins[i];
                     }
-
                 }
 
-                NEW_CycleThroughHitsAndPlaceObjectOnMovableGrid(targetObject, movableGrid, chosenHit, hitOrigin);
+                IfSocketPlaceParentOnMovableGrid(targetObject, movableGrid, chosenHit, hitOrigin);
 
             }
             
@@ -74,61 +67,58 @@ public class GridUtils
     }
 
 
-    public void NEW_CycleThroughHitsAndPlaceObjectOnMovableGrid(GameObject targetObject, GameObject movableGrid, RaycastHit rayHit, Vector3 gridHitOrigin)
+    public void IfSocketPlaceParentOnMovableGrid(GameObject targetObject, GameObject movableGrid, RaycastHit rayHit, Vector3 gridHitOrigin)
     {
 
                 GameObject hitObject = rayHit.collider.gameObject;
 
-                if (hitObject.CompareTag(SOCKET_TAG_MALE) || hitObject.CompareTag(SOCKET_TAG_FEMALE))
-                {
-                    GameObject trueHitObject = hitObject.transform.parent.gameObject;
-
-                    MoveGridToTargetObjectPositionAndOrientation(movableGrid, trueHitObject);
-                    NEW_PutObjectOntoGrid(targetObject, movableGrid, rayHit, trueHitObject, gridHitOrigin);
-                }
+                MoveGridToTargetObjectPositionAndOrientation(movableGrid, hitObject);
+                PutObjectOntoGrid(targetObject, hitObject, movableGrid, rayHit, gridHitOrigin);
+            
 
     }
-    public void CycleThroughHitsAndPlaceObjectOnMovableGrid(GameObject targetObject, GameObject movableGrid, List<RaycastHit> hitList)
-    {
-        for (int i = 0; i < hitList.Count; i++)
-        {
-            RaycastHit rayHit = hitList[i];
-            if (rayHit.collider != null)
-            { 
-                GameObject hitObject = rayHit.collider.gameObject;
-
-                if (hitObject.CompareTag(SOCKET_TAG_MALE) || hitObject.CompareTag(SOCKET_TAG_FEMALE))
-                {
-                    GameObject trueHitObject = hitObject.transform.parent.gameObject;
-
-                    MoveGridToTargetObjectPositionAndOrientation(movableGrid, trueHitObject);
-                    PutObjectOntoGrid(targetObject, movableGrid, rayHit, trueHitObject, hitObject.tag);
-                }
-            }
-        }
-    }
-
+  
     public void MoveGridToTargetObjectPositionAndOrientation(GameObject movableGrid, GameObject targetObject, bool doGetBottom = false)
     {
+        GameObject targetBrick = IfSocketReturnParentBrick(targetObject);
+
         Vector3 worldPos = targetObject.transform.localToWorldMatrix.GetPosition();
-        Vector3 cornerPos = GetTopOfClosestLeftCornerOfObject(targetObject);
+        Vector3 cornerPos = GetTopOfClosestLeftCornerOfObject(targetBrick);
         if(doGetBottom)
         {
-            cornerPos = GetBottomOfClosestLeftCornerOfObject(targetObject);
+            cornerPos = GetBottomOfClosestLeftCornerOfObject(targetBrick);
         }
 
 
-        Vector3 rotatedCornerPos = targetObject.transform.rotation * cornerPos;
+        Vector3 rotatedCornerPos = targetBrick.transform.rotation * cornerPos;
 
         Vector3 gridStartPos = rotatedCornerPos + worldPos;
 
-        movableGrid.transform.SetPositionAndRotation(gridStartPos, targetObject.transform.rotation);
+        movableGrid.transform.SetPositionAndRotation(gridStartPos, targetBrick.transform.rotation);
     }
 
 
-    public void NEW_PutObjectOntoGrid(GameObject targetObject, GameObject movableGrid, RaycastHit rayHit, GameObject hitObject, Vector3 gridHitOrigin)
+    public void PutObjectOntoGrid(GameObject targetObject, GameObject hitSocket, GameObject movableGrid, RaycastHit rayHit, Vector3 gridHitOrigin)
     {
-        Quaternion hitRotation = hitObject.transform.rotation;
+        GameObject hitBrick = hitSocket.transform.parent.gameObject;
+
+        Quaternion hitRotation = hitBrick.transform.rotation;
+
+        Vector3 endPos = GetFinalGridPositionIncludingRotation(targetObject, hitSocket, movableGrid, rayHit, gridHitOrigin);
+
+
+        targetObject.transform.SetPositionAndRotation(endPos, hitRotation);
+        targetObject.transform.parent = hitBrick.transform;
+
+        FreezeObjectSoItRemainsRelativeToParent(targetObject);
+        ReenableColliders(targetObject);
+
+    }
+
+    public Vector3 GetFinalGridPositionIncludingRotation(GameObject targetObject, GameObject hitSocket, GameObject movableGrid, RaycastHit rayHit, Vector3 gridHitOrigin)
+    {
+        GameObject hitBrick = hitSocket.transform.parent.gameObject;
+        Quaternion hitRotation = hitBrick.transform.rotation;
 
         Grid grid = movableGrid.GetComponent<Grid>();
 
@@ -144,66 +134,22 @@ public class GridUtils
         gridHitOrigin = Vector3.Scale(gridHitOrigin, BASE_CELL_SIZE);
         gridHitOrigin = hitRotation * gridHitOrigin;
 
-
-
-        if (hitObject.CompareTag(SOCKET_TAG_FEMALE) )
+        if (hitSocket.CompareTag(SOCKET_TAG_FEMALE) )
         {
             Vector3 scaleOffset = new Vector3(0, targetObject.transform.lossyScale.y, 0);
             rotatedBrickOffset -= hitRotation * scaleOffset;
         }
 
-        Vector3 endPos = cellCenter + rotatedBrickOffset - rotatedCellOffset - gridHitOrigin;// - rayOriginOffset;
+
+        Vector3 finalPos = cellCenter + rotatedBrickOffset - rotatedCellOffset - gridHitOrigin;
 
 
-        targetObject.transform.SetPositionAndRotation(endPos, hitRotation);
-        targetObject.transform.parent = hitObject.transform;
-
-        FreezeObjectSoItRemainsRelativeToParent(targetObject);
-        ReenableColliders(targetObject);
-
-    }
-
-    public Vector3 GetRayOriginCellPosition(GameObject targetObject, RaycastHit rayHit)
-    {
-        Vector3 position = new();
-        //RaycastHit reverseHit = raycastUtils.GetRaycastHitFromPhysicsRaycast(rayHit.point, rayHit.normal, 10f);
-
-        return position;
+        return finalPos;
 
 
 
     }
-    public void PutObjectOntoGrid(GameObject targetObject, GameObject movableGrid, RaycastHit rayHit, GameObject hitObject, string sideHitTag = "Male")
-    {
-        Grid grid = movableGrid.GetComponent<Grid>();
-
-        Vector3Int gridCoords = grid.WorldToCell(rayHit.point);
-
-        Vector3 cellCenter = grid.GetCellCenterWorld(gridCoords);
-
-        Vector3 brickOffset = GetTopOfFarthestRightCornerOfObject(targetObject);
-        Vector3 rotatedBrickOffset = hitObject.transform.rotation * brickOffset;
-
-        Vector3 rotatedCellOffset = hitObject.transform.rotation * GetCellCenter(baseCellSize);
-
-        if (sideHitTag == SOCKET_TAG_FEMALE)
-        {
-            Vector3 scaleOffset = new Vector3(0, targetObject.transform.lossyScale.y, 0);
-            rotatedBrickOffset -= hitObject.transform.rotation * scaleOffset;
-        }
-
-        Vector3 endPos = cellCenter + rotatedBrickOffset - rotatedCellOffset;
-
-
-        targetObject.transform.SetPositionAndRotation(endPos, hitObject.transform.rotation);
-        targetObject.transform.parent = hitObject.transform;
-
-        FreezeObjectSoItRemainsRelativeToParent(targetObject);
-        ReenableColliders(targetObject);
-
-    }
-   
-    private static void FreezeObjectSoItRemainsRelativeToParent(GameObject targetObject)
+     private static void FreezeObjectSoItRemainsRelativeToParent(GameObject targetObject)
     {
         targetObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
         targetObject.GetComponent<Rigidbody>().excludeLayers = BRICK_LAYER;
@@ -310,6 +256,26 @@ public class GridUtils
 
         return localGridPosition;
     }
+
+
+
+    #region 
+
+    public GameObject IfSocketReturnParentBrick(GameObject targetObject)
+    {
+        GameObject returnObject = targetObject;
+        if(targetObject.CompareTag(SOCKET_TAG_MALE) || targetObject.CompareTag(SOCKET_TAG_MALE))
+        {
+            returnObject = targetObject.transform.parent.gameObject;
+        }
+
+        return returnObject;
+    }
+
+
+
+
+    #endregion
     
 
 }

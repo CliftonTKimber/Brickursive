@@ -140,7 +140,7 @@ public class RaycastUtils
         }
     }
 
-    public void GetRaycstHitsFromEveryGridUnit(GameObject targetObject, float raycastLength)
+    public void GetRaycstHitsFromEveryGridUnit(GameObject targetObject)
     {
         hitList = new();
         rayGridOrigins = new();
@@ -152,9 +152,8 @@ public class RaycastUtils
         {
             GameObject brickSocket = allSockets[i];
 
-            Vector3 gridUnitScale = GridUtils.ObjectScaleToGridUnits(brickSocket);
 
-            List<RaycastHit> cellHits = GetRaycastHitFromEachCell(brickSocket, gridUnitScale, raycastLength);
+            List<RaycastHit> cellHits = GetRaycastHitFromEachCell(brickSocket);
 
             for(int j = 0; j < cellHits.Count; j++)
             {
@@ -195,9 +194,54 @@ public class RaycastUtils
         return allSockets;
     }     
 
-    public List<RaycastHit> GetRaycastHitFromEachCell(GameObject targetObject, Vector3 gridCount, float raycastLength)
+    public List<RaycastHit> GetRaycastHitFromEachCell(GameObject targetObject)
     {
         List<RaycastHit> allRayHits = new();
+
+        Vector3 []vectorArray = GetLookDirectionAndFirstCellOffset(targetObject);
+
+        Vector3 lookDir = vectorArray[0];
+        Vector3 firstCellOffset = vectorArray[1];
+
+        allRayHits = CycleThroughBrickCellsAndReturnHitsAndSetRayOrigins(allRayHits, targetObject, lookDir, firstCellOffset);
+
+        return allRayHits;
+    }
+
+    public List<RaycastHit> CycleThroughBrickCellsAndReturnHitsAndSetRayOrigins(List<RaycastHit> allRayHits, GameObject targetObject, Vector3 lookDirection, Vector3 firstCellOffset)
+    {
+
+        Vector3 gridCount = GridUtils.ObjectScaleToGridUnits(targetObject);
+        float raycastLength = GetRaycastLengthForBrickType(targetObject);
+
+        for(int i = 0; i < gridCount.x; i++)
+        {
+            for(int j = 0; j < gridCount.z; j++)
+            {
+                
+                Vector3 unitOffset = Vector3.Scale(new Vector3(i,0,j), BASE_CELL_SIZE); 
+                unitOffset = targetObject.transform.rotation * (unitOffset + firstCellOffset);
+
+                Vector3 newPos = targetObject.transform.position + unitOffset;
+
+                RaycastHit rayHit = GetRaycastHitFromPhysicsRaycast(newPos, lookDirection, raycastLength);
+
+                //do not add hit if null or if self
+                if(rayHit.collider != null && rayHit.collider.transform.parent != targetObject.transform.parent && IsRayHitOppositeSocket(targetObject, rayHit))
+                {
+                    GameObject targetBrick = targetObject.transform.parent.gameObject;
+                    rayGridOrigins.Add(GridUtils.GetGridPositionLocalToObject(targetBrick, newPos) );
+
+                    allRayHits.Add(rayHit);
+                }
+            }
+        }
+
+        return allRayHits;
+    }
+
+    public Vector3[] GetLookDirectionAndFirstCellOffset(GameObject targetObject)
+    {
 
         Vector3 lookDir = targetObject.transform.up;
         float clearColliderOffset = 0.025f;
@@ -214,36 +258,14 @@ public class RaycastUtils
         cornerOffset.y += clearColliderOffset + heightOffset;
 
         Vector3 centerCellOffset = Vector3.Scale(BASE_CELL_SIZE, new Vector3(0.5f, 0f, 0.5f));
+        Vector3 firstCellOffset = centerCellOffset + cornerOffset;
 
-        for(int i = 0; i < gridCount.x; i++)
-        {
-            for(int j = 0; j < gridCount.z; j++)
-            {
-                
-                Vector3 unitOffset = Vector3.Scale(new Vector3(i,0,j), BASE_CELL_SIZE); 
-                unitOffset = targetObject.transform.rotation * (unitOffset + centerCellOffset + cornerOffset );
+        Vector3 []vectorArray = {lookDir, firstCellOffset};
 
-                Vector3 newPos = targetObject.transform.position + unitOffset;
-
-                RaycastHit rayHit = GetRaycastHitFromPhysicsRaycast(newPos, lookDir, raycastLength);
-
-                //do not add hit if null or if self
-                if(rayHit.collider != null && rayHit.collider.transform.parent != targetObject.transform.parent && IsRayHitOppositeSocket(targetObject, rayHit))
-                {
-                    GameObject targetBrick = targetObject.transform.parent.gameObject;
-                    rayGridOrigins.Add(GridUtils.GetGridPositionLocalToObject(targetBrick, newPos) );
-
-                    allRayHits.Add(rayHit);
-                }
-            }
+        return vectorArray;
 
 
-        }
-
-        return allRayHits;
     }
-
-
     public bool IsRayHitOppositeSocket(GameObject originObject, RaycastHit raycastHit)
     {
         bool isOpposite = false;
@@ -267,4 +289,19 @@ public class RaycastUtils
         return isOpposite;
     }
 
+
+    public float GetRaycastLengthForBrickType(GameObject targetObject)
+    {
+
+        float raycastLength = RAY_LENGTH_FOR_SNAPPING;
+
+        if(targetObject.transform.parent.name == GHOST_BRICK_NAME)
+        {
+            raycastLength = RAY_LENGTH_FOR_GHOST_SNAPPING;
+        }
+
+        return raycastLength;
+
+
+    }
 }

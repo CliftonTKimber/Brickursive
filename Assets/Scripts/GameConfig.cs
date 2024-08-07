@@ -13,6 +13,8 @@ public class GameConfig
     public static readonly Vector3 BASE_CELL_SIZE = new(0.78f, 0.32f, 0.78f); 
 
     public static readonly float RAY_LENGTH_FOR_SNAPPING = 0.25f;
+    public static readonly float RAY_LENGTH_FOR_GHOST_SNAPPING = 6f;
+
     public static readonly float RAY_LENGTH_FOR_BRICK_SELECTION = 60f;
 
     public static readonly int BRICK_LAYER;
