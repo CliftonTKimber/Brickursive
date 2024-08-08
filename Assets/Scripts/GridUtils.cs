@@ -31,59 +31,67 @@ public class GridUtils
 
     public void SnapObjectToGrid(GameObject targetObject, GameObject movableGrid,  bool objectIsHeld,   float raycastLength = 0.25f)
     {
-        if (objectIsHeld)
+        if (!objectIsHeld)
         {
-            raycastUtils.GetRaycstHitsFromEveryGridUnit(targetObject);
+            return;
+        }
 
-            List<RaycastHit> hitList = raycastUtils.hitList;
-            List<Vector3> rayGridOrigins = raycastUtils.rayGridOrigins;
+        List<RaycastHitPlus> hitList = raycastUtils.GetRaycstHitsFromEveryGridUnit(targetObject);
 
-            if(hitList.Count > 0 && rayGridOrigins.Count == hitList.Count)
+        if (hitList.Count <= 0)
+        {
+            return;
+        }
+   
+        RaycastHitPlus chosenSpecialHit = ChooseClosestHitToObject(targetObject, hitList);
+        GameObject hitObject = chosenSpecialHit.raycastHit.collider.gameObject;
+
+        MoveGridToTargetObjectPositionAndOrientation(movableGrid, hitObject);
+        PutObjectOntoGrid(targetObject, hitObject, movableGrid, chosenSpecialHit);    
+    }
+
+    private static RaycastHitPlus ChooseClosestHitToObject(GameObject targetObject, List<RaycastHitPlus> hitList)
+    {
+        RaycastHitPlus chosenHit = hitList[0];
+        Vector3 oldRayOrigin = chosenHit.rayOrigin;
+
+        Vector3 targetPosition = targetObject.transform.position;
+        Quaternion targetRotation = targetObject.transform.rotation;
+
+        for (int i = 0; i < hitList.Count; i++)
+        {
+            Vector3 oldHitDestination = chosenHit.raycastHit.transform.position;
+
+            Vector3 oldRotatedRayOriginPosition = targetRotation * targetPosition + oldRayOrigin;
+            Vector3 oldDistance = oldRotatedRayOriginPosition - oldHitDestination;
+
+
+            Vector3 newRayOrigin = hitList[i].rayOrigin;
+            Vector3 newHitDestination = hitList[i].raycastHit.transform.position;
+
+            Vector3 newRotatedRayOriginPosition = targetRotation * targetPosition + newRayOrigin;
+            Vector3 newDistance = newRotatedRayOriginPosition - newHitDestination;
+
+            //closest hit // Closest number to 0
+            if (Mathf.Abs(oldDistance.magnitude) > Mathf.Abs(newDistance.magnitude))
             {
-                RaycastHit chosenHit = hitList[0];
-                Vector3 hitOrigin = rayGridOrigins[0];
-
-                for(int i = 0; i < hitList.Count; i++)
-                {
-                    Vector3 first_rotatedRayOriginPosition = targetObject.transform.rotation * targetObject.transform.position + hitOrigin;
-                    Vector3 firstDistance = first_rotatedRayOriginPosition - chosenHit.transform.position;
-
-                    Vector3 second_rotatedRayOriginPosition = targetObject.transform.rotation * targetObject.transform.position + rayGridOrigins[i];
-                    Vector3 secondDistance = second_rotatedRayOriginPosition - hitList[i].transform.position;
-
-                    //closest hit // Closest number to 0
-                    if(Mathf.Abs(firstDistance.magnitude) > Mathf.Abs(secondDistance.magnitude) )
-                    {
-                        chosenHit = hitList[i];
-                        hitOrigin = rayGridOrigins[i];
-                    }
-                }
-
-                IfSocketPlaceParentOnMovableGrid(targetObject, movableGrid, chosenHit, hitOrigin);
+                chosenHit = hitList[i];
+                oldRayOrigin = chosenHit.rayOrigin;
 
             }
-            
         }
+
+        return chosenHit;
     }
 
 
-    public void IfSocketPlaceParentOnMovableGrid(GameObject targetObject, GameObject movableGrid, RaycastHit rayHit, Vector3 gridHitOrigin)
-    {
-
-                GameObject hitObject = rayHit.collider.gameObject;
-
-                MoveGridToTargetObjectPositionAndOrientation(movableGrid, hitObject);
-                PutObjectOntoGrid(targetObject, hitObject, movableGrid, rayHit, gridHitOrigin);
-            
-
-    }
-  
     public void MoveGridToTargetObjectPositionAndOrientation(GameObject movableGrid, GameObject targetObject, bool doGetBottom = false)
     {
         GameObject targetBrick = IfSocketReturnParentBrick(targetObject);
 
         Vector3 worldPos = targetObject.transform.localToWorldMatrix.GetPosition();
         Vector3 cornerPos = GetTopOfClosestLeftCornerOfObject(targetBrick);
+
         if(doGetBottom)
         {
             cornerPos = GetBottomOfClosestLeftCornerOfObject(targetBrick);
@@ -91,20 +99,19 @@ public class GridUtils
 
 
         Vector3 rotatedCornerPos = targetBrick.transform.rotation * cornerPos;
-
         Vector3 gridStartPos = rotatedCornerPos + worldPos;
 
         movableGrid.transform.SetPositionAndRotation(gridStartPos, targetBrick.transform.rotation);
     }
 
 
-    public void PutObjectOntoGrid(GameObject targetObject, GameObject hitSocket, GameObject movableGrid, RaycastHit rayHit, Vector3 gridHitOrigin)
+    public void PutObjectOntoGrid(GameObject targetObject, GameObject hitSocket, GameObject movableGrid, RaycastHitPlus rayHitPlus)
     {
         GameObject hitBrick = hitSocket.transform.parent.gameObject;
 
         Quaternion hitRotation = hitBrick.transform.rotation;
 
-        Vector3 endPos = GetFinalGridPositionIncludingRotation(targetObject, hitSocket, movableGrid, rayHit, gridHitOrigin);
+        Vector3 endPos = GetFinalGridPositionIncludingRotation(targetObject, hitSocket, movableGrid, rayHitPlus);
 
      
         targetObject.transform.SetPositionAndRotation(endPos, hitRotation);
@@ -115,14 +122,14 @@ public class GridUtils
 
     }
 
-    public Vector3 GetFinalGridPositionIncludingRotation(GameObject targetObject, GameObject hitSocket, GameObject movableGrid, RaycastHit rayHit, Vector3 gridHitOrigin)
+    public Vector3 GetFinalGridPositionIncludingRotation(GameObject targetObject, GameObject hitSocket, GameObject movableGrid, RaycastHitPlus rayHitPlus)
     {
         GameObject hitBrick = hitSocket.transform.parent.gameObject;
         Quaternion hitRotation = hitBrick.transform.rotation;
 
         Grid grid = movableGrid.GetComponent<Grid>();
 
-        Vector3Int gridCoords = grid.WorldToCell(rayHit.point);
+        Vector3Int gridCoords = grid.WorldToCell(rayHitPlus.raycastHit.point);
 
         Vector3 cellCenter = grid.GetCellCenterWorld(gridCoords);
 
@@ -130,9 +137,8 @@ public class GridUtils
         Vector3 rotatedBrickOffset = hitRotation * brickOffset;
         Vector3 rotatedCellOffset  = hitRotation * GetCellCenter(baseCellSize);
 
-        //gridHitOrigin.y = 0;
+        Vector3 gridHitOrigin = rayHitPlus.rayOrigin;
         gridHitOrigin = Vector3.Scale(gridHitOrigin, BASE_CELL_SIZE);
-        Debug.Log(gridHitOrigin);
         gridHitOrigin = hitRotation * gridHitOrigin;
 
         if (hitSocket.CompareTag(SOCKET_TAG_FEMALE) )
@@ -260,8 +266,6 @@ public class GridUtils
         objectPosition += cornerCell - rayOrigin;
 
         localGridPosition = ReturnVectorAsGridPosition(-objectPosition);
-
-        Debug.Log(localGridPosition);
 
         return localGridPosition;
     }

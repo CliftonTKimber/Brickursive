@@ -23,7 +23,7 @@ public class GameController : MonoBehaviour
 
     public float spawnDistance = 5f;
 
-    private bool brickFollowCursor = false;
+    private bool isBrickFollowingCursor = false;
 
     private GameObject mouseTargetedBrick;
 
@@ -100,53 +100,27 @@ public class GameController : MonoBehaviour
 
   
     private void MakeGhostVersionOfCurrentBrick(GameObject chosenBrick)
+    {
+        if (ghostBrick != null)
         {
-            if(ghostBrick!=null){
-                Destroy(ghostBrick);
-            }
-
-            ghostBrick = Instantiate(chosenBrick, transform.position, transform.rotation);
-
-
-            bool doCollide = false;
-            ghostBrick.GetComponent<BoxCollider>().enabled = doCollide;
-
-            ghostBrick.name = GHOST_BRICK_NAME;
-
-           
-
-            if (ghostBrick.GetComponent<MeshRenderer>() != null)
-            {
-                ghostBrick.GetComponent<MeshRenderer>().material = ghostMaterial;
-            }
-
-            
-            MeshRenderer[] children;
-            children = ghostBrick.GetComponentsInChildren<MeshRenderer>();
-
-            for(int i = 0; i < children.Length; i++){
-                children[i].material = ghostMaterial;
-            }
-            
-
-
-            Collider[] childColliders;
-            childColliders = ghostBrick.GetComponentsInChildren<Collider>();
-
-            for(int i = 0; i < childColliders.Length; i++){
-                childColliders[i].enabled = doCollide;
-            }
-            
-            
-
+            Destroy(ghostBrick);
         }
+
+        ghostBrick = Instantiate(chosenBrick, transform.position, transform.rotation);
+        ghostBrick.name = GHOST_BRICK_NAME;
+
+        SetObjectAndChildrenColliderEnabled(ghostBrick, false);
+        SetObjectAndChildrenMaterial(ghostBrick, ghostMaterial);
+    }
+
+ 
 
     void ChangeBrickOnKeyboardInput()
     {
 
         if(Input.GetKeyDown("p"))
         {
-            if(brickSelector < availableBricks.Count-1)
+            if(brickSelector < availableBricks.Count - 1)
              {
                 brickSelector++;   
                 brick = availableBricks[brickSelector];
@@ -181,138 +155,152 @@ public class GameController : MonoBehaviour
 
     void MoveBrickUnderCursorOnMouseClick()
     {
-
         if (Input.GetMouseButtonDown(0))
         {
             ToggleBrickMovementSelection();
         }
 
-
         MoveSelectedBrickIfToggled();
-
     }
 
     private void ToggleBrickMovementSelection()
     {
         RaycastHit rayHit = raycastUtils.GetRaycastHitFromPhysicsRaycast(cameraScript.transform.position, cameraScript.transform.forward, RAY_LENGTH_FOR_BRICK_SELECTION);
-        if (rayHit.collider != null)
+        if (rayHit.collider == null)
+        {
+            SetObjectAndChildrenColliderEnabled(mouseTargetedBrick, true);
+            isBrickFollowingCursor = false;
+            mouseTargetedBrick = null;
+            return;
+        }
+            
+        if (!isBrickFollowingCursor)
         {
             GameObject hitObject = rayHit.collider.gameObject;
-
-            if (!brickFollowCursor)
-            {
-                string basicTag = BASE_BRICK_TAG;
-                string[] childTags = new string[] {SOCKET_TAG_MALE, SOCKET_TAG_FEMALE}; 
-
-                SelectObjectBasedOnTag(hitObject.transform, basicTag, childTags);
-                //SetObjectAndChildrenColliderEnabled(mouseTargetedBrick, true);
-
-            }
-            else
-            {
-                if(mouseTargetedBrick != null)
-                {
-                    SetObjectAndChildrenColliderEnabled(mouseTargetedBrick, true);
-                }
-
-                brickFollowCursor = false;
-                mouseTargetedBrick = null;
-
-            }
-
+            SelectObjectBasedOnTag(hitObject);
 
         }
         else
         {
-            if(mouseTargetedBrick != null)
-            {
-                SetObjectAndChildrenColliderEnabled(mouseTargetedBrick, true);
-            }
-            brickFollowCursor = false;
+            SetObjectAndChildrenColliderEnabled(mouseTargetedBrick, true);
+            isBrickFollowingCursor = false;
             mouseTargetedBrick = null;
-        }
 
+        }
     }
  
-    private void SelectObjectBasedOnTag(Transform hitTransform, string baseObjectTag, string[] childObjectTags)
+     private void MoveSelectedBrickIfToggled()
     {
-        if (hitTransform.CompareTag(baseObjectTag) && !brickFollowCursor)
+        if(!isBrickFollowingCursor)
         {
-            brickFollowCursor = true;
-            mouseTargetedBrick = IfChildReturnUpperMostParentBesidesRoot(hitTransform.gameObject);
+            return;
+        }
+        if (mouseTargetedBrick == null)
+        {
+            return;
+        }
+       
+        Vector3 grabPointPosition = cameraScript.grabPoint.transform.position;
+        
+            //Make Rigidbody able to move
 
-            //mouseTargetedBrick = hitTransform.gameObject;
-            /*if(!Input.GetKey("left ctrl"))
+        //Rigidbody brickRb = mouseTargetedBrick.GetComponent<Rigidbody>();
+        //brickRb.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+        //brickRb.GetComponent<Rigidbody>().excludeLayers = 0; //nothing
+
+        //brickRb.MovePosition(grabPointPosition);
+
+        mouseTargetedBrick.transform.position = grabPointPosition;
+        
+        Vector3 tempPos = mouseTargetedBrick.transform.position;
+
+        gridUtility.SnapObjectToGrid(mouseTargetedBrick, movableGrid, isBrickFollowingCursor);
+
+        if(tempPos != mouseTargetedBrick.transform.position) //did it snap?
+        {
+            mouseTargetedBrick = null;
+            isBrickFollowingCursor = false;
+
+        }
+            
+    }
+
+    private void ProjectGhostOntoRaycastLocation()
+    {
+        if (ghostBrick == null || mouseTargetedBrick == null)
             {  
-                IfHasChildrenDetatch(mouseTargetedBrick);
-            }*/
+                return;
+            }
+
+            ghostBrick.SetActive(true);
+
+            Vector3 targetBrickPos = mouseTargetedBrick.transform.position;
+            ghostBrick.transform.SetPositionAndRotation(targetBrickPos, mouseTargetedBrick.transform.rotation);
+
+            gridUtility.SnapObjectToGrid(ghostBrick, movableGrid, isBrickFollowingCursor,  10f);
+
+            ghostBrick.transform.parent = GameObject.Find(OBJECT_FOLDER_NAME).transform;
+
+            SetObjectAndChildrenColliderEnabled(ghostBrick, false);
+
+            if(ghostBrick.transform.position == targetBrickPos) 
+            {
+                //ghostBrick.SetActive(false);
+
+            }     
+    }
+
+    private void SelectObjectBasedOnTag(GameObject hitObject)
+    {
+        if(hitObject.CompareTag(BASE_BRICK_TAG) || hitObject.CompareTag(SOCKET_TAG_MALE) || hitObject.CompareTag(SOCKET_TAG_FEMALE) )
+        {
+            isBrickFollowingCursor = true;
+            mouseTargetedBrick = IfChildReturnUpperMostParentBesidesRoot(hitObject);
 
             SetObjectAndChildrenColliderEnabled(mouseTargetedBrick, false);
 
             MakeGhostVersionOfCurrentBrick(mouseTargetedBrick);
 
-        }
-        else
-        {
-            for(int i = 0; i < childObjectTags.Length; i++)
-            {
-                if (hitTransform.CompareTag(childObjectTags[i]) && !brickFollowCursor)
-                {
-                    brickFollowCursor = true;
-                    /*if(Input.GetKey("left ctrl"))
-                    {*/
-                        mouseTargetedBrick = IfChildReturnUpperMostParentBesidesRoot(hitTransform.gameObject);
-
-                        brickFollowCursor = true;
-                    /*}
-                    else
-                    {
-                        //Debug.Log("work");
-
-                        mouseTargetedBrick = IfSocketReturnBrick(hitTransform.gameObject);
-                        mouseTargetedBrick.transform.parent = GameObject.Find("Objects").transform;
-                        IfHasChildrenDetatch(mouseTargetedBrick);
-                        brickFollowCursor = true;
-                    }*/
-
-
-                    SetObjectAndChildrenColliderEnabled(mouseTargetedBrick, false);
-
-                    MakeGhostVersionOfCurrentBrick(mouseTargetedBrick);
-                    break;
-                }
-            }    
-        }
+            return;
+        }           
     }
 
-    static public GameObject IfChildReturnUpperMostParentBesidesRoot(GameObject targetObject, string excludeObjectName = "Objects")
+    static public GameObject IfChildReturnUpperMostParentBesidesRoot(GameObject targetObject)
     {
 
         int arbNumber = 100;
 
         Transform parentTransform = targetObject.transform.parent;
-        if(parentTransform != null && parentTransform.name != OBJECT_FOLDER_NAME)
+
+        if(parentTransform == null)
         {
-            for(int i = 0; i < arbNumber; i++)
+            return targetObject;
+        }
+
+        if (parentTransform.name == OBJECT_FOLDER_NAME)
+        {
+            return targetObject;
+        }
+
+
+        for(int i = 0; i < arbNumber; i++)
+        {
+            parentTransform = targetObject.transform.parent;
+
+            if(parentTransform == null)
             {
-                parentTransform = targetObject.transform.parent;
-                
-                if(parentTransform != null && parentTransform.name != excludeObjectName)
-                {    
-                    targetObject = parentTransform.gameObject;      
-                }
-                else
-                {
-                    break;
-                }
-            }  
-            
-            return targetObject;
-        }
-        else 
-        {
-            return targetObject;
-        }
+                break;
+            }
+            if(parentTransform.name == OBJECT_FOLDER_NAME)
+            {
+                break;
+            }
+   
+            targetObject = parentTransform.gameObject;      
+          
+        }  
+
+        return targetObject;
 
 
     }
@@ -360,80 +348,41 @@ public class GameController : MonoBehaviour
 
 
     }
-    private void MoveSelectedBrickIfToggled()
-    {
-
-        if (brickFollowCursor && mouseTargetedBrick != null)
-        {
-
-            
-            Vector3 grabPointPosition = cameraScript.grabPoint.transform.position; //Child1 = grabpoint
-            
-             //Make Rigidbody able to move
-
-            //Rigidbody brickRb = mouseTargetedBrick.GetComponent<Rigidbody>();
-            //brickRb.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-            //brickRb.GetComponent<Rigidbody>().excludeLayers = 0; //nothing
-
-            //brickRb.MovePosition(grabPointPosition);
-
-            mouseTargetedBrick.transform.position = grabPointPosition;
-            
-            Vector3 tempPos = mouseTargetedBrick.transform.position;
-
-            gridUtility.SnapObjectToGrid(mouseTargetedBrick, movableGrid, brickFollowCursor, 0.25f);
-
-
-            
-            if(tempPos != mouseTargetedBrick.transform.position) //did it snap?
-            {
-                mouseTargetedBrick = null;
-                brickFollowCursor = false;
-
-            }
-            
-        }
-    }
-
-    private void ProjectGhostOntoRaycastLocation()
-    {
-        if (ghostBrick!= null && mouseTargetedBrick)
-            {  
-                
-
-                ghostBrick.SetActive(true);
-
-                Vector3 targetBrickPos = mouseTargetedBrick.transform.position;
-                ghostBrick.transform.SetPositionAndRotation(targetBrickPos, mouseTargetedBrick.transform.rotation);
-
-                gridUtility.SnapObjectToGrid(ghostBrick, movableGrid, brickFollowCursor,  10f);
-
-                ghostBrick.transform.parent = GameObject.Find(OBJECT_FOLDER_NAME).transform;
-
-                SetObjectAndChildrenColliderEnabled(ghostBrick, false);
-
-                if(ghostBrick.transform.position == targetBrickPos) 
-                {
-                    //ghostBrick.SetActive(false);
-
-                }
-
-            }
-    }
 
     public void SetObjectAndChildrenColliderEnabled(GameObject targetObject, bool doCollision)
     {
+        if (targetObject == null)
+        {
+            return;
+        }
+
         targetObject.GetComponent<Collider>().enabled = doCollision;
 
         Collider[] childColliders;
         childColliders = targetObject.GetComponentsInChildren<Collider>();
 
         for(int i = 0; i < childColliders.Length; i++){
+
             childColliders[i].enabled = doCollision;
         }
     }
 
-  
+    public void SetObjectAndChildrenMaterial(GameObject targetObject, Material material)
+    {
+        if (targetObject.GetComponent<MeshRenderer>() != null)
+        {
+            targetObject.GetComponent<MeshRenderer>().material = material;
+        }
+
+
+        MeshRenderer[] children;
+        children = targetObject.GetComponentsInChildren<MeshRenderer>();
+
+        for (int i = 0; i < children.Length; i++)
+        {
+            children[i].material = material;
+        }
+    }
     private GameObject CreateMovableGrid()
     {
         GameObject gridObject = new()
