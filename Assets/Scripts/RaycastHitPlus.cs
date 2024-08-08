@@ -7,6 +7,22 @@ public class RaycastHitPlus
     private Vector3 m_RayOrigin;
     private RaycastHit m_RaycastHit;
 
+    private GameObject m_OriginSocket;
+
+
+
+    public GameObject originSocket
+    {
+        get
+        {
+            return m_OriginSocket;
+        }
+        set
+        {
+            m_OriginSocket = value;
+        }
+    }
+
 
     public RaycastHit raycastHit
     {
@@ -31,14 +47,4 @@ public class RaycastHitPlus
         }
     }
 
-
-    public void SetRaycastHit(RaycastHit raycastHit)
-    {
-        m_RaycastHit = raycastHit;
-    }
-
-     public void SetRayOrigin(Vector3 originVector)
-    {
-        m_RayOrigin = originVector;
-    }
 }

@@ -58,22 +58,26 @@ public class GridUtils
         Vector3 targetPosition = targetObject.transform.position;
         Quaternion targetRotation = targetObject.transform.rotation;
 
+        Vector3 cellCenterOffset = GetCellCenter(BASE_CELL_SIZE);
+
         for (int i = 0; i < hitList.Count; i++)
         {
-            Vector3 oldHitDestination = chosenHit.raycastHit.transform.position;
+            Vector3 oldHitDestination = chosenHit.raycastHit.point;
+            oldRayOrigin =  targetRotation * (Vector3.Scale(oldRayOrigin, BASE_CELL_SIZE) + cellCenterOffset);
 
-            Vector3 oldRotatedRayOriginPosition = targetRotation * targetPosition + oldRayOrigin;
-            Vector3 oldDistance = oldRotatedRayOriginPosition - oldHitDestination;
+            Vector3 oldRotatedRayOriginPosition = targetPosition + oldRayOrigin;
+            float oldDistance = Vector3.Distance(oldRotatedRayOriginPosition, oldHitDestination);
 
 
             Vector3 newRayOrigin = hitList[i].rayOrigin;
-            Vector3 newHitDestination = hitList[i].raycastHit.transform.position;
+            newRayOrigin = targetRotation * (Vector3.Scale(newRayOrigin, BASE_CELL_SIZE) + cellCenterOffset);
+            Vector3 newHitDestination = hitList[i].raycastHit.point;
 
-            Vector3 newRotatedRayOriginPosition = targetRotation * targetPosition + newRayOrigin;
-            Vector3 newDistance = newRotatedRayOriginPosition - newHitDestination;
+            Vector3 newRotatedRayOriginPosition = targetPosition + newRayOrigin;
+            float newDistance = Vector3.Distance(newRotatedRayOriginPosition, newHitDestination);
 
-            //closest hit // Closest number to 0
-            if (Mathf.Abs(oldDistance.magnitude) > Mathf.Abs(newDistance.magnitude))
+            //closest hit // Closest number to 0*/
+            if (Mathf.Abs(oldDistance) > Mathf.Abs(newDistance))
             {
                 chosenHit = hitList[i];
                 oldRayOrigin = chosenHit.rayOrigin;
@@ -143,7 +147,8 @@ public class GridUtils
 
         if (hitSocket.CompareTag(SOCKET_TAG_FEMALE) )
         {
-            Vector3 scaleOffset = new Vector3(0, targetObject.transform.lossyScale.y, 0);
+            GameObject originBrick = rayHitPlus.originSocket.transform.parent.gameObject;
+            Vector3 scaleOffset = new Vector3(0, originBrick.transform.lossyScale.y, 0);
             rotatedBrickOffset -= hitRotation * scaleOffset;
         }
 

@@ -75,7 +75,7 @@ public class RaycastUtils
     }
 
 
-    public List<RaycastHit> GetRaycastHitsFromChildrenBasedOnTags(GameObject targetObject, float rayLength=2f, bool shootFromNearCorner = true)
+    public List<RaycastHit> GetRaycastHitsFromChildrenBasedOnTags(GameObject targetObject, float rayLength=2f, bool shootFromNearCorner = false)
     {
         List<RaycastHit> hitList = new List<RaycastHit>();
         for (int i = 0; i < targetObject.transform.childCount; i++)
@@ -244,8 +244,9 @@ public class RaycastUtils
                 RaycastHitPlus hitPlus = new();
                 Vector3 gridPos = GridUtils.GetGridPositionLocalToObject(targetObject, highestParent, newPos);
 
-                hitPlus.SetRaycastHit(rayHit);
-                hitPlus.SetRayOrigin(gridPos);
+                hitPlus.raycastHit = rayHit;
+                hitPlus.rayOrigin = gridPos;
+                hitPlus.originSocket = targetObject;
 
                 allRayHits.Add(hitPlus);  
             }
