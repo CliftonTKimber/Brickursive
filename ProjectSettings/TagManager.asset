@@ -9,6 +9,7 @@ TagManager:
   - Male
   - Female
   - Brick
+  - Controller
   layers:
   - Default
   - TransparentFX

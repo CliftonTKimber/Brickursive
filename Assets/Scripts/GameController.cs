@@ -21,6 +21,8 @@ public class GameController : MonoBehaviour
 
     public List<GameObject> availableBricks;
 
+    public List<GameObject> controllers;
+
     public float spawnDistance = 5f;
 
     private bool isBrickFollowingCursor = false;
@@ -48,6 +50,9 @@ public class GameController : MonoBehaviour
 
     public GameObject movableGrid;
 
+    private bool preventLeftGrab;
+    private bool preventRightGrab;
+
 
     void Start()
     {
@@ -63,12 +68,6 @@ public class GameController : MonoBehaviour
         raycastUtils.Start();
 
         
-
-
-        
-
-
-
         MakeGhostVersionOfCurrentBrick(brick);
 
         
@@ -88,11 +87,12 @@ public class GameController : MonoBehaviour
 
         //SpawnBrickOnMouseClick();
 
-        ProjectGhostOntoRaycastLocation(); 
+        //ProjectGhostOntoRaycastLocation(); 
 
         ChangeBrickOnKeyboardInput();
         SpawnBrickIntoTheAirOnKeyDown();
-        MoveBrickUnderCursorOnMouseClick();
+        //MoveBrickUnderCursorOnMouseClick();
+        MoveBrickIfControllerGrab();
 
 
 
@@ -153,6 +153,72 @@ public class GameController : MonoBehaviour
 
     }
 
+
+    void MoveBrickIfControllerGrab()
+    {
+        /*if()
+        {
+            return;
+        }*/
+
+        if(Input.GetAxis("XRI_Left_Trigger") == 0)
+        {
+            preventLeftGrab = false;
+        }
+
+        if(Input.GetAxis("XRI_Right_Trigger") == 0)
+        {
+            preventRightGrab = false;
+
+            SetObjectAndChildrenColliderEnabled(mouseTargetedBrick, true);
+            isBrickFollowingCursor = false;
+            mouseTargetedBrick = null;
+        }
+
+
+        if(Input.GetAxis("XRI_Left_Trigger") > 0)
+        {
+            GameObject leftController = controllers[0];
+            if(!preventLeftGrab)
+            {
+                ToggleBrickMovementSelectionController(leftController);
+            }
+
+            MoveSelectedBrickToControllerIfToggled(leftController);
+            ProjectGhostOntoControllerLocation(leftController);
+
+        }
+        else
+        {
+            //SetObjectAndChildrenColliderEnabled(mouseTargetedBrick, true);
+            //isBrickFollowingCursor = false;
+            //mouseTargetedBrick = null;
+
+        }
+
+        if(Input.GetAxis("XRI_Right_Trigger") > 0)
+        {   
+            GameObject rightController = controllers[1];
+
+            if(!preventRightGrab)
+            {
+                ToggleBrickMovementSelectionController(rightController);
+            }
+            Debug.Log(mouseTargetedBrick);
+            MoveSelectedBrickToControllerIfToggled(rightController);
+            ProjectGhostOntoControllerLocation(rightController);
+
+
+        }
+        else
+        {
+            //
+
+        }
+
+        
+
+    }
     void MoveBrickUnderCursorOnMouseClick()
     {
         if (Input.GetMouseButtonDown(0))
@@ -163,6 +229,34 @@ public class GameController : MonoBehaviour
         MoveSelectedBrickIfToggled();
     }
 
+
+    private void ToggleBrickMovementSelectionController(GameObject xrController)
+    {
+        GameObject colliderSphere = xrController.transform.GetChild(0).gameObject;
+        ControllerScript controllerScript = colliderSphere.GetComponent<ControllerScript>();
+        GameObject hitBrick = controllerScript.collidingObject;
+
+        if(hitBrick == null)
+        {
+            return;
+        }
+
+        if (!isBrickFollowingCursor)
+        {
+            GameObject hitObject = hitBrick;
+            SelectObjectOrFullStructureOnInput(hitObject);
+
+            if(xrController == controllers[0])
+            {
+                preventLeftGrab = true;
+            }
+            else if(xrController == controllers[1])
+            {
+                preventRightGrab = true;
+            }
+
+        }
+    }
     private void ToggleBrickMovementSelection()
     {
         RaycastHit rayHit = raycastUtils.GetRaycastHitFromPhysicsRaycast(cameraScript.transform.position, cameraScript.transform.forward, RAY_LENGTH_FOR_BRICK_SELECTION);
@@ -221,6 +315,44 @@ public class GameController : MonoBehaviour
             mouseTargetedBrick = null;
             isBrickFollowingCursor = false;
 
+        }
+            
+    }
+
+
+    private void MoveSelectedBrickToControllerIfToggled(GameObject xrController)
+    {
+        if(!isBrickFollowingCursor)
+        {
+            return;
+        }
+        if (mouseTargetedBrick == null)
+        {
+            return;
+        }
+               
+            //Make Rigidbody able to move
+
+        Rigidbody brickRb = mouseTargetedBrick.GetComponent<Rigidbody>();
+        brickRb.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+        brickRb.GetComponent<Rigidbody>().excludeLayers = 0; //nothing
+
+        //brickRb.MovePosition(xrController.transform.position);
+
+        mouseTargetedBrick.transform.position = xrController.transform.position;
+        Quaternion controllerRotation = xrController.transform.rotation;
+        //controllerRotation.eulerAngles -= new Vector3(-120, 0, 0);
+        //mouseTargetedBrick.transform.rotation = controllerRotation;
+
+        
+        Vector3 tempPos = mouseTargetedBrick.transform.position;
+
+        gridUtility.SnapObjectToGrid(mouseTargetedBrick, movableGrid, isBrickFollowingCursor);
+
+        if(tempPos != mouseTargetedBrick.transform.position) //did it snap?
+        {
+            //mouseTargetedBrick = null;
+            //isBrickFollowingCursor = false;
         }
             
     }
@@ -299,6 +431,33 @@ public class GameController : MonoBehaviour
             ghostBrick.SetActive(true);
 
             Vector3 targetBrickPos = mouseTargetedBrick.transform.position;
+            ghostBrick.transform.SetPositionAndRotation(targetBrickPos, mouseTargetedBrick.transform.rotation);
+
+            gridUtility.SnapObjectToGrid(ghostBrick, movableGrid, isBrickFollowingCursor,  10f);
+
+            ghostBrick.transform.parent = GameObject.Find(OBJECT_FOLDER_NAME).transform;
+
+            SetObjectAndChildrenColliderEnabled(ghostBrick, false);
+
+            if(ghostBrick.transform.position == targetBrickPos) 
+            {
+                //ghostBrick.SetActive(false);
+
+            }     
+    }
+
+    private void ProjectGhostOntoControllerLocation(GameObject xrController)
+    {
+        if (ghostBrick == null || mouseTargetedBrick == null)
+            {  
+                return;
+            }
+
+            ghostBrick.SetActive(true);
+
+            Vector3 targetBrickPos = xrController.transform.position;
+
+            //Vector3 targetBrickPos = mouseTargetedBrick.transform.position;
             ghostBrick.transform.SetPositionAndRotation(targetBrickPos, mouseTargetedBrick.transform.rotation);
 
             gridUtility.SnapObjectToGrid(ghostBrick, movableGrid, isBrickFollowingCursor,  10f);
