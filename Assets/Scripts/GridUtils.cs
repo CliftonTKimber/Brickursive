@@ -74,6 +74,8 @@ public class GridUtils
 
             float newDistance = Vector3.Distance(newRotatedRayOriginPosition, newHitDestination);
 
+            //Debug.Log(i + " " + oldDistance + " " + newDistance);
+
             //closest hit // Closest number to 0*/
             if (Mathf.Abs(oldDistance) > Mathf.Abs(newDistance))
             {
