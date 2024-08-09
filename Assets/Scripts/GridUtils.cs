@@ -63,17 +63,15 @@ public class GridUtils
         for (int i = 0; i < hitList.Count; i++)
         {
             Vector3 oldHitDestination = chosenHit.raycastHit.point;
-            oldRayOrigin =  targetRotation * (Vector3.Scale(oldRayOrigin, BASE_CELL_SIZE) + cellCenterOffset);
+            Vector3 oldRotatedRayOriginPosition = GetRayOriginInWorldSpaceRelativeToObject(targetObject, oldRayOrigin);
 
-            Vector3 oldRotatedRayOriginPosition = targetPosition + oldRayOrigin;
             float oldDistance = Vector3.Distance(oldRotatedRayOriginPosition, oldHitDestination);
 
 
             Vector3 newRayOrigin = hitList[i].rayOrigin;
-            newRayOrigin = targetRotation * (Vector3.Scale(newRayOrigin, BASE_CELL_SIZE) + cellCenterOffset);
             Vector3 newHitDestination = hitList[i].raycastHit.point;
+            Vector3 newRotatedRayOriginPosition = GetRayOriginInWorldSpaceRelativeToObject(targetObject, newRayOrigin);
 
-            Vector3 newRotatedRayOriginPosition = targetPosition + newRayOrigin;
             float newDistance = Vector3.Distance(newRotatedRayOriginPosition, newHitDestination);
 
             //closest hit // Closest number to 0*/
@@ -161,6 +159,19 @@ public class GridUtils
 
 
     }
+
+    public static Vector3 GetRayOriginInWorldSpaceRelativeToObject(GameObject targetObject, Vector3 rayOrigin)
+    {
+        Vector3 targetPosition = targetObject.transform.position;
+        Quaternion targetRotation = targetObject.transform.rotation;
+        Vector3 cellCenterOffset = GetCellCenter(BASE_CELL_SIZE);
+
+        Vector3 worldRayOrigin = targetRotation * (Vector3.Scale(rayOrigin, BASE_CELL_SIZE) + cellCenterOffset);
+        Vector3 rotatedRayOriginPosition = targetPosition + worldRayOrigin;
+
+        return rotatedRayOriginPosition;
+    }
+
      private static void FreezeObjectSoItRemainsRelativeToParent(GameObject targetObject)
     {
         targetObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;

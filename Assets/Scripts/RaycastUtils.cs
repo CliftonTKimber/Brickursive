@@ -198,6 +198,7 @@ public class RaycastUtils
 
     public List<RaycastHitPlus> GetRaycastHitFromEachCellOfChild(GameObject targetObject)
     {
+
         Vector3 []vectorArray = GetLookDirectionAndFirstCellOffset(targetObject);
 
         Vector3 lookDir = vectorArray[0];
@@ -257,12 +258,13 @@ public class RaycastUtils
     }
  
 
-    public Vector3[] GetLookDirectionAndFirstCellOffset(GameObject targetObject)
+    public static Vector3[] GetLookDirectionAndFirstCellOffset(GameObject targetObject)
     {
 
         Vector3 lookDir = targetObject.transform.up;
         float clearColliderOffset = 0.025f;
-        float heightOffset = targetObject.transform.parent.transform.lossyScale.y;
+        GameObject theBrick = targetObject.transform.parent.gameObject;
+        float heightOffset = theBrick.transform.lossyScale.y;
 
         if(targetObject.CompareTag(SOCKET_TAG_FEMALE))
         {
@@ -283,6 +285,8 @@ public class RaycastUtils
 
 
     }
+   
+   
     public bool IsRayHitOppositeSocket(GameObject originObject, RaycastHit raycastHit)
     {
         bool isOpposite = false;

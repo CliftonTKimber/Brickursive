@@ -177,7 +177,7 @@ public class GameController : MonoBehaviour
         if (!isBrickFollowingCursor)
         {
             GameObject hitObject = rayHit.collider.gameObject;
-            SelectObjectBasedOnTag(hitObject);
+            SelectObjectOrFullStructureOnInput(hitObject);
 
         }
         else
@@ -204,13 +204,13 @@ public class GameController : MonoBehaviour
         
             //Make Rigidbody able to move
 
-        //Rigidbody brickRb = mouseTargetedBrick.GetComponent<Rigidbody>();
-        //brickRb.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-        //brickRb.GetComponent<Rigidbody>().excludeLayers = 0; //nothing
+        Rigidbody brickRb = mouseTargetedBrick.GetComponent<Rigidbody>();
+        brickRb.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+        brickRb.GetComponent<Rigidbody>().excludeLayers = 0; //nothing
 
-        //brickRb.MovePosition(grabPointPosition);
+        brickRb.MovePosition(grabPointPosition);
 
-        mouseTargetedBrick.transform.position = grabPointPosition;
+        //mouseTargetedBrick.transform.position = grabPointPosition;
         
         Vector3 tempPos = mouseTargetedBrick.transform.position;
 
@@ -225,44 +225,28 @@ public class GameController : MonoBehaviour
             
     }
 
-    private void ProjectGhostOntoRaycastLocation()
+    private void SelectObjectOrFullStructureOnInput(GameObject hitObject)
     {
-        if (ghostBrick == null || mouseTargetedBrick == null)
-            {  
-                return;
-            }
-
-            ghostBrick.SetActive(true);
-
-            Vector3 targetBrickPos = mouseTargetedBrick.transform.position;
-            ghostBrick.transform.SetPositionAndRotation(targetBrickPos, mouseTargetedBrick.transform.rotation);
-
-            gridUtility.SnapObjectToGrid(ghostBrick, movableGrid, isBrickFollowingCursor,  10f);
-
-            ghostBrick.transform.parent = GameObject.Find(OBJECT_FOLDER_NAME).transform;
-
-            SetObjectAndChildrenColliderEnabled(ghostBrick, false);
-
-            if(ghostBrick.transform.position == targetBrickPos) 
-            {
-                //ghostBrick.SetActive(false);
-
-            }     
-    }
-
-    private void SelectObjectBasedOnTag(GameObject hitObject)
-    {
-        if(hitObject.CompareTag(BASE_BRICK_TAG) || hitObject.CompareTag(SOCKET_TAG_MALE) || hitObject.CompareTag(SOCKET_TAG_FEMALE) )
+        if(!hitObject.CompareTag(BASE_BRICK_TAG) && !hitObject.CompareTag(SOCKET_TAG_MALE) && !hitObject.CompareTag(SOCKET_TAG_FEMALE) )
         {
-            isBrickFollowingCursor = true;
-            mouseTargetedBrick = IfChildReturnUpperMostParentBesidesRoot(hitObject);
-
-            SetObjectAndChildrenColliderEnabled(mouseTargetedBrick, false);
-
-            MakeGhostVersionOfCurrentBrick(mouseTargetedBrick);
-
             return;
-        }           
+        }
+
+        if(Input.GetKey("left ctrl"))
+        {
+            hitObject = IfSocketReturnBrick(hitObject);
+            hitObject.transform.parent = GameObject.Find(OBJECT_FOLDER_NAME).transform;
+        }
+
+        isBrickFollowingCursor = true;
+        mouseTargetedBrick = IfChildReturnUpperMostParentBesidesRoot(hitObject);
+
+        SetObjectAndChildrenColliderEnabled(mouseTargetedBrick, false);
+
+        MakeGhostVersionOfCurrentBrick(mouseTargetedBrick);
+
+        return;
+                  
     }
 
     static public GameObject IfChildReturnUpperMostParentBesidesRoot(GameObject targetObject)
@@ -304,12 +288,37 @@ public class GameController : MonoBehaviour
 
 
     }
+
+    private void ProjectGhostOntoRaycastLocation()
+    {
+        if (ghostBrick == null || mouseTargetedBrick == null)
+            {  
+                return;
+            }
+
+            ghostBrick.SetActive(true);
+
+            Vector3 targetBrickPos = mouseTargetedBrick.transform.position;
+            ghostBrick.transform.SetPositionAndRotation(targetBrickPos, mouseTargetedBrick.transform.rotation);
+
+            gridUtility.SnapObjectToGrid(ghostBrick, movableGrid, isBrickFollowingCursor,  10f);
+
+            ghostBrick.transform.parent = GameObject.Find(OBJECT_FOLDER_NAME).transform;
+
+            SetObjectAndChildrenColliderEnabled(ghostBrick, false);
+
+            if(ghostBrick.transform.position == targetBrickPos) 
+            {
+                //ghostBrick.SetActive(false);
+
+            }     
+    }
     
     private GameObject IfSocketReturnBrick(GameObject targetObject)
     {
         
 
-        if(targetObject.transform.CompareTag(SOCKET_TAG_MALE) ||targetObject.transform.CompareTag(SOCKET_TAG_FEMALE))
+        if(targetObject.transform.CompareTag(SOCKET_TAG_MALE) || targetObject.transform.CompareTag(SOCKET_TAG_FEMALE))
         {
             //Debug.Log("Male or Female");
             return targetObject.transform.parent.gameObject;
