@@ -60,30 +60,38 @@ public class GridUtils
 
         Vector3 cellCenterOffset = GetCellCenter(BASE_CELL_SIZE);
 
-        for (int i = 0; i < hitList.Count; i++)
+        for (int i = 1; i < hitList.Count; i++)
         {
             Vector3 oldHitDestination = chosenHit.raycastHit.point;
             Vector3 oldRotatedRayOriginPosition = GetRayOriginInWorldSpaceRelativeToObject(targetObject, oldRayOrigin);
 
-            float oldDistance = Vector3.Distance(oldRotatedRayOriginPosition, oldHitDestination);
+            double oldDistance = Vector3.Distance(oldRotatedRayOriginPosition, oldHitDestination);
 
 
             Vector3 newRayOrigin = hitList[i].rayOrigin;
             Vector3 newHitDestination = hitList[i].raycastHit.point;
             Vector3 newRotatedRayOriginPosition = GetRayOriginInWorldSpaceRelativeToObject(targetObject, newRayOrigin);
 
-            float newDistance = Vector3.Distance(newRotatedRayOriginPosition, newHitDestination);
 
-            //Debug.Log(i + " " + oldDistance + " " + newDistance);
+            double newDistance = Vector3.Distance(newRotatedRayOriginPosition, newHitDestination);
+
+
+            //Tolerances
+            oldDistance = Math.Round(oldDistance, 2);
+            newDistance = Math.Round(newDistance, 2);
+
 
             //closest hit // Closest number to 0*/
-            if (Mathf.Abs(oldDistance) > Mathf.Abs(newDistance))
+            if ( Math.Abs(newDistance) < Math.Abs(oldDistance))
             {
                 chosenHit = hitList[i];
                 oldRayOrigin = chosenHit.rayOrigin;
-
             }
+
         }
+
+        RaycastUtils.GetRaycastHitFromPhysicsRaycast(chosenHit.raycastHit.point, Vector3.up, 5f, true);
+
 
         return chosenHit;
     }

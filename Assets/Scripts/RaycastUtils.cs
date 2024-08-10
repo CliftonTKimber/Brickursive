@@ -27,9 +27,9 @@ public class RaycastUtils
     }
 
 
-    public RaycastHit GetRaycastHitFromPhysicsRaycast(Vector3 startPos, Vector3 lookDirection, float rayLength, bool doDraw = true)
+    public static RaycastHit GetRaycastHitFromPhysicsRaycast(Vector3 startPos, Vector3 lookDirection, float rayLength, bool doDraw = false)
     {
-        Color rayColor = Color.green;
+        Color rayColor = Color.yellow;
         if(Physics.Raycast(startPos, lookDirection, out RaycastHit hitInfo, rayLength))
         {
             if(doDraw)

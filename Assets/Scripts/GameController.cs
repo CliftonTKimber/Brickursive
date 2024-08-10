@@ -6,6 +6,7 @@ using static GameConfig;
 
 //using System.Numerics;
 using UnityEngine;
+using UnityEngine.XR;
 
 
 
@@ -33,7 +34,8 @@ public class GameController : MonoBehaviour
 
     private int brickSelector = 0;
 
-    private GameObject ghostBrick;
+    public GameObject leftGhostBrick;
+    public GameObject rightGhostBrick;
     public Material ghostMaterial;
 
 
@@ -70,7 +72,7 @@ public class GameController : MonoBehaviour
         raycastUtils.Start();
 
         
-        MakeGhostVersionOfCurrentBrick(brick);
+        //MakeGhostVersionOfCurrentBrick(brick, leftGhostBrick);
 
         
     }
@@ -89,6 +91,7 @@ public class GameController : MonoBehaviour
 
         ChangeBrickOnKeyboardInput();
         SpawnBrickIntoTheAirOnKeyDown();
+        SpawnBrickIntoTheAirOnControllerButtonDown();
         MoveBricksIfControllersGrab();
 
 
@@ -96,11 +99,11 @@ public class GameController : MonoBehaviour
     }
 
   
-    private void MakeGhostVersionOfCurrentBrick(GameObject chosenBrick)
+    private GameObject MakeGhostVersionOfCurrentBrick(GameObject chosenBrick, GameObject ghostBrick)
     {
         if(chosenBrick == null)
         {
-            return;
+            return null;
         }
 
         if (ghostBrick != null)
@@ -113,6 +116,8 @@ public class GameController : MonoBehaviour
 
         SetObjectAndChildrenColliderEnabled(ghostBrick, false);
         SetObjectAndChildrenMaterial(ghostBrick, ghostMaterial);
+
+        return ghostBrick;
     }
 
  
@@ -126,7 +131,7 @@ public class GameController : MonoBehaviour
              {
                 brickSelector++;   
                 brick = availableBricks[brickSelector];
-                MakeGhostVersionOfCurrentBrick(brick);
+                leftGhostBrick = MakeGhostVersionOfCurrentBrick(brick, leftGhostBrick);
             }
         }
         else if(Input.GetKeyDown("o"))
@@ -135,7 +140,7 @@ public class GameController : MonoBehaviour
              {
                 brickSelector--;
                 brick = availableBricks[brickSelector];
-                MakeGhostVersionOfCurrentBrick(brick);
+                rightGhostBrick = MakeGhostVersionOfCurrentBrick(brick, leftGhostBrick);
              }
         }
 
@@ -144,7 +149,7 @@ public class GameController : MonoBehaviour
 
     void SpawnBrickIntoTheAirOnKeyDown()
     {
-        if (Input.GetKeyDown("r"))
+        if (Input.GetKeyDown("space"))
         {
                 Vector3 spawnPos = cameraScript.grabPoint.transform.position;
 
@@ -152,6 +157,38 @@ public class GameController : MonoBehaviour
 
                 Instantiate(brick, spawnPos, transform.rotation, objectFolder);
         }
+
+    }
+
+    private void SpawnBrickIntoTheAirOnControllerButtonDown()
+    {
+        //Does not release from pressed state
+        //Debug.Log(Input.GetButtonDown("XRI_Left_PrimaryButton"));
+
+        /*if (Input.GetButtonDown("XRI_Left_PrimaryButton"))
+        if(Input.GetKeyDown("r"))
+        {
+            //Debug.Log("Left button!");
+            Transform grabSphere = controllers[0].transform.GetChild(0);
+            Vector3 spawnPos = grabSphere.position;
+
+            Transform objectFolder = GameObject.Find("Objects").transform;
+
+            Instantiate(brick, spawnPos, transform.rotation, objectFolder);
+        }
+
+        if (Input.GetButtonDown("XRI_Right_PrimaryButton"))
+        {
+            Debug.Log("right button!");
+            Transform grabSphere = controllers[1].transform.GetChild(0);
+            Vector3 spawnPos = grabSphere.position;
+
+            Transform objectFolder = GameObject.Find("Objects").transform;
+
+            Instantiate(brick, spawnPos, transform.rotation, objectFolder);
+
+            
+        }*/
 
     }
 
@@ -165,6 +202,8 @@ public class GameController : MonoBehaviour
 
   private void MoveAndProjectBrickGrabbedByLeftController()
     {
+
+
         if (Input.GetAxis("XRI_Left_Trigger") == 0)
         {
             preventLeftGrab = false;
@@ -172,21 +211,24 @@ public class GameController : MonoBehaviour
             SetObjectAndChildrenColliderEnabled(leftTargetedBrick, true);
             leftTargetedBrick = null;
 
+            GameObject.Destroy(leftGhostBrick);
+
         }
 
         if (Input.GetAxis("XRI_Left_Trigger") > 0)
         {
+
             GameObject leftController = controllers[0];
 
             if (!preventLeftGrab)
             {
                 leftTargetedBrick = ToggleBrickMovementSelectionController(leftController);
-                MakeGhostVersionOfCurrentBrick(leftTargetedBrick);
+                leftGhostBrick = MakeGhostVersionOfCurrentBrick(leftTargetedBrick, leftGhostBrick);
 
             }
 
             MoveSelectedBrickToControllerIfToggled(leftTargetedBrick, leftController);
-            ProjectGhostOntoControllerLocation(leftTargetedBrick, leftController);
+            ProjectGhostOntoControllerLocation(leftTargetedBrick, leftGhostBrick, leftController);
 
         }
     }
@@ -199,6 +241,8 @@ public class GameController : MonoBehaviour
 
             SetObjectAndChildrenColliderEnabled(rightTargetedBrick, true);
             rightTargetedBrick = null;
+
+            GameObject.Destroy(rightGhostBrick);
         }
 
         if (Input.GetAxis("XRI_Right_Trigger") > 0)
@@ -209,11 +253,11 @@ public class GameController : MonoBehaviour
             if (!preventRightGrab)
             {
                 rightTargetedBrick = ToggleBrickMovementSelectionController(rightController);
-                MakeGhostVersionOfCurrentBrick(rightTargetedBrick);
+                rightGhostBrick = MakeGhostVersionOfCurrentBrick(rightTargetedBrick, rightGhostBrick);
 
             }
             MoveSelectedBrickToControllerIfToggled(rightTargetedBrick, rightController);
-            ProjectGhostOntoControllerLocation(rightTargetedBrick, rightController);
+            ProjectGhostOntoControllerLocation(rightTargetedBrick, rightGhostBrick, rightController);
 
 
         }
@@ -273,6 +317,18 @@ public class GameController : MonoBehaviour
 
         if(tempPos != targetedBrick.transform.position) //did it snap?
         {
+            if(xrController == controllers[0])
+            {
+                leftTargetedBrick = null;
+                preventLeftGrab = true;
+
+            }
+            else if (xrController == controllers[1])
+            {
+                rightTargetedBrick = null;
+                preventRightGrab = true;
+
+            }
             //targetedBrick = null;
             //isBrickFollowingCursor = false;
         }
@@ -342,7 +398,7 @@ public class GameController : MonoBehaviour
 
     }
 
-    private void ProjectGhostOntoControllerLocation(GameObject targetedBrick, GameObject xrController)
+    private void ProjectGhostOntoControllerLocation(GameObject targetedBrick, GameObject ghostBrick, GameObject xrController)
     {
         if (ghostBrick == null || targetedBrick == null)
             {  
