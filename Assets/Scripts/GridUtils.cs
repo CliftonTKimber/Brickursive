@@ -163,6 +163,8 @@ public class GridUtils
 
         Vector3 finalPos = cellCenter + rotatedBrickOffset - rotatedCellOffset - gridHitOrigin;
 
+        RaycastUtils.GetRaycastHitFromPhysicsRaycast(finalPos, Vector3.up, 5f, true);
+
 
         return finalPos;
 
