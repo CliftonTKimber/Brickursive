@@ -27,9 +27,31 @@ public class RaycastUtils
     }
 
 
-    public static RaycastHit GetRaycastHitFromPhysicsRaycast(Vector3 startPos, Vector3 lookDirection, float rayLength, bool doDraw = false)
+    public static RaycastHit GetRaycastHitFromPhysicsRaycast(Vector3 startPos, Vector3 lookDirection, float rayLength = 5f, bool doDraw = false, int rayColorInt = 0)
     {
-        Color rayColor = Color.yellow;
+        Color rayColor = new();
+        switch (rayColorInt)
+        {
+            case 0:
+                rayColor = Color.white;
+                break;
+            case 1:
+                rayColor = Color.magenta;
+                break;
+            case 2:
+                rayColor = Color.cyan;
+                break;
+            case 3:
+                rayColor = Color.yellow;
+                break;
+
+            default:
+                rayColor = Color.white;
+                break;
+
+        };
+
+        
         if(Physics.Raycast(startPos, lookDirection, out RaycastHit hitInfo, rayLength))
         {
             if(doDraw)
@@ -44,7 +66,8 @@ public class RaycastUtils
         {
             if(doDraw)
             {
-                Debug.DrawRay(startPos, lookDirection, Color.red);
+                //rayColor = Color.red;
+                Debug.DrawRay(startPos, lookDirection, rayColor);
             }
             return hitInfo; //empty   
         }    

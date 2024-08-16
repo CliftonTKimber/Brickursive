@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using static GameConfig;
 
 public class GridUtils
@@ -29,7 +30,7 @@ public class GridUtils
 
 
 
-    public void SnapObjectToGrid(GameObject targetObject, GameObject movableGrid,  bool objectIsHeld,   float raycastLength = 0.25f)
+    public void SnapObjectToGrid(GameObject targetObject, GameObject movableGrid,  bool objectIsHeld)
     {
         if (!objectIsHeld)
         {
@@ -127,7 +128,12 @@ public class GridUtils
 
      
         targetObject.transform.SetPositionAndRotation(endPos, hitRotation);
-        targetObject.transform.parent = hitBrick.transform;
+        targetObject.GetComponent<BrickBehavior>().newParent = hitBrick.transform;
+
+        targetObject.GetComponent<XRGrabInteractable>().interactionLayers = 1 << 
+         UnityEngine.XR.Interaction.Toolkit.InteractionLayerMask.NameToLayer("onlyPluckable");
+
+        targetObject.transform.SetParent(hitBrick.transform);
 
         FreezeObjectSoItRemainsRelativeToParent(targetObject);
         ReenableColliders(targetObject);
@@ -186,8 +192,10 @@ public class GridUtils
 
      private static void FreezeObjectSoItRemainsRelativeToParent(GameObject targetObject)
     {
+        targetObject.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
+        targetObject.GetComponent<Rigidbody>().velocity = Vector3.zero; 
         targetObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
-        targetObject.GetComponent<Rigidbody>().excludeLayers = BRICK_LAYER;
+        targetObject.GetComponent<Rigidbody>().excludeLayers = 1 << BRICK_LAYER;
     }
    
     private void ReenableColliders(GameObject targetObject)
