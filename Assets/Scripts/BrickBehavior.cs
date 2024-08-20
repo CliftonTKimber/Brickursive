@@ -16,11 +16,18 @@ public class BrickBehavior : MonoBehaviour
 
     public Transform newParent;
 
+    public Vector3 trueScale;
+
 
     void Start()
     {
 
         gameController = GameObject.Find("Game Controller");
+
+        Mesh objectMesh = GetComponent<MeshFilter>().mesh;
+        trueScale = new( objectMesh.bounds.size.x * transform.lossyScale.x,
+                                    objectMesh.bounds.size.y * transform.lossyScale.y, 
+                                    objectMesh.bounds.size.z * transform.lossyScale.z);
         
     }
 
@@ -33,22 +40,12 @@ public class BrickBehavior : MonoBehaviour
     void FixedUpdate()
     {
 
-        PreventShearing();
-    }
-
-
-    void PreventShearing()
-    {
-        Matrix4x4 worldMatrix = transform.localToWorldMatrix;
-
-        Vector3 translation = worldMatrix.GetPosition();
-        Vector3 scale = worldMatrix.lossyScale;
-        Quaternion rotation = worldMatrix.rotation;
-
         
 
-
     }
+
+
+
 
     public void CallSnappingMethods(SelectEnterEventArgs eventData)
     {

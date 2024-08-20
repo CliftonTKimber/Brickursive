@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit;
 
 public class GameConfig 
 {
@@ -22,6 +23,10 @@ public class GameConfig
     public static readonly string GHOST_BRICK_NAME = "Ghost Brick";
 
     public static readonly string OBJECT_FOLDER_NAME = "Objects";
+
+    public static readonly InteractionLayerMask LAYER_MASK_ONLY_PLUCKABLE = InteractionLayerMask.NameToLayer("onlyPluckable");
+
+    public static readonly InteractionLayerMask LAYER_MASK_INTERACT = InteractionLayerMask.NameToLayer("Interact");
 
 
     

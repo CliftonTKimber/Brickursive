@@ -30,13 +30,7 @@ public class GameController : MonoBehaviour
 
     private GameObject leftController;
 
-    private GameObject leftParent;
-    private GameObject rightParent;
-
-
     public float spawnDistance = 5f;
-
-    private bool isBrickFollowingCursor = false;
 
     private GameObject leftTargetedBrick;
     private GameObject rightTargetedBrick;
@@ -102,11 +96,13 @@ public class GameController : MonoBehaviour
         ChangeBrickOnKeyboardInput();
         SpawnBrickIntoTheAirOnKeyDown();
         SpawnBrickIntoTheAirOnControllerButtonDown();
+
         MoveBricksIfControllersGrab();
 
 
-        NewMethod(controllers[0]);
-        NewMethod(controllers[1]);
+        AllowControllerSelection(controllers[0]);
+        AllowControllerSelection(controllers[1]);
+
         ChangeInteractorLayerMaskOnTrigger(controllers[0]);
         ChangeInteractorLayerMaskOnTrigger(controllers[1]);
 
@@ -115,7 +111,7 @@ public class GameController : MonoBehaviour
 
     }
 
-    private void NewMethod(GameObject xrController)
+    private void AllowControllerSelection(GameObject xrController)
     {   
         NearFarInteractor nearFarInteractor = xrController.GetComponentInChildren<NearFarInteractor>();
 
@@ -133,9 +129,9 @@ public class GameController : MonoBehaviour
             leftGhostBrick = MakeGhostVersionOfCurrentBrick(targetBrick, leftGhostBrick);
             leftController = controllers[0];
 
-            nfInteractor.interactionLayers = 1 <<  UnityEngine.XR.Interaction.Toolkit.InteractionLayerMask.NameToLayer("Interact");
-            targetBrick.GetComponent<XRGrabInteractable>().interactionLayers = 1 << 
-         UnityEngine.XR.Interaction.Toolkit.InteractionLayerMask.NameToLayer("Interact");
+            nfInteractor.interactionLayers = 1 <<  LAYER_MASK_INTERACT;
+            targetBrick.GetComponent<XRGrabInteractable>().interactionLayers = 1 << LAYER_MASK_INTERACT;
+
         }
         else if(usedController == controllers[1])
         {
@@ -143,22 +139,16 @@ public class GameController : MonoBehaviour
             rightGhostBrick = MakeGhostVersionOfCurrentBrick(targetBrick, rightGhostBrick);
             rightController = controllers[1];
 
-            nfInteractor.interactionLayers =  1 << UnityEngine.XR.Interaction.Toolkit.InteractionLayerMask.NameToLayer("Interact");
-            targetBrick.GetComponent<XRGrabInteractable>().interactionLayers = 1 << 
-         UnityEngine.XR.Interaction.Toolkit.InteractionLayerMask.NameToLayer("Interact");
+            nfInteractor.interactionLayers =  1 << LAYER_MASK_INTERACT;
+            targetBrick.GetComponent<XRGrabInteractable>().interactionLayers = 1 << LAYER_MASK_INTERACT;
 
         }
     }
 
     public void EndSnapping(GameObject usedController)
     {
-
-
         if(usedController == controllers[0])
         {
-
-
-
             leftTargetedBrick = null;
             GameObject.Destroy(leftGhostBrick);
             leftController = null;
@@ -166,15 +156,11 @@ public class GameController : MonoBehaviour
         }
         else if(usedController == controllers[1])
         {
-
-
-
             rightTargetedBrick = null;
             GameObject.Destroy(rightGhostBrick);
             rightController = null;
 
         }
-
     }
   
     private GameObject MakeGhostVersionOfCurrentBrick(GameObject chosenBrick, GameObject ghostBrick)
@@ -197,8 +183,6 @@ public class GameController : MonoBehaviour
 
         return ghostBrick;
     }
-
- 
 
     void ChangeBrickOnKeyboardInput()
     {
@@ -231,9 +215,11 @@ public class GameController : MonoBehaviour
         {
                 Vector3 spawnPos = cameraScript.grabPoint.transform.position;
 
-                Transform objectFolder = GameObject.Find("Objects").transform;
+                Transform objectFolder = GameObject.Find(OBJECT_FOLDER_NAME).transform;
 
                 Instantiate(brick, spawnPos, transform.rotation, objectFolder);
+
+
         }
 
     }
@@ -280,149 +266,82 @@ public class GameController : MonoBehaviour
         //Layermask uses ~ to negate associated part.
         if(activateInput.ReadValue() > 0)
         {
-            nfInteractor.interactionLayers = 1 << UnityEngine.XR.Interaction.Toolkit.InteractionLayerMask.NameToLayer("onlyPluckable");
+            nfInteractor.interactionLayers = 1 << LAYER_MASK_ONLY_PLUCKABLE;
         }
 
         if(selectInput.ReadValue() > 0)
         {
-            nfInteractor.interactionLayers = 1 <<  UnityEngine.XR.Interaction.Toolkit.InteractionLayerMask.NameToLayer("Interact");
+            nfInteractor.interactionLayers = 1 <<  LAYER_MASK_INTERACT;
         }
     }
 
 
     void MoveBricksIfControllersGrab()
     {
-        MoveAndProjectBrickGrabbedByLeftController(leftController);
-        MoveAndProjectBrickGrabbedByRightController(rightController);
-    }
+        MoveSelectedBrickToControllerIfToggled(leftTargetedBrick, leftController);
+        ProjectGhostOntoControllerLocation(leftTargetedBrick, leftGhostBrick);
 
+        MoveSelectedBrickToControllerIfToggled(rightTargetedBrick, rightController);
+        ProjectGhostOntoControllerLocation(rightTargetedBrick, rightGhostBrick);
 
-  private void MoveAndProjectBrickGrabbedByLeftController(GameObject xrController)
-    {
-
-            MoveSelectedBrickToControllerIfToggled(leftTargetedBrick, xrController);
-            ProjectGhostOntoControllerLocation(leftTargetedBrick, leftGhostBrick);
-
-        
-    }
-
-    private void MoveAndProjectBrickGrabbedByRightController(GameObject xrController)
-    {
-
-
-        
-            MoveSelectedBrickToControllerIfToggled(rightTargetedBrick, xrController);
-            ProjectGhostOntoControllerLocation(rightTargetedBrick, rightGhostBrick);
-
-
-        
-    }
-
-
-    private GameObject ToggleBrickMovementSelectionController(GameObject xrController)
-    {
-        GameObject colliderSphere = xrController.transform.GetChild(0).gameObject;
-        ControllerScript controllerScript = colliderSphere.GetComponent<ControllerScript>();
-        GameObject hitBrick = controllerScript.collidingObject;
-
-        if(hitBrick == null)
-        {
-            return null;
-        }
-
-
-        GameObject targetedBrick = SelectObjectOrFullStructureOnInput(hitBrick);
-
-        if(xrController == controllers[0])
-        {
-            preventLeftGrab = true;
-        }
-        else if(xrController == controllers[1])
-        {
-            preventRightGrab = true;
-        }
-        
-
-        return targetedBrick;
     }
 
     private void MoveSelectedBrickToControllerIfToggled(GameObject targetedBrick, GameObject xrController)
     {
-
         if (targetedBrick == null || xrController == null)
         {
             return;
         }
-               
-         //Make Rigidbody able to move
 
-        Rigidbody brickRb = targetedBrick.GetComponent<Rigidbody>();
-        //brickRb.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-        //brickRb.GetComponent<Rigidbody>().excludeLayers = 0; //nothing
-
-        //TODO: rigidbody move funciton later
-        Vector3 tempPos = targetedBrick.transform.position;
+        Vector3 originalPos = targetedBrick.transform.position;
 
         gridUtility.SnapObjectToGrid(targetedBrick, movableGrid, true);
 
-        if(tempPos != targetedBrick.transform.position) //did it snap?
-        {
-            if(xrController == controllers[0])
-            {
-                EndSnapping(xrController);
-                leftParent = targetedBrick.transform.parent.gameObject;
+        DisableControllerSelectionIfBrickSnapped(targetedBrick, xrController, originalPos);
 
-                //xrController.GetNamedChild("Near-Far Interactor").GetComponent<NearFarInteractor>().allowSelect = false;
-                xrController.GetComponentInChildren<NearFarInteractor>().allowSelect = false;
-                //leftTargetedBrick = null;
-
-            }
-            else if (xrController == controllers[1])
-            {
-                EndSnapping(xrController);
-
-                rightParent = targetedBrick.transform.parent.gameObject;
-
-                //xrController.GetNamedChild("Near-Far Interactor").GetComponent<NearFarInteractor>().StopCoroutine();
-
-                xrController.GetComponentInChildren<NearFarInteractor>().allowSelect = false;
-
-                //rightTargetedBrick = null;
-
-            }
-
-
-            //targetedBrick = null;
-            //isBrickFollowingCursor = false;
-        }
-            
     }
 
-
-    private GameObject SelectObjectOrFullStructureOnInput(GameObject hitObject)
+    private void DisableControllerSelectionIfBrickSnapped(GameObject targetedBrick, GameObject xrController, Vector3 originalPos)
     {
-        if(!hitObject.CompareTag(BASE_BRICK_TAG) && !hitObject.CompareTag(SOCKET_TAG_MALE) && !hitObject.CompareTag(SOCKET_TAG_FEMALE) )
+        if (originalPos != targetedBrick.transform.position)
         {
-            return null;
+            EndSnapping(xrController);
+            xrController.GetComponentInChildren<NearFarInteractor>().allowSelect = false;
+
         }
-
-        if(Input.GetKey("left ctrl"))
-        {
-            hitObject = IfSocketReturnBrick(hitObject);
-            hitObject.transform.parent = GameObject.Find(OBJECT_FOLDER_NAME).transform;
-        }
-
-        isBrickFollowingCursor = true;
-        GameObject targetedBrick = IfChildReturnUpperMostParentBesidesRoot(hitObject);
-
-        SetObjectAndChildrenColliderEnabled(targetedBrick, false);
-
-
-        return targetedBrick;
-                  
     }
 
-    static public GameObject IfChildReturnUpperMostParentBesidesRoot(GameObject targetObject)
+
+   
+
+    private void ProjectGhostOntoControllerLocation(GameObject targetedBrick, GameObject ghostBrick)
+    {
+        if (ghostBrick == null || targetedBrick == null)
+            {  
+                return;
+            }
+
+            ghostBrick.SetActive(true);
+
+            Vector3 newBrickPos = targetedBrick.transform.position;
+
+            //Vector3 targetBrickPos = mouseTargetedBrick.transform.position;
+            ghostBrick.transform.SetPositionAndRotation(newBrickPos, targetedBrick.transform.rotation);
+
+            gridUtility.SnapObjectToGrid(ghostBrick, movableGrid, true);
+
+            ghostBrick.transform.parent = GameObject.Find(OBJECT_FOLDER_NAME).transform;
+
+            SetObjectAndChildrenColliderEnabled(ghostBrick, false);
+
+            if(ghostBrick.transform.position == newBrickPos) 
+            {
+                //ghostBrick.SetActive(false);
+
+            }     
+    }
+    
+     static public GameObject IfChildReturnUpperMostParentBesidesRoot(GameObject targetObject)
     {
 
         int arbNumber = 100;
@@ -461,34 +380,6 @@ public class GameController : MonoBehaviour
 
 
     }
-
-    private void ProjectGhostOntoControllerLocation(GameObject targetedBrick, GameObject ghostBrick)
-    {
-        if (ghostBrick == null || targetedBrick == null)
-            {  
-                return;
-            }
-
-            ghostBrick.SetActive(true);
-
-            Vector3 newBrickPos = targetedBrick.transform.position;
-
-            //Vector3 targetBrickPos = mouseTargetedBrick.transform.position;
-            ghostBrick.transform.SetPositionAndRotation(newBrickPos, targetedBrick.transform.rotation);
-
-            gridUtility.SnapObjectToGrid(ghostBrick, movableGrid, true);
-
-            ghostBrick.transform.parent = GameObject.Find(OBJECT_FOLDER_NAME).transform;
-
-            SetObjectAndChildrenColliderEnabled(ghostBrick, false);
-
-            if(ghostBrick.transform.position == newBrickPos) 
-            {
-                //ghostBrick.SetActive(false);
-
-            }     
-    }
-    
     private GameObject IfSocketReturnBrick(GameObject targetObject)
     {
         

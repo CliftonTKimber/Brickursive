@@ -236,9 +236,12 @@ public class RaycastUtils
     public List<RaycastHitPlus> CycleThroughBrickCellsAndReturnHits(GameObject targetObject, Vector3 lookDirection, Vector3 firstCellOffset)
     {
         List<RaycastHitPlus> allRayHits = new();
-        Vector3 gridCount = GridUtils.ObjectScaleToGridUnits(targetObject);
         
         GameObject highestParent = IfChildReturnUpperMostParentBesidesRoot(targetObject); 
+
+        Vector3 gridCount = GridUtils.ScaleToGridUnits(GridUtils.ObjectMeshSizeToLossyScale(targetObject.transform.parent.gameObject));
+
+
         float raycastLength = GetRaycastLengthForBrickType(highestParent);
 
         for(int i = 0; i < gridCount.x; i++)
@@ -262,6 +265,8 @@ public class RaycastUtils
 
                 if(highestHitParent == highestParent)
                 {
+                    Debug.Log("Raycast is hitting " + highestHitParent.name + ", which the socket is a child of. Are" + 
+                    " your BoxColliders overlapping?");
                     continue;
                 }
 
@@ -285,24 +290,27 @@ public class RaycastUtils
     {
 
         Vector3 lookDir = targetObject.transform.up;
-        float clearColliderOffset = 0.025f;
+        float clearColliderOffset = 0.05f;
         GameObject theBrick = targetObject.transform.parent.gameObject;
-        float heightOffset = theBrick.transform.lossyScale.y;
+        Vector3 trueScale = theBrick.GetComponent<BrickBehavior>().trueScale;
+        float heightOffset = trueScale.y;
 
         if(targetObject.CompareTag(SOCKET_TAG_FEMALE))
         {
             lookDir = -lookDir;
             clearColliderOffset *= -1;
             heightOffset = 0;
+
         }
 
-        Vector3 cornerOffset = GridUtils.GetBottomOfClosestLeftCornerOfObject(targetObject);
+        Vector3 cornerOffset = GridUtils.GetBottomOfClosestLeftCornerOfObject(theBrick);
         cornerOffset.y += clearColliderOffset + heightOffset;
 
         Vector3 centerCellOffset = Vector3.Scale(BASE_CELL_SIZE, new Vector3(0.5f, 0f, 0.5f));
         Vector3 firstCellOffset = centerCellOffset + cornerOffset;
 
         Vector3 []vectorArray = {lookDir, firstCellOffset};
+
 
         return vectorArray;
 
@@ -313,20 +321,23 @@ public class RaycastUtils
     public bool IsRayHitOppositeSocket(GameObject originObject, RaycastHit raycastHit)
     {
         bool isOpposite = false;
-        if(raycastHit.collider != null){
-            if(originObject.CompareTag(SOCKET_TAG_MALE))
+
+        if(raycastHit.collider == null){
+            return isOpposite;
+        }
+
+        if(originObject.CompareTag(SOCKET_TAG_MALE))
+        {
+            if(raycastHit.collider.CompareTag(SOCKET_TAG_FEMALE))
             {
-                if(raycastHit.collider.CompareTag(SOCKET_TAG_FEMALE))
-                {
-                    isOpposite = true;
-                }
+                isOpposite = true;
             }
-            else if (originObject.CompareTag(SOCKET_TAG_FEMALE))
+        }
+        else if (originObject.CompareTag(SOCKET_TAG_FEMALE))
+        {
+            if(raycastHit.collider.CompareTag(SOCKET_TAG_MALE))
             {
-                if(raycastHit.collider.CompareTag(SOCKET_TAG_MALE))
-                {
-                    isOpposite = true;
-                }
+                isOpposite = true;
             }
         }
 

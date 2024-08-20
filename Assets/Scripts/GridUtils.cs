@@ -32,7 +32,7 @@ public class GridUtils
 
     public void SnapObjectToGrid(GameObject targetObject, GameObject movableGrid,  bool objectIsHeld)
     {
-        if (!objectIsHeld)
+        if (!objectIsHeld || targetObject == null)
         {
             return;
         }
@@ -130,13 +130,12 @@ public class GridUtils
         targetObject.transform.SetPositionAndRotation(endPos, hitRotation);
         targetObject.GetComponent<BrickBehavior>().newParent = hitBrick.transform;
 
-        targetObject.GetComponent<XRGrabInteractable>().interactionLayers = 1 << 
-         UnityEngine.XR.Interaction.Toolkit.InteractionLayerMask.NameToLayer("onlyPluckable");
+        targetObject.GetComponent<XRGrabInteractable>().interactionLayers = 1 << LAYER_MASK_ONLY_PLUCKABLE;
 
         targetObject.transform.SetParent(hitBrick.transform);
 
         FreezeObjectSoItRemainsRelativeToParent(targetObject);
-        ReenableColliders(targetObject);
+        //ReenableColliders(targetObject);
 
     }
 
@@ -147,7 +146,7 @@ public class GridUtils
 
         Grid grid = movableGrid.GetComponent<Grid>();
 
-        Vector3Int gridCoords = grid.WorldToCell(rayHitPlus.raycastHit.point);
+        Vector3Int gridCoords = grid.WorldToCell(rayHitPlus.raycastHit.point);//Getting correct position
 
         Vector3 cellCenter = grid.GetCellCenterWorld(gridCoords);
 
@@ -156,18 +155,23 @@ public class GridUtils
         Vector3 rotatedCellOffset  = hitRotation * GetCellCenter(baseCellSize);
 
         Vector3 gridHitOrigin = rayHitPlus.rayOrigin;
-        gridHitOrigin = Vector3.Scale(gridHitOrigin, BASE_CELL_SIZE);
         gridHitOrigin = hitRotation * gridHitOrigin;
+        gridHitOrigin = Vector3.Scale(gridHitOrigin, BASE_CELL_SIZE); 
+        
+        //issue with hit origin
+
 
         if (hitSocket.CompareTag(SOCKET_TAG_FEMALE) )
         {
             GameObject originBrick = rayHitPlus.originSocket.transform.parent.gameObject;
-            Vector3 scaleOffset = new Vector3(0, originBrick.transform.lossyScale.y, 0);
+            Vector3 scaleOffset = new Vector3(0, originBrick.GetComponent<BrickBehavior>().trueScale.y, 0);
+            rotatedBrickOffset += hitRotation * new Vector3(0, BASE_CELL_SIZE.y * 1.25f, 0);
             rotatedBrickOffset -= hitRotation * scaleOffset;
+            
         }
 
 
-        Vector3 finalPos = cellCenter + rotatedBrickOffset - rotatedCellOffset - gridHitOrigin;
+        Vector3 finalPos = cellCenter + rotatedBrickOffset - rotatedCellOffset- gridHitOrigin;
 
         RaycastUtils.GetRaycastHitFromPhysicsRaycast(finalPos, Vector3.up, 5f, true);
 
@@ -211,7 +215,16 @@ public class GridUtils
     private static Vector3 GetTopOfClosestLeftCornerOfObject(GameObject targetObject)
     {
         Vector3 vertexPos = new(-1,1,-1); //BL - closest
-        Vector3 cornerPosition = GetCubeVertex(targetObject, vertexPos);
+        Vector3 targetScale = targetObject.transform.lossyScale;
+
+        if(targetObject.GetComponent<BrickBehavior>() != null)
+        {
+            targetScale = targetObject.GetComponent<BrickBehavior>().trueScale;
+            Debug.Log("BrickBehavior is Missing from " + targetObject.name);
+        }
+        
+
+        Vector3 cornerPosition = GetCubeVertex(targetObject, vertexPos, targetScale);
 
         //Debug.DrawLine(targetObject.transform.position, targetObject.transform.position+ cornerPosition, Color.red, 5f);
 
@@ -222,7 +235,10 @@ public class GridUtils
      public static Vector3 GetBottomOfClosestLeftCornerOfObject(GameObject targetObject)
     {
         Vector3 vertexPos = new(-1,-1,-1); //BL - closest
-        Vector3 cornerPosition = GetCubeVertex(targetObject, vertexPos);
+
+        Vector3 targetScale = targetObject.GetComponent<BrickBehavior>().trueScale;
+
+        Vector3 cornerPosition = GetCubeVertex(targetObject, vertexPos, targetScale);
 
         //Debug.DrawLine(targetObject.transform.position, targetObject.transform.position+ cornerPosition, Color.red, 5f);
 
@@ -232,18 +248,28 @@ public class GridUtils
    
     public static Vector3 GetTopOfFarthestRightCornerOfObject(GameObject targetObject){
         Vector3 vertexPos = new(1, 1, 1); //BL - closest
-        Vector3 cornerPosition = GetCubeVertex(targetObject, vertexPos);
+
+        Vector3 targetScale = targetObject.GetComponent<BrickBehavior>().trueScale;
+
+        Vector3 cornerPosition = GetCubeVertex(targetObject, vertexPos, targetScale);
 
         return cornerPosition;
     }
     
 
-    public static Vector3 GetCubeVertex(GameObject targetObject, Vector3 targetVertex)
+    public static Vector3 GetCubeVertex(GameObject targetObject, Vector3 targetVertex, Vector3 targetScale)
     {
+
+        if(targetScale == Vector3.zero)
+        {
+            targetScale = targetObject.transform.lossyScale;
+
+        }
+
         //Lossy chosen to give World coords
-        float widthOffset  = targetObject.transform.lossyScale.x / 2 * targetVertex.x;
-        float heightOffset = targetObject.transform.lossyScale.y / 2 * targetVertex.y;
-        float lengthOffset = targetObject.transform.lossyScale.z / 2 * targetVertex.z;
+        float widthOffset  = targetScale.x / 2 * targetVertex.x;
+        float heightOffset = targetScale.y / 2 * targetVertex.y;
+        float lengthOffset = targetScale.z / 2 * targetVertex.z;
 
         Vector3 vertexPosition = new Vector3(widthOffset, heightOffset, lengthOffset);
 
@@ -259,17 +285,35 @@ public class GridUtils
         return cellCenter;
     }
 
-    public static Vector3 ObjectScaleToGridUnits(GameObject targetObject)
+    public static Vector3 ScaleToGridUnits(Vector3 objectScale)
 
     {
         Vector3 unitSize = new();
-        Vector3 objectScale = targetObject.transform.lossyScale;
 
         unitSize.x = Mathf.RoundToInt(objectScale.x / BASE_CELL_SIZE.x);
         unitSize.y = Mathf.RoundToInt(objectScale.y / BASE_CELL_SIZE.y);
         unitSize.z = Mathf.RoundToInt(objectScale.z / BASE_CELL_SIZE.z);
 
-        return unitSize;
+
+        return unitSize; //Because of cell size, vectors will be weird. a 1x1 brick will be (1,3,1)
+    }
+
+    public static Vector3 ObjectMeshSizeToLossyScale(GameObject targetObject)
+    {
+        Mesh objectMesh = targetObject.GetComponent<MeshFilter>().mesh;
+
+        if (objectMesh == null)
+        {
+            Debug.Log("Mesh was Null");
+            return Vector3.zero;
+        }
+
+        Vector3 scaledVector = new( objectMesh.bounds.size.x * targetObject.transform.lossyScale.x,
+                                    objectMesh.bounds.size.y * targetObject.transform.lossyScale.y, 
+                                    objectMesh.bounds.size.z * targetObject.transform.lossyScale.z);
+
+
+        return scaledVector;
     }
 
     public static Vector3 ReturnVectorAsGridPosition(Vector3 worldPosition)
@@ -285,23 +329,27 @@ public class GridUtils
 
     public static Vector3 GetGridPositionLocalToObject(GameObject targetObject, GameObject parentObject, Vector3 rayOrigin)
     {
-        Vector3 localGridPosition = new();
-
         Vector3 objectCorner = GetBottomOfClosestLeftCornerOfObject(parentObject);
+        Vector3 trueScale = parentObject.GetComponent<BrickBehavior>().trueScale;
         Vector3 cellOffset = GetCellCenter(BASE_CELL_SIZE);
         cellOffset.y = 0;
 
         if(targetObject.CompareTag(SOCKET_TAG_MALE))
         {
-            cellOffset.y = targetObject.transform.lossyScale.y;
+            cellOffset.y = trueScale.y;
+            
         }
 
         Vector3 cornerCell = objectCorner + cellOffset;
-        Vector3 objectPosition = parentObject.transform.position;
 
-        objectPosition += cornerCell - rayOrigin;
+        Quaternion rotationCancel = Quaternion.Inverse(parentObject.transform.rotation);
+        Vector3 objectPosition =  rotationCancel * parentObject.transform.position;
 
-        localGridPosition = ReturnVectorAsGridPosition(-objectPosition);
+        rayOrigin = rotationCancel * rayOrigin;
+
+        rayOrigin -= objectPosition + cornerCell;    
+
+        Vector3 localGridPosition = ReturnVectorAsGridPosition(rayOrigin);
 
         return localGridPosition;
     }
