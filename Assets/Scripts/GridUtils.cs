@@ -139,54 +139,35 @@ public class GridUtils
 
     public Quaternion GetGridRotationOfObject(GameObject targetObject, GameObject hitObject)
     {
-        Quaternion gridRotation = gridRotation = Quaternion.Inverse(hitObject.transform.rotation) * targetObject.transform.rotation;
+        Quaternion gridRotation = Quaternion.Inverse(hitObject.transform.rotation) * targetObject.transform.rotation;
 
-        Vector3 eulerRotation = gridRotation.eulerAngles;
+    
+        Vector3 eulerRotation = new( (gridRotation.eulerAngles.x - 0) / 90f,
+                                     (gridRotation.eulerAngles.y - 0) / 90f,
+                                     (gridRotation.eulerAngles.z - 0) / 90f);
 
-
-
-        Debug.Log(eulerRotation.x + " " + eulerRotation.y + " " + eulerRotation.z );
-        /*//For extreme angles
-        if(eulerRotation.x % 90 > 75)
+        //To deal wil extreme angles
+        if(eulerRotation.x >= 0.5f)   
         {
-            eulerRotation.x -= 26f;
-        }
-        else if(eulerRotation.x % 90 < 25)
+            eulerRotation.x -= eulerRotation.x;
+        } 
+        if(eulerRotation.y >= 0.5f)   
         {
-            eulerRotation.x += 26f;
-        }
-
-        if(eulerRotation.y % 90 > 75)
+            //eulerRotation.y -= eulerRotation.y;
+        } 
+        if(eulerRotation.z >= 0.5f)   
         {
-            eulerRotation.y -= 26f;
-        }
-        else if(eulerRotation.y % 90 < 25)
-        {
-            eulerRotation.y += 26f;
-        }
+            eulerRotation.z -= eulerRotation.z;
+        } 
 
-        if(eulerRotation.z % 90 > 75)
-        {
-            eulerRotation.z -= 26f;
-        }
-        else if(eulerRotation.z % 90 < 25)
-        {
-            eulerRotation.z += 26f;
-        }*/
-
-        //Between 0-89n -> should act as 0
-        //90-180n -> should act like 1
+        eulerRotation.x = Mathf.Round(eulerRotation.x);
+        eulerRotation.y = Mathf.Round(eulerRotation.y);
+        eulerRotation.z = Mathf.Round(eulerRotation.z);
 
 
-
-
-        Vector3 steppedRotation = new( Mathf.RoundToInt(eulerRotation.x / 90f),
-                                       Mathf.RoundToInt(eulerRotation.y / 90f),
-                                       Mathf.RoundToInt(eulerRotation.z / 90f) );
-
-        Quaternion finalGridRotation = Quaternion.Euler( new Vector3( steppedRotation.x * 90f,
-                                                                      steppedRotation.y * 90f,
-                                                                      steppedRotation.z * 90f));
+        Quaternion finalGridRotation = Quaternion.Euler( new Vector3( eulerRotation.x * 90f,
+                                                                      eulerRotation.y * 90f,
+                                                                      eulerRotation.z * 90f));
 
         return finalGridRotation;
     }
