@@ -18,7 +18,7 @@ using Unity.XR.CoreUtils;
 
 public class GameController : MonoBehaviour
 {
-    // Start is called before the first frame update
+    #region params
 
     public GameObject brick;
 
@@ -33,7 +33,7 @@ public class GameController : MonoBehaviour
     public float spawnDistance = 5f;
 
     private GameObject leftTargetedBrick;
-    private GameObject rightTargetedBrick;
+    public GameObject rightTargetedBrick;
 
 
     private int brickSelector = 0;
@@ -61,6 +61,8 @@ public class GameController : MonoBehaviour
     private bool preventLeftGrab;
     private bool preventRightGrab;
 
+    #endregion
+
 
     void Start()
     {
@@ -74,6 +76,7 @@ public class GameController : MonoBehaviour
         raycastUtils = new RaycastUtils();
         gridUtility.Start(this);
         raycastUtils.Start();
+
 
         
         //MakeGhostVersionOfCurrentBrick(brick, leftGhostBrick);
@@ -95,7 +98,7 @@ public class GameController : MonoBehaviour
 
         ChangeBrickOnKeyboardInput();
         SpawnBrickIntoTheAirOnKeyDown();
-        SpawnBrickIntoTheAirOnControllerButtonDown();
+        SpawnBrickIntoTheAirOnControllerButtonDown(controllers[0], controllers[1]);
 
         MoveBricksIfControllersGrab();
 
@@ -178,6 +181,9 @@ public class GameController : MonoBehaviour
         ghostBrick = Instantiate(chosenBrick, transform.position, transform.rotation);
         ghostBrick.name = GHOST_BRICK_NAME;
 
+        ghostBrick.GetComponent<MeshRenderer>().enabled = false;
+
+
         SetObjectAndChildrenColliderEnabled(ghostBrick, false);
         SetObjectAndChildrenMaterial(ghostBrick, ghostMaterial);
 
@@ -218,14 +224,37 @@ public class GameController : MonoBehaviour
                 Transform objectFolder = GameObject.Find(OBJECT_FOLDER_NAME).transform;
 
                 Instantiate(brick, spawnPos, transform.rotation, objectFolder);
+        }
 
+        //
+
+        if(Input.GetKey("up"))
+        {
+
+            GameObject.Find("Camera Offset").transform.position -= new Vector3(0,1,0);
+
+        }
+        if(Input.GetKey("down"))
+        {
+
+            GameObject.Find("Camera Offset").transform.position += new Vector3(0,1,0);
 
         }
 
     }
 
-    private void SpawnBrickIntoTheAirOnControllerButtonDown()
+    private void SpawnBrickIntoTheAirOnControllerButtonDown(GameObject leftController, GameObject rightController)
     {
+
+
+        XRDirectInteractor leftInteractor = leftController.GetComponentInChildren<XRDirectInteractor>();
+        //NearFarInteractor rightInteractor = rightController.GetComponentInChildren<NearFarInteractor>();
+
+        //.Log(Input.GetButtonDown());
+
+
+
+
         //Does not release from pressed state
         //Debug.Log(Input.GetButtonDown("XRI_Left_PrimaryButton"));
 
@@ -321,7 +350,9 @@ public class GameController : MonoBehaviour
                 return;
             }
 
-            ghostBrick.SetActive(true);
+            //ghostBrick.SetActive(true);
+
+            ghostBrick.GetComponent<MeshRenderer>().enabled = false;
 
             Vector3 newBrickPos = targetedBrick.transform.position;
 
@@ -334,11 +365,7 @@ public class GameController : MonoBehaviour
 
             SetObjectAndChildrenColliderEnabled(ghostBrick, false);
 
-            if(ghostBrick.transform.position == newBrickPos) 
-            {
-                //ghostBrick.SetActive(false);
-
-            }     
+   
     }
     
      static public GameObject IfChildReturnUpperMostParentBesidesRoot(GameObject targetObject)
@@ -482,7 +509,15 @@ public class GameController : MonoBehaviour
         TODO:
         
 
-    Brick Rotation should be altered by Controller rotation. (Set controller rotation OnGrab as base, and use the difference to alter?)
+            Held brick is continuing to "be held" and shoot raycasts when it should not.
+
+
+
+            Blackbox Raycasts come from wrong place. Fix.
+
+            Because Blackbox has multiple Male sockets, the grid origin can alter placement in unsusal ways. fix.
+
+
 
 
 

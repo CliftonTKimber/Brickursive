@@ -13,6 +13,8 @@ public class GameConfig
 
     public static readonly Vector3 BASE_CELL_SIZE = new(0.78f, 0.32f, 0.78f); 
 
+    public static readonly float STUD_HEIGHT = 0.16f;
+
     public static readonly float RAY_LENGTH_FOR_SNAPPING = 0.2f;
     public static readonly float RAY_LENGTH_FOR_GHOST_SNAPPING = 6f;
 

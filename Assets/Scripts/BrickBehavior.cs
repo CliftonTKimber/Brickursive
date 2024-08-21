@@ -49,6 +49,7 @@ public class BrickBehavior : MonoBehaviour
 
     public void CallSnappingMethods(SelectEnterEventArgs eventData)
     {
+        //NOTE: Cannot grab by child bricks yet. On OnlyPluckable Interaction Mask.
         if(gameController == null)
         {
             Start();

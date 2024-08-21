@@ -8,15 +8,12 @@ using static GameConfig;
 
 public class GridUtils
 {
-    // Start is called before the first frame update
-    public Vector3 baseCellSize;
     private RaycastUtils raycastUtils;
 
     private GameController gameController;
 
     public void Start(GameController passGameController)
     {
-        baseCellSize = passGameController.baseCellSize;
         gameController = passGameController;
 
         raycastUtils = new();
@@ -123,55 +120,109 @@ public class GridUtils
         GameObject hitBrick = hitSocket.transform.parent.gameObject;
 
         Quaternion hitRotation = hitBrick.transform.rotation;
+        hitRotation *= GetGridRotationOfObject(targetObject, hitBrick);
 
-        Vector3 endPos = GetFinalGridPositionIncludingRotation(targetObject, hitSocket, movableGrid, rayHitPlus);
+        Vector3 endPos = GetFinalGridPositionIncludingRotation(targetObject, hitSocket, movableGrid, rayHitPlus, hitRotation);
 
+
+
+        targetObject.GetComponent<XRGrabInteractable>().interactionLayers = 1 << LAYER_MASK_ONLY_PLUCKABLE;
      
         targetObject.transform.SetPositionAndRotation(endPos, hitRotation);
         targetObject.GetComponent<BrickBehavior>().newParent = hitBrick.transform;
-
-        targetObject.GetComponent<XRGrabInteractable>().interactionLayers = 1 << LAYER_MASK_ONLY_PLUCKABLE;
-
         targetObject.transform.SetParent(hitBrick.transform);
 
         FreezeObjectSoItRemainsRelativeToParent(targetObject);
-        //ReenableColliders(targetObject);
+        ReenableColliders(targetObject);
 
     }
 
-    public Vector3 GetFinalGridPositionIncludingRotation(GameObject targetObject, GameObject hitSocket, GameObject movableGrid, RaycastHitPlus rayHitPlus)
+    public Quaternion GetGridRotationOfObject(GameObject targetObject, GameObject hitObject)
+    {
+        Quaternion gridRotation = gridRotation = Quaternion.Inverse(hitObject.transform.rotation) * targetObject.transform.rotation;
+
+        Vector3 eulerRotation = gridRotation.eulerAngles;
+
+
+
+        Debug.Log(eulerRotation.x + " " + eulerRotation.y + " " + eulerRotation.z );
+        /*//For extreme angles
+        if(eulerRotation.x % 90 > 75)
+        {
+            eulerRotation.x -= 26f;
+        }
+        else if(eulerRotation.x % 90 < 25)
+        {
+            eulerRotation.x += 26f;
+        }
+
+        if(eulerRotation.y % 90 > 75)
+        {
+            eulerRotation.y -= 26f;
+        }
+        else if(eulerRotation.y % 90 < 25)
+        {
+            eulerRotation.y += 26f;
+        }
+
+        if(eulerRotation.z % 90 > 75)
+        {
+            eulerRotation.z -= 26f;
+        }
+        else if(eulerRotation.z % 90 < 25)
+        {
+            eulerRotation.z += 26f;
+        }*/
+
+        //Between 0-89n -> should act as 0
+        //90-180n -> should act like 1
+
+
+
+
+        Vector3 steppedRotation = new( Mathf.RoundToInt(eulerRotation.x / 90f),
+                                       Mathf.RoundToInt(eulerRotation.y / 90f),
+                                       Mathf.RoundToInt(eulerRotation.z / 90f) );
+
+        Quaternion finalGridRotation = Quaternion.Euler( new Vector3( steppedRotation.x * 90f,
+                                                                      steppedRotation.y * 90f,
+                                                                      steppedRotation.z * 90f));
+
+        return finalGridRotation;
+    }
+
+    public Vector3 GetFinalGridPositionIncludingRotation(GameObject targetObject, GameObject hitSocket, GameObject movableGrid, RaycastHitPlus rayHitPlus, Quaternion hitRotation)
     {
         GameObject hitBrick = hitSocket.transform.parent.gameObject;
-        Quaternion hitRotation = hitBrick.transform.rotation;
 
         Grid grid = movableGrid.GetComponent<Grid>();
 
-        Vector3Int gridCoords = grid.WorldToCell(rayHitPlus.raycastHit.point);//Getting correct position
+        Vector3Int gridCoords = grid.WorldToCell(rayHitPlus.raycastHit.point);
 
         Vector3 cellCenter = grid.GetCellCenterWorld(gridCoords);
 
         Vector3 brickOffset = GetTopOfFarthestRightCornerOfObject(targetObject);
         Vector3 rotatedBrickOffset = hitRotation * brickOffset;
-        Vector3 rotatedCellOffset  = hitRotation * GetCellCenter(baseCellSize);
+        Vector3 rotatedCellOffset  = hitRotation * GetCellCenter(BASE_CELL_SIZE);
 
+        //Offset by which cell of target brick should connect to hit brick
         Vector3 gridHitOrigin = rayHitPlus.rayOrigin;
-        gridHitOrigin = hitRotation * gridHitOrigin;
         gridHitOrigin = Vector3.Scale(gridHitOrigin, BASE_CELL_SIZE); 
-        
-        //issue with hit origin
+        gridHitOrigin = hitRotation * gridHitOrigin;
 
+        
 
         if (hitSocket.CompareTag(SOCKET_TAG_FEMALE) )
         {
             GameObject originBrick = rayHitPlus.originSocket.transform.parent.gameObject;
             Vector3 scaleOffset = new Vector3(0, originBrick.GetComponent<BrickBehavior>().trueScale.y, 0);
-            rotatedBrickOffset += hitRotation * new Vector3(0, BASE_CELL_SIZE.y * 1.25f, 0);
+            rotatedBrickOffset += hitRotation * new Vector3(0, BASE_CELL_SIZE.y, 0);
             rotatedBrickOffset -= hitRotation * scaleOffset;
             
         }
 
 
-        Vector3 finalPos = cellCenter + rotatedBrickOffset - rotatedCellOffset- gridHitOrigin;
+        Vector3 finalPos = cellCenter + rotatedBrickOffset - rotatedCellOffset - gridHitOrigin;
 
         RaycastUtils.GetRaycastHitFromPhysicsRaycast(finalPos, Vector3.up, 5f, true);
 
@@ -206,7 +257,13 @@ public class GridUtils
     {
         //if (targetObject.name != GHOST_BRICK_NAME)
         {
-            gameController.SetObjectAndChildrenColliderEnabled(targetObject, true);
+            //gameController.SetObjectAndChildrenColliderEnabled(targetObject, true);
+        }
+
+        if(targetObject.name == GHOST_BRICK_NAME)
+        {
+            targetObject.GetComponent<MeshRenderer>().enabled = true;
+
         }
     }
 
@@ -215,18 +272,20 @@ public class GridUtils
     private static Vector3 GetTopOfClosestLeftCornerOfObject(GameObject targetObject)
     {
         Vector3 vertexPos = new(-1,1,-1); //BL - closest
-        Vector3 targetScale = targetObject.transform.lossyScale;
+        Vector3 targetScale = new();
 
         if(targetObject.GetComponent<BrickBehavior>() != null)
         {
             targetScale = targetObject.GetComponent<BrickBehavior>().trueScale;
+        }
+        else
+        {
+            targetScale = targetObject.transform.lossyScale;
             Debug.Log("BrickBehavior is Missing from " + targetObject.name);
         }
         
 
         Vector3 cornerPosition = GetCubeVertex(targetObject, vertexPos, targetScale);
-
-        //Debug.DrawLine(targetObject.transform.position, targetObject.transform.position+ cornerPosition, Color.red, 5f);
 
         return cornerPosition;
 
@@ -361,7 +420,7 @@ public class GridUtils
     public GameObject IfSocketReturnParentBrick(GameObject targetObject)
     {
         GameObject returnObject = targetObject;
-        if(targetObject.CompareTag(SOCKET_TAG_MALE) || targetObject.CompareTag(SOCKET_TAG_MALE))
+        if(targetObject.CompareTag(SOCKET_TAG_MALE) || targetObject.CompareTag(SOCKET_TAG_FEMALE))
         {
             returnObject = targetObject.transform.parent.gameObject;
         }

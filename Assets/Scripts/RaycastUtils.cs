@@ -27,7 +27,7 @@ public class RaycastUtils
     }
 
 
-    public static RaycastHit GetRaycastHitFromPhysicsRaycast(Vector3 startPos, Vector3 lookDirection, float rayLength = 5f, bool doDraw = false, int rayColorInt = 0)
+    public static RaycastHit GetRaycastHitFromPhysicsRaycast(Vector3 startPos, Vector3 lookDirection, float rayLength = 5f, bool doDraw = true, int rayColorInt = 0)
     {
         Color rayColor = new();
         switch (rayColorInt)
@@ -71,99 +71,6 @@ public class RaycastUtils
             }
             return hitInfo; //empty   
         }    
-    }
-
-
-    public Ray GetRayFromCameraTowardsCursor(Vector3 mousePosition, Camera cam){
-
-        if(cam == null)
-        {
-            throw new NullReferenceException("Camera cam is null");
-        }
-
-        Ray ray = cam.ScreenPointToRay(mousePosition);
-
-        return ray;
-       
-
-    }
-
-    public RaycastHit GetRaycastHitFromCameraRay(Vector3 mousePosition, Camera cam, float rayLength = 10f){
-
-        Ray mouseRay = GetRayFromCameraTowardsCursor(mousePosition, cam);
-        RaycastHit rayHit = GetRaycastHitFromPhysicsRaycast(mouseRay.origin, mouseRay.direction, rayLength);
-
-        return rayHit;
-
-    }
-
-
-    public List<RaycastHit> GetRaycastHitsFromChildrenBasedOnTags(GameObject targetObject, float rayLength=2f, bool shootFromNearCorner = false)
-    {
-        List<RaycastHit> hitList = new List<RaycastHit>();
-        for (int i = 0; i < targetObject.transform.childCount; i++)
-        {
-            Transform childTransform = targetObject.transform.GetChild(i);
-            AddRaycastHitIfCorrectChildTag(hitList, targetObject, childTransform, rayLength, shootFromNearCorner);
-        }
-        return hitList;
-    }
-
-    private void AddRaycastHitIfCorrectChildTag(List<RaycastHit> hitList, GameObject targetObject, Transform childTransform,  float rayLength, bool shootFromNearCorner)
-    {
-        if (childTransform.CompareTag(SOCKET_TAG_MALE) || childTransform.CompareTag(SOCKET_TAG_FEMALE))
-        {
-            //Male/Female Colliders MUST NOT take up the same space as the parent collider, or it messes up detection when rotating. Give other box colliders
-            //a scale of .97 across the board to fix this.
-
-            Vector3 lookDirection = childTransform.up;
-            Vector3 parentScale = targetObject.transform.localScale;
-            Quaternion partentRotation = targetObject.transform.rotation;
-
-            Vector3 pos = childTransform.position;
-            pos = AdjustRaycastOriginIfTrue(shootFromNearCorner, childTransform, parentScale, partentRotation, pos);
-
-            if (childTransform.CompareTag(SOCKET_TAG_FEMALE))
-            {
-                Vector3 scaleOffset = new(0, parentScale.y, 0);
-                pos -= partentRotation * scaleOffset;
-                lookDirection = -lookDirection;
-            }
-
-            Vector3 rayOrigin = pos + (targetObject.transform.rotation * new Vector3(0, parentScale.y, 0));
-
-
-            PreventRaycastFromHittingOriginObject(childTransform.gameObject);
-
-            RaycastHit rayHit = GetRaycastHitFromPhysicsRaycast(rayOrigin, lookDirection, rayLength);
-
-            hitList.Add(rayHit);
-        }
-    }
-
-    private static Vector3 AdjustRaycastOriginIfTrue(bool shootFromNearCorner, Transform childTr, Vector3 parentScale, Quaternion partentRotation, Vector3 pos)
-    {
-        if (shootFromNearCorner)
-        {
-            Vector3 nearCorner = new(parentScale.x / 2, parentScale.y / 2, parentScale.z / 2);
-            nearCorner = partentRotation * nearCorner;
-
-            Vector3 cellCenter = new(BASE_CELL_SIZE.x / 2, 0, BASE_CELL_SIZE.z / 2);
-            cellCenter = partentRotation * cellCenter;
-
-            pos = childTr.position - nearCorner + cellCenter;
-        }
-
-        return pos;
-    }
-
-    public void PreventRaycastFromHittingOriginObject(GameObject targetObject)
-    {
-        Collider collider =  targetObject.GetComponent<Collider>();
-        if(collider != null)
-        {
-            collider.enabled = false;
-        }
     }
 
     public List<RaycastHitPlus> GetRaycstHitsFromEveryGridUnit(GameObject targetObject)
@@ -290,22 +197,20 @@ public class RaycastUtils
     {
 
         Vector3 lookDir = targetObject.transform.up;
-        float clearColliderOffset = 0.05f;
         GameObject theBrick = targetObject.transform.parent.gameObject;
-        Vector3 trueScale = theBrick.GetComponent<BrickBehavior>().trueScale;
-        float heightOffset = trueScale.y;
+        Vector3 cornerOffset = GridUtils.GetBottomOfClosestLeftCornerOfObject(theBrick);
+        cornerOffset.y = STUD_HEIGHT;
+
 
         if(targetObject.CompareTag(SOCKET_TAG_FEMALE))
         {
             lookDir = -lookDir;
-            clearColliderOffset *= -1;
-            heightOffset = 0;
+            cornerOffset.y *= -1;
 
         }
 
-        Vector3 cornerOffset = GridUtils.GetBottomOfClosestLeftCornerOfObject(theBrick);
-        cornerOffset.y += clearColliderOffset + heightOffset;
-
+        
+        
         Vector3 centerCellOffset = Vector3.Scale(BASE_CELL_SIZE, new Vector3(0.5f, 0f, 0.5f));
         Vector3 firstCellOffset = centerCellOffset + cornerOffset;
 
