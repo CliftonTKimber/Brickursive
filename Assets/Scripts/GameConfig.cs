@@ -30,6 +30,9 @@ public class GameConfig
 
     public static readonly InteractionLayerMask LAYER_MASK_INTERACT = InteractionLayerMask.NameToLayer("Interact");
 
+    //12FPS to match with typical animations
+    public static readonly float ANIMATION_UPDATE_TIME = 0.0833333333333f;
+
 
     
 }

@@ -329,10 +329,10 @@ GameObject:
   - component: {fileID: 3183943347766803361}
   - component: {fileID: 3201514541050232520}
   - component: {fileID: 1434887386591283478}
+  - component: {fileID: 7393420230488578671}
   - component: {fileID: 3028333494898056298}
   - component: {fileID: -4848412033179464968}
   - component: {fileID: -7336904046206081932}
-  - component: {fileID: 7393420230488578671}
   m_Layer: 0
   m_Name: 4x4Blackbox (Needs remodel))
   m_TagString: Brick
@@ -411,6 +411,27 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &7393420230488578671
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8262784558417465510}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 3.5721042, y: 3.5710437, z: 3.6229262}
+  m_Center: {x: -0.0012148619, y: 0.0016840696, z: -0.0046362877}
 --- !u!54 &3028333494898056298
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -599,24 +620,3 @@ MonoBehaviour:
   m_StartingMultipleGrabTransformers: []
   m_AddDefaultGrabTransformers: 1
   m_FarAttachMode: 0
---- !u!65 &7393420230488578671
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8262784558417465510}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 3.5721042, y: 3.5710437, z: 3.6229262}
-  m_Center: {x: -0.0012148619, y: 0.0016840696, z: -0.0046362877}

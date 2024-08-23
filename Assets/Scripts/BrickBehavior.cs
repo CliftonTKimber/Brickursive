@@ -11,7 +11,7 @@ public class BrickBehavior : MonoBehaviour
 {
 
 
-
+    [NonSerialized]
     public GameObject gameController;
 
     public Transform newParent;
@@ -24,10 +24,7 @@ public class BrickBehavior : MonoBehaviour
 
         gameController = GameObject.Find("Game Controller");
 
-        Mesh objectMesh = GetComponent<MeshFilter>().mesh;
-        trueScale = new( objectMesh.bounds.size.x * transform.lossyScale.x,
-                                    objectMesh.bounds.size.y * transform.lossyScale.y, 
-                                    objectMesh.bounds.size.z * transform.lossyScale.z);
+        SetTrueScale();
         
     }
 
@@ -57,9 +54,14 @@ public class BrickBehavior : MonoBehaviour
 
         //transform.parent = GameObject.Find(OBJECT_FOLDER_NAME).transform;
 
-        GameObject usedController = eventData.interactorObject.transform.parent.gameObject;
+        Transform nfInteractorTransform = eventData.interactorObject.transform;
+        GameObject usedController = nfInteractorTransform.parent.gameObject;
 
-        gameController.GetComponent<GameController>().BeginSnapping(this.gameObject, usedController);
+        GameObject chosenObject = this.gameObject;
+
+        BrickManager brickManager = gameController.GetComponent<GameController>().brickManager;
+
+        brickManager.BeginSnapping(chosenObject, usedController);
 
 
     }
@@ -71,10 +73,13 @@ public class BrickBehavior : MonoBehaviour
             Start();
         }
 
+        Transform nfInteractorTransform = eventData.interactorObject.transform;
+        GameObject usedController = nfInteractorTransform.parent.gameObject;
 
-        GameObject usedController = eventData.interactorObject.transform.gameObject;
+        BrickManager brickManager = gameController.GetComponent<GameController>().brickManager;
 
-        gameController.GetComponent<GameController>().EndSnapping(usedController);
+
+        brickManager.EndSnapping(usedController);
 
         if(newParent == null)
         {
@@ -85,6 +90,23 @@ public class BrickBehavior : MonoBehaviour
             transform.parent = newParent;
         }
 
+
+        ///The reason that the structure cannot be thrown is because this main piece, and its constituants
+        ///have IsKinematic set to true; Disable to allow throwing.
+
+    }
+
+
+    public void ToggleRigidbodyIsKinematic()
+    {
+        GetComponent<Rigidbody>().isKinematic = !GetComponent<Rigidbody>().isKinematic;
+
+    }
+
+
+    public void InvokeBrickMethod(string brickMethodName, float time)
+    {
+        Invoke(brickMethodName, time);
     }
 
 
@@ -92,24 +114,23 @@ public class BrickBehavior : MonoBehaviour
 
 
     
-
-
-    private void OnTriggerEnter(Collider other)
+    void SetTrueScale()
     {
 
-
-        
-    }
-    private void OnTriggerStay(Collider other)
-    {
+        Mesh objectMesh = GetComponent<MeshFilter>().mesh;
 
 
+        trueScale = new( objectMesh.bounds.size.x * transform.lossyScale.x,
+                         objectMesh.bounds.size.y * transform.lossyScale.y, 
+                         objectMesh.bounds.size.z * transform.lossyScale.z);
 
-    }
+        if(name == "3x3x3Blackbox")
+        {
+            trueScale.x -= STUD_HEIGHT * 2;
+            trueScale.y -= STUD_HEIGHT * 2;
+            trueScale.z -= STUD_HEIGHT * 2;
 
-    private void OnTriggerExit(Collider other){
-
-
+        }
     }
 
 

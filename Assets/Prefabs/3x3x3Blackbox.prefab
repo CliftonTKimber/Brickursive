@@ -131,13 +131,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5158685689655872943}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 1, y: 0, z: 0, w: 0}
   m_LocalPosition: {x: 0, y: -1.185, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3183943347766803361}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 180, y: 0, z: 0}
 --- !u!65 &5563025536855266172
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -276,10 +276,11 @@ GameObject:
   - component: {fileID: 3183943347766803361}
   - component: {fileID: 3201514541050232520}
   - component: {fileID: 1434887386591283478}
+  - component: {fileID: 7393420230488578671}
   - component: {fileID: 3028333494898056298}
   - component: {fileID: -4848412033179464968}
   - component: {fileID: -7336904046206081932}
-  - component: {fileID: 7393420230488578671}
+  - component: {fileID: 6791561692217330325}
   m_Layer: 0
   m_Name: 3x3x3Blackbox
   m_TagString: Brick
@@ -358,6 +359,27 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &7393420230488578671
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8262784558417465510}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2.3391824, y: 2.3551931, z: 2.3450508}
+  m_Center: {x: 0.0003118515, y: 0.0046064854, z: 0.0002219677}
 --- !u!54 &3028333494898056298
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -397,7 +419,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b0a8dd70f7d7624e968da4883e15941, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameController: {fileID: 0}
   newParent: {fileID: 0}
   trueScale: {x: 0, y: 0, z: 0}
 --- !u!114 &-7336904046206081932
@@ -546,27 +567,20 @@ MonoBehaviour:
   m_StartingMultipleGrabTransformers: []
   m_AddDefaultGrabTransformers: 1
   m_FarAttachMode: 0
---- !u!65 &7393420230488578671
-BoxCollider:
+--- !u!114 &6791561692217330325
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8262784558417465510}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 2.3391824, y: 2.3551931, z: 2.3450508}
-  m_Center: {x: 0.0003118515, y: 0.0046064854, z: 0.0002219677}
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 303752b4c7c1e0349938d54a9bf36e4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  structureType: 0
+  spawnTime: 1
 --- !u!1 &8663153622914176951
 GameObject:
   m_ObjectHideFlags: 0

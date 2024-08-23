@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using log4net.DateFormatter;
 using UnityEngine;
 using static GameConfig;
-using static GameController;
 using static RaycastHitPlus;
 
 public class RaycastUtils
@@ -14,8 +13,10 @@ public class RaycastUtils
     public List<Vector3> rayGridOrigins_2;
 
     public List<RaycastHit> hitList;
+
     public void Start()
     {
+
 
         
     }
@@ -144,7 +145,7 @@ public class RaycastUtils
     {
         List<RaycastHitPlus> allRayHits = new();
         
-        GameObject highestParent = IfChildReturnUpperMostParentBesidesRoot(targetObject); 
+        GameObject highestParent = BrickManager.IfChildReturnUpperMostParentBesidesRoot(targetObject); 
 
         Vector3 gridCount = GridUtils.ScaleToGridUnits(GridUtils.ObjectMeshSizeToLossyScale(targetObject.transform.parent.gameObject));
 
@@ -168,7 +169,7 @@ public class RaycastUtils
                     continue;
                 }
 
-                GameObject highestHitParent = IfChildReturnUpperMostParentBesidesRoot(rayHit.collider.gameObject).gameObject;
+                GameObject highestHitParent = BrickManager.IfChildReturnUpperMostParentBesidesRoot(rayHit.collider.gameObject).gameObject;
 
                 if(highestHitParent == highestParent)
                 {

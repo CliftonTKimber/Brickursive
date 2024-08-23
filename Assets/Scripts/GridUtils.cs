@@ -119,7 +119,7 @@ public class GridUtils
     {
         GameObject hitBrick = hitSocket.transform.parent.gameObject;
 
-        Quaternion hitRotation = hitBrick.transform.rotation;
+        Quaternion hitRotation = hitBrick.transform.rotation; //Get the Socket Rotation instead of hitObject?
         hitRotation *= GetGridRotationOfObject(targetObject, hitBrick);
 
         Vector3 endPos = GetFinalGridPositionIncludingRotation(targetObject, hitSocket, movableGrid, rayHitPlus, hitRotation);
@@ -228,10 +228,12 @@ public class GridUtils
 
      private static void FreezeObjectSoItRemainsRelativeToParent(GameObject targetObject)
     {
-        targetObject.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
-        targetObject.GetComponent<Rigidbody>().velocity = Vector3.zero; 
-        targetObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
-        targetObject.GetComponent<Rigidbody>().excludeLayers = 1 << BRICK_LAYER;
+        Rigidbody targetRb = targetObject.GetComponent<Rigidbody>();
+        targetRb.angularVelocity = Vector3.zero;
+        targetRb.velocity = Vector3.zero; 
+        targetRb.constraints = RigidbodyConstraints.FreezeAll;
+        targetRb.excludeLayers = 1 << BRICK_LAYER;
+
     }
    
     private void ReenableColliders(GameObject targetObject)
