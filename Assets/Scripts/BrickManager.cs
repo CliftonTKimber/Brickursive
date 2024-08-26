@@ -44,6 +44,8 @@ public class BrickManager : MonoBehaviour
     public GridUtils gridUtility;
 
     public RaycastUtils raycastUtils;
+
+    private bool canPickup = true;
     void Start()
     {
 
@@ -116,6 +118,8 @@ public class BrickManager : MonoBehaviour
             GameObject.Destroy(leftGhostBrick);
             leftController = null;
 
+            DelaySnapping();
+
         }
         if(usedController == controllers[1])
         {
@@ -123,9 +127,24 @@ public class BrickManager : MonoBehaviour
             GameObject.Destroy(rightGhostBrick);
             rightController = null;
 
+            DelaySnapping();
+
         }
 
 
+
+    }
+
+    private void DelaySnapping()
+    {
+        canPickup = false;
+        Invoke("SetCanPickupTrue", PICKUP_GRACE_TIME);
+
+    }
+
+    private void SetCanPickupTrue()
+    {
+        canPickup = true;
 
     }
   
@@ -255,7 +274,6 @@ public class BrickManager : MonoBehaviour
         UnityEngine.XR.Interaction.Toolkit.Inputs.Readers.XRInputButtonReader activateInput = nfInteractor.activateInput;
         UnityEngine.XR.Interaction.Toolkit.Inputs.Readers.XRInputButtonReader selectInput = nfInteractor.selectInput;
 
-        //Layermask uses ~ to negate associated part.
         if(activateInput.ReadValue() > 0)
         {
             nfInteractor.interactionLayers = 1 << LAYER_MASK_ONLY_PLUCKABLE;
@@ -270,6 +288,12 @@ public class BrickManager : MonoBehaviour
 
     private void MoveBricksIfControllersGrab()
     {
+
+        if(!canPickup)
+        {
+            return;
+        }
+
         MoveSelectedBrickToControllerIfToggled(leftTargetedBrick, leftController);
         ProjectGhostOntoControllerLocation(leftTargetedBrick, leftGhostBrick);
 
@@ -302,6 +326,9 @@ public class BrickManager : MonoBehaviour
 
             BrickBehavior targetedBrickBehavior = targetedBrick.GetComponent<BrickBehavior>();
             targetedBrickBehavior.InvokeBrickMethod("ToggleRigidbodyIsKinematic", 0.1f);
+
+            //targetedBrick.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
+            //targetedBrick.GetComponent<Rigidbody>().velocity = Vector3.zero; 
         }
     }
 

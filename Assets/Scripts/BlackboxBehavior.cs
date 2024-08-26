@@ -24,7 +24,7 @@ public class BlackboxBehavior : MonoBehaviour
         
     }
 
-    [SerializeField]
+
     public StructureType structureType;
 
     /// <summary>
@@ -34,6 +34,7 @@ public class BlackboxBehavior : MonoBehaviour
     public int spawnTime = 1;
 
 
+    [SerializeField]
     private List<GameObject> detectedBricks;
 
     private int joinerBrickCount = 0;
@@ -105,6 +106,7 @@ public class BlackboxBehavior : MonoBehaviour
 
         newBrickRB.isKinematic = false;
         newBrickRB.useGravity = true;
+        newBrickRB.excludeLayers = 0;
         //newBrickRB.AddForce(transform.forward * 3, ForceMode.VelocityChange);
         //newBrickRB.AddTorque(Vector3.one, ForceMode.Impulse);
 
@@ -139,12 +141,14 @@ public class BlackboxBehavior : MonoBehaviour
             Rigidbody brickRb = brick.GetComponent<Rigidbody>();
 
             brickRb.useGravity = false;
-            brickRb.drag = 0;
-            brickRb.angularDrag = 0.8f;
+            //brickRb.drag = 0;
+            //brickRb.angularDrag = 0.8f;
+            brickRb.isKinematic = false;
+            brickRb.constraints = 0;
             //brickRb.angularVelocity = Vector3.zero;
             //brickRb.AddForce(transform.forward, ForceMode.VelocityChange);
 
-            brick.transform.Translate(transform.forward * 80f * Time.deltaTime * ANIMATION_UPDATE_TIME);
+            brick.transform.Translate(transform.forward * 400f * BASE_CELL_SIZE.x * Time.deltaTime * ANIMATION_UPDATE_TIME);
 
 
         }
@@ -277,7 +281,14 @@ public class BlackboxBehavior : MonoBehaviour
 
     void OnTriggerEnter(Collider collider){
         
+
         GameObject hitBrick = collider.gameObject;
+        /*if(collider.CompareTag(SOCKET_TAG_FEMALE) || collider.CompareTag(SOCKET_TAG_MALE))
+        {
+            hitBrick = hitBrick.transform.parent.gameObject;
+        }*/
+
+        
         if(hitBrick.CompareTag(BASE_BRICK_TAG))
         {
             detectedBricks.Add(hitBrick);

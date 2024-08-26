@@ -87,6 +87,7 @@ public class RaycastUtils
             cellHits = GetRaycastHitFromEachCellOfChild(brickSocket);
 
 
+
             for(int j = 0; j < cellHits.Count; j++)
             {
                 if (cellHits[j].raycastHit.collider.transform.parent != targetObject.transform.parent && IsRayHitOppositeSocket(brickSocket, cellHits[j].raycastHit) )
@@ -178,6 +179,12 @@ public class RaycastUtils
                     continue;
                 }
 
+                if(!rayHit.collider.CompareTag(SOCKET_TAG_MALE) && !rayHit.collider.CompareTag(SOCKET_TAG_FEMALE))
+                {
+                    Debug.Log("Raycast hit a non-socket!");
+                    continue;
+                }
+
                 RaycastHitPlus hitPlus = new();
                 Vector3 gridPos = GridUtils.GetGridPositionLocalToObject(targetObject, highestParent, newPos);
 
@@ -205,8 +212,8 @@ public class RaycastUtils
 
         if(targetObject.CompareTag(SOCKET_TAG_FEMALE))
         {
-            lookDir = -lookDir;
-            cornerOffset.y *= -1;
+            //lookDir = -lookDir;
+            //cornerOffset.y *= -1;
 
         }
 

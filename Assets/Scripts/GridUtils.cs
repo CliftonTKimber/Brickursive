@@ -97,10 +97,11 @@ public class GridUtils
 
     public void MoveGridToTargetObjectPositionAndOrientation(GameObject movableGrid, GameObject targetObject, bool doGetBottom = false)
     {
-        GameObject targetBrick = IfSocketReturnParentBrick(targetObject);
+        GameObject targetBrick = targetObject;//IfSocketReturnParentBrick(targetObject);
 
         Vector3 worldPos = targetObject.transform.localToWorldMatrix.GetPosition();
         Vector3 cornerPos = GetTopOfClosestLeftCornerOfObject(targetBrick);
+        cornerPos.y = 0f;
 
         if(doGetBottom)
         {
@@ -119,15 +120,23 @@ public class GridUtils
     {
         GameObject hitBrick = hitSocket.transform.parent.gameObject;
 
-        Quaternion hitRotation = hitBrick.transform.rotation; //Get the Socket Rotation instead of hitObject?
-        hitRotation *= GetGridRotationOfObject(targetObject, hitBrick);
+        
+        Quaternion hitRotation = GetFinalRotation(targetObject, hitSocket, hitBrick, rayHitPlus);
+
+        
 
         Vector3 endPos = GetFinalGridPositionIncludingRotation(targetObject, hitSocket, movableGrid, rayHitPlus, hitRotation);
 
 
 
         targetObject.GetComponent<XRGrabInteractable>().interactionLayers = 1 << LAYER_MASK_ONLY_PLUCKABLE;
-     
+
+
+        
+
+
+        
+
         targetObject.transform.SetPositionAndRotation(endPos, hitRotation);
         targetObject.GetComponent<BrickBehavior>().newParent = hitBrick.transform;
         targetObject.transform.SetParent(hitBrick.transform);
@@ -137,9 +146,45 @@ public class GridUtils
 
     }
 
-    public Quaternion GetGridRotationOfObject(GameObject targetObject, GameObject hitObject)
+    public Quaternion GetFinalRotation(GameObject targetObject, GameObject hitSocket, GameObject hitBrick, RaycastHitPlus rayHitPlus)
     {
-        Quaternion gridRotation = Quaternion.Inverse(hitObject.transform.rotation) * targetObject.transform.rotation;
+        GameObject originSocket = rayHitPlus.originSocket;
+
+        Quaternion originRotation = originSocket.transform.rotation;
+
+
+        Quaternion hitRotation = hitBrick.transform.rotation; //Get the Socket Rotation instead of hitObject?
+
+        Quaternion hitSocketDifference = hitSocket.transform.rotation * Quaternion.Inverse(hitRotation);
+       
+        hitRotation *= hitSocketDifference;
+        //targetRotation *= originSocketDifference;
+
+        if(originSocket.CompareTag(SOCKET_TAG_FEMALE))
+        {
+            Vector3 originEuler = originRotation.eulerAngles;
+            originEuler.y -= 180;
+            originEuler.z -= 180;
+
+            originRotation = Quaternion.Euler(originEuler);
+        }
+
+        hitRotation *= GetGridRotationOfObject(originRotation, hitRotation);
+
+        
+
+
+        Quaternion originSocketDiff = Quaternion.Inverse(targetObject.transform.rotation) * originRotation;
+
+        hitRotation *= Quaternion.Inverse(originSocketDiff); //Reverse this direction
+
+        return hitRotation;
+
+    }
+
+    public Quaternion GetGridRotationOfObject(Quaternion targetBrickRotation, Quaternion hitBrickRotation)
+    {
+        Quaternion gridRotation = Quaternion.Inverse(hitBrickRotation) * targetBrickRotation;
 
     
         Vector3 eulerRotation = new( (gridRotation.eulerAngles.x - 0) / 90f,
@@ -182,14 +227,17 @@ public class GridUtils
 
         Vector3 cellCenter = grid.GetCellCenterWorld(gridCoords);
 
+        
+
         Vector3 brickOffset = GetTopOfFarthestRightCornerOfObject(targetObject);
         Vector3 rotatedBrickOffset = hitRotation * brickOffset;
         Vector3 rotatedCellOffset  = hitRotation * GetCellCenter(BASE_CELL_SIZE);
 
+
         //Offset by which cell of target brick should connect to hit brick
         Vector3 gridHitOrigin = rayHitPlus.rayOrigin;
         gridHitOrigin = Vector3.Scale(gridHitOrigin, BASE_CELL_SIZE); 
-        gridHitOrigin = hitRotation * gridHitOrigin;
+        gridHitOrigin = hitRotation  * gridHitOrigin;
 
         
 
@@ -205,7 +253,7 @@ public class GridUtils
 
         Vector3 finalPos = cellCenter + rotatedBrickOffset - rotatedCellOffset - gridHitOrigin;
 
-        RaycastUtils.GetRaycastHitFromPhysicsRaycast(finalPos, Vector3.up, 5f, true);
+        //RaycastUtils.GetRaycastHitFromPhysicsRaycast(finalPos, Vector3.up, 5f, true);
 
 
         return finalPos;
@@ -264,7 +312,7 @@ public class GridUtils
         else
         {
             targetScale = targetObject.transform.lossyScale;
-            Debug.Log("BrickBehavior is Missing from " + targetObject.name);
+            //Debug.Log("BrickBehavior is Missing from " + targetObject.name);
         }
         
 
@@ -278,7 +326,17 @@ public class GridUtils
     {
         Vector3 vertexPos = new(-1,-1,-1); //BL - closest
 
-        Vector3 targetScale = targetObject.GetComponent<BrickBehavior>().trueScale;
+        Vector3 targetScale = new();
+
+        if(targetObject.GetComponent<BrickBehavior>() != null)
+        {
+            targetScale = targetObject.GetComponent<BrickBehavior>().trueScale;
+        }
+        else
+        {
+            targetScale = targetObject.transform.lossyScale;
+            //Debug.Log("BrickBehavior is Missing from " + targetObject.name);
+        }
 
         Vector3 cornerPosition = GetCubeVertex(targetObject, vertexPos, targetScale);
 
@@ -291,7 +349,17 @@ public class GridUtils
     public static Vector3 GetTopOfFarthestRightCornerOfObject(GameObject targetObject){
         Vector3 vertexPos = new(1, 1, 1); //BL - closest
 
-        Vector3 targetScale = targetObject.GetComponent<BrickBehavior>().trueScale;
+        Vector3 targetScale = new();
+
+        if(targetObject.GetComponent<BrickBehavior>() != null)
+        {
+            targetScale = targetObject.GetComponent<BrickBehavior>().trueScale;
+        }
+        else
+        {
+            targetScale = targetObject.transform.lossyScale;
+            //Debug.Log("BrickBehavior is Missing from " + targetObject.name);
+        }
 
         Vector3 cornerPosition = GetCubeVertex(targetObject, vertexPos, targetScale);
 

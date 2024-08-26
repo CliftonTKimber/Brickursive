@@ -83,6 +83,7 @@ public class GameController : MonoBehaviour
             All around Polish and Bugfix
 
 
+
             STRUCTURES
 
             Blackbox Raycasts come from wrong place. Fix.
@@ -93,6 +94,31 @@ public class GameController : MonoBehaviour
 
 
 
+
+
+
+        ///Other Notes:
+        
+        Bugs. - Ghost Brick - Disable all scripts that do behavior beyond placement.
+
+        Bugs - Ghost brick flickers down when an axis of rotation increases (doesn't happen when it decreases)
+
+        Ghost Brick needs to be placed based on the original bricks raycast. As it stands, I'm sending twice as many raycasts 
+        as nesccessary.
+
+        
+
+        Optimization Ideas:
+
+            Raycasts:
+
+                Create a list of rayOrigins that is run thorugh rather than calculating it every time. Only calculate on brick snap. 
+                This should also prevent---much of---a few other ghost brick bugs. It shoudl also reduce the total count of rays cast.
+
+                Only cast Rays in the direction that the brick/structure is moving. (Allow for tolerances of generally a direction)
+
+                Cull Rays that would begin too far outside of camera view frustrum. (be careful to include ones that aren't seen, as the brick
+                the player is holding may obscure the view. But the ray should still be cast)
 
 
 

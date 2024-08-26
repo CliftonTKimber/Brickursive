@@ -16,7 +16,9 @@ public class BrickBehavior : MonoBehaviour
 
     public Transform newParent;
 
+    [NonSerialized]
     public Vector3 trueScale;
+
 
 
     void Start()
@@ -25,6 +27,7 @@ public class BrickBehavior : MonoBehaviour
         gameController = GameObject.Find("Game Controller");
 
         SetTrueScale();
+
         
     }
 
@@ -91,6 +94,7 @@ public class BrickBehavior : MonoBehaviour
         }
 
 
+
         ///The reason that the structure cannot be thrown is because this main piece, and its constituants
         ///have IsKinematic set to true; Disable to allow throwing.
 
@@ -124,14 +128,14 @@ public class BrickBehavior : MonoBehaviour
                          objectMesh.bounds.size.y * transform.lossyScale.y, 
                          objectMesh.bounds.size.z * transform.lossyScale.z);
 
-        if(name == "3x3x3Blackbox")
+
+        /*if(name == "3x3x3Blackbox")
         {
             trueScale.x -= STUD_HEIGHT * 2;
             trueScale.y -= STUD_HEIGHT * 2;
             trueScale.z -= STUD_HEIGHT * 2;
 
-        }
+        }*/
     }
-
 
 }
