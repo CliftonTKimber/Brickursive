@@ -55,7 +55,7 @@ public class BrickManager : MonoBehaviour
     }
 
 
-    void FixedUpdate()
+    void /*Fixed*/Update()
     {
 
         ChangeBrickOnKeyboardInput();

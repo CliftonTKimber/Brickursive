@@ -58,6 +58,7 @@ public class GridUtils
 
         Vector3 cellCenterOffset = GetCellCenter(BASE_CELL_SIZE);
 
+
         for (int i = 1; i < hitList.Count; i++)
         {
             Vector3 oldHitDestination = chosenHit.raycastHit.point;
@@ -125,7 +126,7 @@ public class GridUtils
 
         
 
-        Vector3 endPos = GetFinalGridPositionIncludingRotation(targetObject, hitSocket, movableGrid, rayHitPlus, hitRotation);
+        Vector3 endPos = GetRotationAcountedGridPosition(targetObject, hitSocket, movableGrid, rayHitPlus, hitRotation);
 
 
 
@@ -153,27 +154,27 @@ public class GridUtils
         Quaternion originRotation = originSocket.transform.rotation;
 
 
-        Quaternion hitRotation = hitBrick.transform.rotation; //Get the Socket Rotation instead of hitObject?
-
-        Quaternion hitSocketDifference = hitSocket.transform.rotation * Quaternion.Inverse(hitRotation);
-       
-        hitRotation *= hitSocketDifference;
-        //targetRotation *= originSocketDifference;
+        Quaternion hitRotation = hitSocket.transform.rotation;  
 
         if(originSocket.CompareTag(SOCKET_TAG_FEMALE))
         {
             Vector3 originEuler = originRotation.eulerAngles;
-            originEuler.y -= 180;
-            originEuler.z -= 180;
+            //NOTE: Likely a temporary measure. Something better may be needed to make the system more robust
+            if(originSocket.transform.up == -targetObject.transform.forward) 
+            {
+                originEuler.y += 180;
+            }
+                
+                originEuler.y -= 180;
+                originEuler.z -= 180;
 
-            originRotation = Quaternion.Euler(originEuler);
+                originRotation = Quaternion.Euler(originEuler);
+            
         }
 
         hitRotation *= GetGridRotationOfObject(originRotation, hitRotation);
 
         
-
-
         Quaternion originSocketDiff = Quaternion.Inverse(targetObject.transform.rotation) * originRotation;
 
         hitRotation *= Quaternion.Inverse(originSocketDiff); //Reverse this direction
@@ -217,9 +218,10 @@ public class GridUtils
         return finalGridRotation;
     }
 
-    public Vector3 GetFinalGridPositionIncludingRotation(GameObject targetObject, GameObject hitSocket, GameObject movableGrid, RaycastHitPlus rayHitPlus, Quaternion hitRotation)
+    public Vector3 GetRotationAcountedGridPosition(GameObject targetObject, GameObject hitSocket, GameObject movableGrid, RaycastHitPlus rayHitPlus, Quaternion hitRotation)
     {
         GameObject hitBrick = hitSocket.transform.parent.gameObject;
+        GameObject originSocket = rayHitPlus.originSocket;
 
         Grid grid = movableGrid.GetComponent<Grid>();
 
@@ -231,6 +233,7 @@ public class GridUtils
 
         Vector3 brickOffset = GetTopOfFarthestRightCornerOfObject(targetObject);
         Vector3 rotatedBrickOffset = hitRotation * brickOffset;
+
         Vector3 rotatedCellOffset  = hitRotation * GetCellCenter(BASE_CELL_SIZE);
 
 
@@ -243,7 +246,7 @@ public class GridUtils
 
         if (hitSocket.CompareTag(SOCKET_TAG_FEMALE) )
         {
-            GameObject originBrick = rayHitPlus.originSocket.transform.parent.gameObject;
+            GameObject originBrick = originSocket.transform.parent.gameObject;
             Vector3 scaleOffset = new Vector3(0, originBrick.GetComponent<BrickBehavior>().trueScale.y, 0);
             rotatedBrickOffset += hitRotation * new Vector3(0, BASE_CELL_SIZE.y, 0);
             rotatedBrickOffset -= hitRotation * scaleOffset;
@@ -410,17 +413,21 @@ public class GridUtils
 
     public static Vector3 ObjectMeshSizeToLossyScale(GameObject targetObject)
     {
-        Mesh objectMesh = targetObject.GetComponent<MeshFilter>().mesh;
+        Vector3 meshSize = new();
 
-        if (objectMesh == null)
+        if (targetObject.GetComponent<MeshFilter>() == null)
         {
-            Debug.Log("Mesh was Null");
-            return Vector3.zero;
+            //Debug.Log("MeshFilter was Null");
+            meshSize =  Vector3.one;
+        }
+        else
+        {
+            meshSize = targetObject.GetComponent<MeshFilter>().mesh.bounds.size;
         }
 
-        Vector3 scaledVector = new( objectMesh.bounds.size.x * targetObject.transform.lossyScale.x,
-                                    objectMesh.bounds.size.y * targetObject.transform.lossyScale.y, 
-                                    objectMesh.bounds.size.z * targetObject.transform.lossyScale.z);
+        Vector3 scaledVector = new( meshSize.x * targetObject.transform.lossyScale.x,
+                                    meshSize.y * targetObject.transform.lossyScale.y, 
+                                    meshSize.z * targetObject.transform.lossyScale.z);
 
 
         return scaledVector;
