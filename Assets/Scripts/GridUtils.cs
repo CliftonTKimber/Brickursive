@@ -123,20 +123,12 @@ public class GridUtils
 
         
         Quaternion hitRotation = GetFinalRotation(targetObject, hitSocket, hitBrick, rayHitPlus);
-
-        
-
         Vector3 endPos = GetRotationAcountedGridPosition(targetObject, hitSocket, movableGrid, rayHitPlus, hitRotation);
 
 
 
+
         targetObject.GetComponent<XRGrabInteractable>().interactionLayers = 1 << LAYER_MASK_ONLY_PLUCKABLE;
-
-
-        
-
-
-        
 
         targetObject.transform.SetPositionAndRotation(endPos, hitRotation);
         targetObject.GetComponent<BrickBehavior>().newParent = hitBrick.transform;
@@ -151,33 +143,27 @@ public class GridUtils
     {
         GameObject originSocket = rayHitPlus.originSocket;
 
-        Quaternion originRotation = originSocket.transform.rotation;
+        Quaternion originRotation = targetObject.transform.rotation;//originSocket.transform.rotation;
 
 
         Quaternion hitRotation = hitSocket.transform.rotation;  
 
-        if(originSocket.CompareTag(SOCKET_TAG_FEMALE))
+        
+        if (hitSocket.CompareTag(SOCKET_TAG_FEMALE))
         {
-            Vector3 originEuler = originRotation.eulerAngles;
-            //NOTE: Likely a temporary measure. Something better may be needed to make the system more robust
-            if(originSocket.transform.up == -targetObject.transform.forward) 
-            {
-                originEuler.y += 180;
-            }
-                
-                originEuler.y -= 180;
-                originEuler.z -= 180;
+            Vector3 hitEuler = hitRotation.eulerAngles;
 
-                originRotation = Quaternion.Euler(originEuler);
-            
+            hitEuler.y -= 180;
+            hitEuler.z -= 180;
+
+            hitEuler.y *= -1;
+
+            hitRotation = Quaternion.Euler(-hitEuler);
         }
 
-        hitRotation *= GetGridRotationOfObject(originRotation, hitRotation);
+       hitRotation *= GetGridRotationOfObject(originRotation, hitRotation);
 
         
-        Quaternion originSocketDiff = Quaternion.Inverse(targetObject.transform.rotation) * originRotation;
-
-        hitRotation *= Quaternion.Inverse(originSocketDiff); //Reverse this direction
 
         return hitRotation;
 
