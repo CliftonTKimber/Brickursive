@@ -103,8 +103,7 @@ public class GameController : MonoBehaviour
 
         Bugs - Ghost brick flickers down when an axis of rotation increases (doesn't happen when it decreases)
 
-        Ghost Brick needs to be placed based on the original bricks raycast. As it stands, I'm sending twice as many raycasts 
-        as nesccessary.
+        
 
         
 
@@ -121,6 +120,10 @@ public class GameController : MonoBehaviour
                 the player is holding may obscure the view. But the ray should still be cast)
 
 
+            Convert all Brick BoxColliders with Mesh colliders (Plane)
+
+            Ghost Brick needs to be placed based on the original bricks raycast. As it stands, I'm sending twice as many raycasts 
+        as nesccessary.
 
 
 

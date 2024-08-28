@@ -177,7 +177,7 @@ public class RaycastUtils
 
                 Vector3 newPos = targetSocket.transform.position + unitOffset;
 
-                RaycastHit rayHit = GetRaycastHitFromPhysicsRaycast(newPos, lookDirection, raycastLength, false);
+                RaycastHit rayHit = GetRaycastHitFromPhysicsRaycast(newPos, lookDirection, raycastLength, true);
 
                 if(rayHit.collider == null)
                 {
@@ -200,10 +200,10 @@ public class RaycastUtils
                 }
 
                 RaycastHitPlus hitPlus = new();
-                Vector3 gridPos = GridUtils.GetGridPositionLocalToObject(targetSocket, highestParent, newPos);
+                //Vector3 gridPos = GridUtils.GetGridPositionLocalToSocket(targetSocket, newPos);
 
                 hitPlus.raycastHit = rayHit;
-                hitPlus.rayOrigin = gridPos;
+                hitPlus.rayOrigin = newPos;
                 hitPlus.originSocket = targetSocket;
 
                 allRayHits.Add(hitPlus);  
