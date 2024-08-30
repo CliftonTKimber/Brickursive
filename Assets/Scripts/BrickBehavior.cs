@@ -19,11 +19,13 @@ public class BrickBehavior : MonoBehaviour
     [NonSerialized]
     public Vector3 trueScale;
 
+    public Vector3 extraRotation;
+
 
 
     void Start()
     {
-
+        extraRotation = new();
         gameController = GameObject.Find("Game Controller");
 
         SetTrueScale();

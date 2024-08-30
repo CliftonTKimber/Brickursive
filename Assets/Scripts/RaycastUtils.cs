@@ -177,7 +177,9 @@ public class RaycastUtils
 
                 Vector3 newPos = targetSocket.transform.position + unitOffset;
 
-                RaycastHit rayHit = GetRaycastHitFromPhysicsRaycast(newPos, lookDirection, raycastLength, true);
+                RaycastHit rayHit = GetRaycastHitFromPhysicsRaycast(newPos, lookDirection, raycastLength, false);
+
+                Debug.DrawRay(rayHit.point, rayHit.normal);
 
                 if(rayHit.collider == null)
                 {
@@ -226,8 +228,9 @@ public class RaycastUtils
 
         if(targetObject.CompareTag(SOCKET_TAG_FEMALE))
         {
-            //lookDir = -lookDir;
+            lookDir = -lookDir;
             cornerOffset.y = 0;
+            cornerOffset.y -= 0.1f;
 
         }
 

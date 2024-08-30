@@ -223,6 +223,31 @@ public class BrickManager : MonoBehaviour
 
         }
 
+        if(leftTargetedBrick != null )
+        {
+            BrickBehavior brickScript = leftTargetedBrick.GetComponent<BrickBehavior>();
+            if(Input.GetKeyDown("l"))
+            {
+                brickScript.extraRotation.y++;
+            }
+            if(Input.GetKeyDown("i"))
+            {
+                brickScript.extraRotation.x++;
+            }
+            if(Input.GetKeyDown("k"))
+            {
+                brickScript.extraRotation.z++;
+            }
+            if(Input.GetKeyDown("j"))
+            {
+                brickScript.extraRotation.y--;
+            }
+        }
+        
+        
+        if(rightTargetedBrick !=null)
+        {}
+
     }
 
     private void SpawnBrickIntoTheAirOnControllerButtonDown(GameObject leftController, GameObject rightController)
@@ -350,6 +375,7 @@ public class BrickManager : MonoBehaviour
 
             //Vector3 targetBrickPos = mouseTargetedBrick.transform.position;
             ghostBrick.transform.SetPositionAndRotation(newBrickPos, targetedBrick.transform.rotation);
+            ghostBrick.GetComponent<BrickBehavior>().extraRotation = targetedBrick.GetComponent<BrickBehavior>().extraRotation;
 
             gridUtility.SnapObjectToGrid(ghostBrick, movableGrid, true);
 

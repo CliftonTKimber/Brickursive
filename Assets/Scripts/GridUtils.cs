@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using static GameConfig;
@@ -89,7 +90,7 @@ public class GridUtils
 
         }
 
-        RaycastUtils.GetRaycastHitFromPhysicsRaycast(chosenHit.raycastHit.point, Vector3.up, 5f, true);
+        Debug.DrawRay(chosenHit.raycastHit.point, chosenHit.raycastHit.normal);
 
 
         return chosenHit;
@@ -150,60 +151,66 @@ public class GridUtils
 
     public Quaternion GetFinalRotation(GameObject targetObject, GameObject hitSocket, GameObject hitBrick, RaycastHitPlus rayHitPlus)
     {
+
+        /// NOTE: Rotation logic is incomplete. There are combinations of rotations that lead to an incorrect ending
+        /// rotation. I could not figure it out.
+
         GameObject originSocket = rayHitPlus.originSocket;
 
         Quaternion originRotation = targetObject.transform.rotation;
 
+        Quaternion isolatedORotation = Quaternion.Inverse(originRotation) * originSocket.transform.rotation;
 
-        Quaternion hitRotation = hitSocket.transform.rotation;  
 
-        
-        if (hitSocket.CompareTag(SOCKET_TAG_FEMALE))
-        {
-            Vector3 hitEuler = hitRotation.eulerAngles;
+        Quaternion hitRotation = hitSocket.transform.rotation;
 
-            hitEuler.y -= 180;
-            hitEuler.z -= 180;
+        hitRotation *= GetGridRotationOfObject(originSocket, hitSocket);
 
-            hitEuler.y *= -1;
 
-            hitRotation = Quaternion.Euler(-hitEuler);
-        }
 
-       hitRotation *= GetGridRotationOfObject(originRotation, hitRotation);
-
-        
 
         return hitRotation;
 
     }
 
-    public Quaternion GetGridRotationOfObject(Quaternion targetBrickRotation, Quaternion hitBrickRotation)
+    public Quaternion GetGridRotationOfObject(GameObject targetSocket, GameObject hitSocket)
     {
-        Quaternion gridRotation = Quaternion.Inverse(hitBrickRotation) * targetBrickRotation;
+
+
+        Quaternion targetSocketRotation = targetSocket.transform.rotation;
+        Quaternion hitSocketRotation = hitSocket.transform.rotation;
+
+
+        Quaternion gridRotation = Quaternion.Inverse(hitSocketRotation) * targetSocketRotation;
 
     
         Vector3 eulerRotation = new( (gridRotation.eulerAngles.x - 0) / 90f,
                                      (gridRotation.eulerAngles.y - 0) / 90f,
                                      (gridRotation.eulerAngles.z - 0) / 90f);
 
+        //NOTE: May be other other angles that need this kind of treatment
+
         //To deal wil extreme angles
-        if(eulerRotation.x >= 0.5f)   
+        if(eulerRotation.x >= 0.5f || eulerRotation.x <= 3.5f)   
         {
             eulerRotation.x -= eulerRotation.x;
         } 
-        if(eulerRotation.y >= 0.5f)   
+        
+        if(eulerRotation.y >= 0.5f || eulerRotation.y <= 3.5f)   
         {
-            //eulerRotation.y -= eulerRotation.y;
+            eulerRotation.y -= eulerRotation.y;
         } 
-        if(eulerRotation.z >= 0.5f)   
+        if(eulerRotation.z >= 0.5f || eulerRotation.z <= 3.5f)   
         {
             eulerRotation.z -= eulerRotation.z;
-        } 
+        }
 
         eulerRotation.x = Mathf.Round(eulerRotation.x);
         eulerRotation.y = Mathf.Round(eulerRotation.y);
         eulerRotation.z = Mathf.Round(eulerRotation.z);
+
+        // HACK in order to get desired rotations that I couldn't figure out how to get to.
+        eulerRotation += targetSocket.transform.parent.GetComponent<BrickBehavior>().extraRotation;
 
 
         Quaternion finalGridRotation = Quaternion.Euler( new Vector3( eulerRotation.x * 90f,
@@ -221,6 +228,7 @@ public class GridUtils
         Grid grid = movableGrid.GetComponent<Grid>();
 
         Vector3Int gridCoords = grid.WorldToCell(rayHitPlus.raycastHit.point);
+        gridCoords.y = 0;
 
         Vector3 cellCenter = grid.GetCellCenterWorld(gridCoords);
 
@@ -234,18 +242,15 @@ public class GridUtils
         Vector3 gridHitOrigin =  objectPos - originPos; 
         gridHitOrigin = Quaternion.Inverse(originSocket.transform.rotation) * gridHitOrigin;
 
-        Debug.Log(gridHitOrigin.y);
+        Quaternion rotationDiff = Quaternion.Inverse(targetObject.transform.rotation) * hitSocket.transform.rotation;
+
         
-        if(hitSocket.CompareTag(SOCKET_TAG_FEMALE))
+        gridHitOrigin.y += 0.2f;
+
+        if(originSocket.CompareTag(SOCKET_TAG_FEMALE))
         {
-            gridHitOrigin.y += 0.5f;
-            gridHitOrigin.y *= -1; 
-
-            
+            gridHitOrigin.y *= -1;
         }
-        gridHitOrigin.y += 0.1f;
-
-        gridHitOrigin.y *= -1;
 
         gridHitOrigin = hitRotation * gridHitOrigin;
         
