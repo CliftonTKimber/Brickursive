@@ -226,7 +226,7 @@ GameObject:
   - component: {fileID: 3028333494898056298}
   - component: {fileID: -4848412033179464968}
   - component: {fileID: -7336904046206081932}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: 2x2CornerWrapper_45d
   m_TagString: Brick
   m_Icon: {fileID: 0}
@@ -342,6 +342,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   newParent: {fileID: 0}
+  extraRotation: {x: 0, y: 0, z: 0}
 --- !u!114 &-7336904046206081932
 MonoBehaviour:
   m_ObjectHideFlags: 0

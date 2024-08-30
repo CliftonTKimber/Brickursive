@@ -68,7 +68,7 @@ GameObject:
   - component: {fileID: 4126491832971059893}
   - component: {fileID: 1996461763883880815}
   - component: {fileID: 4244317269652754856}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: 2x4 Brick
   m_TagString: Brick
   m_Icon: {fileID: 0}
@@ -186,7 +186,7 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Size: {x: 3, y: 1.0010982, z: 2}
   m_Center: {x: 0, y: -0.058601007, z: 0}
@@ -203,6 +203,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   newParent: {fileID: 0}
+  extraRotation: {x: 0, y: 0, z: 0}
 --- !u!114 &4244317269652754856
 MonoBehaviour:
   m_ObjectHideFlags: 0

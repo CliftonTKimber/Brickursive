@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using PlasticPipe.PlasticProtocol.Messages;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using static GameConfig;
@@ -105,7 +106,7 @@ public class BlackboxBehavior : MonoBehaviour
         Rigidbody newBrickRB = newBrick.GetComponent<Rigidbody>();
 
         newBrickRB.isKinematic = false;
-        newBrickRB.useGravity = true;
+        //newBrickRB.useGravity = true;
         newBrickRB.excludeLayers = 0;
         //newBrickRB.AddForce(transform.forward * 3, ForceMode.VelocityChange);
         //newBrickRB.AddTorque(Vector3.one, ForceMode.Impulse);
@@ -140,15 +141,17 @@ public class BlackboxBehavior : MonoBehaviour
 
             Rigidbody brickRb = brick.GetComponent<Rigidbody>();
 
-            brickRb.useGravity = false;
+            //brickRb.useGravity = false;
             //brickRb.drag = 0;
             //brickRb.angularDrag = 0.8f;
-            brickRb.isKinematic = false;
+            //brickRb.isKinematic = false;
             brickRb.constraints = 0;
             //brickRb.angularVelocity = Vector3.zero;
             //brickRb.AddForce(transform.forward, ForceMode.VelocityChange);
 
-            brick.transform.Translate(transform.forward * 400f * BASE_CELL_SIZE.x * Time.deltaTime * ANIMATION_UPDATE_TIME);
+            Vector3 moveDirection = Quaternion.Inverse(brick.transform.rotation) * transform.forward;
+
+            brick.transform.Translate(moveDirection * 400f * BASE_CELL_SIZE.x * Time.deltaTime * ANIMATION_UPDATE_TIME);
 
 
         }
@@ -184,11 +187,27 @@ public class BlackboxBehavior : MonoBehaviour
     private void RunJoinerBehavior()
     {
 
+        
+
+        for(int i = 0; i < detectedBricks.Count; i++)
+        {
+            GameObject brick = detectedBricks[i];
+            if(brick.GetComponent<BlackboxBehavior>() != null || 
+               brick.GetComponentInChildren<BlackboxBehavior>() != null)
+               {
+                return;
+               }
+        }
+
+
+
 
         if(joinerBrickCount > 3 )
         {
             Vector3 spawnPos = transform.position + Vector3.Scale(transform.forward, GetComponent<BrickBehavior>().trueScale );
-            GameObject newBrick = Instantiate(oneByFour, spawnPos, transform.rotation, GameObject.Find(OBJECT_FOLDER_NAME).transform);
+            
+            
+            GameObject newBrick = Instantiate(oneByFour, spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
 
             joinerBrickCount = 0;
 
@@ -283,21 +302,50 @@ public class BlackboxBehavior : MonoBehaviour
         
 
         GameObject hitBrick = collider.gameObject;
-        /*if(collider.CompareTag(SOCKET_TAG_FEMALE) || collider.CompareTag(SOCKET_TAG_MALE))
+        if(collider.CompareTag(SOCKET_TAG_FEMALE) || collider.CompareTag(SOCKET_TAG_MALE))
         {
             hitBrick = hitBrick.transform.parent.gameObject;
-        }*/
+        }
 
+        //Debug.Log(hitBrick.name);
         
         if(hitBrick.CompareTag(BASE_BRICK_TAG))
         {
+            if( hitBrick.transform.parent != null && hitBrick.transform.parent.gameObject == gameObject)
+                {
+                    return;
+                }
+                //Debug.Log(hitBrick.transform.parent.gameObject.name);
+                if(hitBrick == transform.parent.gameObject)
+                {
+                    return;
+                }
+                //Debug.Log(transform.parent.gameObject.name);
+                //CONT. if share a highest parent besides Objects
+
+
+            for (int i = 0; i < detectedBricks.Count; i++)
+            {
+                if(hitBrick == detectedBricks[i])
+                {
+                    return;
+                }  
+            }
+
             detectedBricks.Add(hitBrick);
         }
     }
 
     void OnTriggerExit(Collider collider)
     {
-        detectedBricks.Remove(collider.gameObject);
+
+        GameObject hitBrick = collider.gameObject;
+        if(collider.CompareTag(SOCKET_TAG_FEMALE) || collider.CompareTag(SOCKET_TAG_MALE))
+        {
+            hitBrick = hitBrick.transform.parent.gameObject;
+        }
+
+        detectedBricks.Remove(hitBrick);
 
     }
 

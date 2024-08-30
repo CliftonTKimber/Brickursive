@@ -191,16 +191,16 @@ public class GridUtils
         //NOTE: May be other other angles that need this kind of treatment
 
         //To deal wil extreme angles
-        if(eulerRotation.x >= 0.5f || eulerRotation.x <= 3.5f)   
+        if(eulerRotation.x >= 0.5f /*|| eulerRotation.x <= 3.5f*/)   
         {
             eulerRotation.x -= eulerRotation.x;
         } 
         
-        if(eulerRotation.y >= 0.5f || eulerRotation.y <= 3.5f)   
+        if(eulerRotation.y >= 0.5f /*|| eulerRotation.y <= 3.5f*/)   
         {
-            eulerRotation.y -= eulerRotation.y;
+            //eulerRotation.y -= eulerRotation.y;
         } 
-        if(eulerRotation.z >= 0.5f || eulerRotation.z <= 3.5f)   
+        if(eulerRotation.z >= 0.5f /*|| eulerRotation.z <= 3.5f*/)   
         {
             eulerRotation.z -= eulerRotation.z;
         }
@@ -245,12 +245,18 @@ public class GridUtils
         Quaternion rotationDiff = Quaternion.Inverse(targetObject.transform.rotation) * hitSocket.transform.rotation;
 
         
-        gridHitOrigin.y += 0.2f;
+        
 
         if(originSocket.CompareTag(SOCKET_TAG_FEMALE))
         {
-            gridHitOrigin.y *= -1;
+            gridHitOrigin.y -= 0.25f;
         }
+        else
+        {
+            gridHitOrigin.y += 0.1f;
+        }
+        
+        //gridHitOrigin.y *= -1;
 
         gridHitOrigin = hitRotation * gridHitOrigin;
         

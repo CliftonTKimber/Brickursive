@@ -72,6 +72,10 @@ public class GameController : MonoBehaviour
 
     /*
         TODO:
+
+            For two-handed grabs - perhaps access the colliders that XRGrab script uses, and add child colliders to the list?
+
+            Rigidbody LayerMasks needs adjusting -- make all socket colliders triggers?
         
 
             MOVEMENT:

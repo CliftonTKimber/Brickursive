@@ -96,6 +96,8 @@ public class BrickManager : MonoBehaviour
             nfInteractor.interactionLayers = 1 <<  LAYER_MASK_INTERACT;
             targetBrick.GetComponent<XRGrabInteractable>().interactionLayers = 1 << LAYER_MASK_INTERACT;
 
+            DelaySnapping();
+
         }
         else if(usedController == controllers[1])
         {
@@ -105,6 +107,8 @@ public class BrickManager : MonoBehaviour
 
             nfInteractor.interactionLayers =  1 << LAYER_MASK_INTERACT;
             targetBrick.GetComponent<XRGrabInteractable>().interactionLayers = 1 << LAYER_MASK_INTERACT;
+
+            DelaySnapping();
 
         }
 
@@ -118,7 +122,7 @@ public class BrickManager : MonoBehaviour
             GameObject.Destroy(leftGhostBrick);
             leftController = null;
 
-            DelaySnapping();
+            
 
         }
         if(usedController == controllers[1])
@@ -127,7 +131,6 @@ public class BrickManager : MonoBehaviour
             GameObject.Destroy(rightGhostBrick);
             rightController = null;
 
-            DelaySnapping();
 
         }
 

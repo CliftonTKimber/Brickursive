@@ -281,7 +281,7 @@ GameObject:
   - component: {fileID: -4848412033179464968}
   - component: {fileID: -7336904046206081932}
   - component: {fileID: 6791561692217330325}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: 3x3x3Blackbox
   m_TagString: Brick
   m_Icon: {fileID: 0}
@@ -403,7 +403,7 @@ Rigidbody:
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 0
-  m_IsKinematic: 1
+  m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
@@ -420,6 +420,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   newParent: {fileID: 0}
+  extraRotation: {x: 0, y: 0, z: 0}
 --- !u!114 &-7336904046206081932
 MonoBehaviour:
   m_ObjectHideFlags: 0

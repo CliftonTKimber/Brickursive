@@ -20,7 +20,7 @@ public class GameConfig
 
     //public static readonly float RAY_LENGTH_FOR_BRICK_SELECTION = 60f;
 
-    public static readonly float PICKUP_GRACE_TIME = 0.25f;
+    public static readonly float PICKUP_GRACE_TIME = 0.3f;
 
     public static readonly int BRICK_LAYER;
 
