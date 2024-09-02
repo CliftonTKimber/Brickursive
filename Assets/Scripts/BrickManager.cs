@@ -166,7 +166,7 @@ public class BrickManager : MonoBehaviour
         ghostBrick = Instantiate(chosenBrick, transform.position, transform.rotation);
         ghostBrick.name = GHOST_BRICK_NAME;
 
-        ghostBrick.GetComponent<MeshRenderer>().enabled = false;
+        ghostBrick.SetActive(false);
 
 
         SetObjectAndChildrenColliderEnabled(ghostBrick, false);
@@ -322,15 +322,12 @@ public class BrickManager : MonoBehaviour
             return;
         }
 
-        MoveSelectedBrickToControllerIfToggled(leftTargetedBrick, leftController);
-        ProjectGhostOntoControllerLocation(leftTargetedBrick, leftGhostBrick);
-
-        MoveSelectedBrickToControllerIfToggled(rightTargetedBrick, rightController);
-        ProjectGhostOntoControllerLocation(rightTargetedBrick, rightGhostBrick);
+        MoveSelectedBrickToControllerIfToggled(leftTargetedBrick, leftGhostBrick, leftController);
+        MoveSelectedBrickToControllerIfToggled(rightTargetedBrick, rightGhostBrick, rightController);
 
     }
 
-    private void MoveSelectedBrickToControllerIfToggled(GameObject targetedBrick, GameObject xrController)
+    private void MoveSelectedBrickToControllerIfToggled(GameObject targetedBrick, GameObject ghostBrick, GameObject xrController)
     {
         if (targetedBrick == null || xrController == null)
         {
@@ -339,7 +336,9 @@ public class BrickManager : MonoBehaviour
 
         Vector3 originalPos = targetedBrick.transform.position;
 
-        gridUtility.SnapObjectToGrid(targetedBrick, movableGrid, true);
+        ghostBrick.SetActive(false);
+
+        gridUtility.SnapObjectToGrid(targetedBrick, ghostBrick, movableGrid);
 
         DisableControllerSelectionIfBrickSnapped(targetedBrick, xrController, originalPos);
 
@@ -380,7 +379,7 @@ public class BrickManager : MonoBehaviour
             ghostBrick.transform.SetPositionAndRotation(newBrickPos, targetedBrick.transform.rotation);
             ghostBrick.GetComponent<BrickBehavior>().extraRotation = targetedBrick.GetComponent<BrickBehavior>().extraRotation;
 
-            gridUtility.SnapObjectToGrid(ghostBrick, movableGrid, true);
+            //gridUtility.SnapObjectToGrid(ghostBrick, movableGrid);
 
             ghostBrick.transform.parent = GameObject.Find(OBJECT_FOLDER_NAME).transform;
 

@@ -47,7 +47,7 @@ public class RaycastUtils
         {
             if (doDraw)
             {
-                //rayColor = Color.red;
+                rayColor = Color.red;
                 Debug.DrawRay(startPos, lookDirection, rayColor);
             }
             return hitInfo; //empty   
@@ -130,6 +130,7 @@ public class RaycastUtils
 
             else if (child.CompareTag(BASE_BRICK_TAG))
             {
+                Debug.Log("Getting child");
                 List<GameObject> grandChildren = GetChildSocketsRecursive(child);
                 for(int j = 0; j < grandChildren.Count; j++)
                 {
@@ -164,9 +165,6 @@ public class RaycastUtils
 
         Vector3 gridCount = GridUtils.ScaleToGridUnits(GridUtils.ObjectMeshSizeToLossyScale(targetSocket));
 
-
-        float raycastLength = GetRaycastLengthForBrickType(highestParent);
-
         for(int i = 0; i < gridCount.x; i++)
         {
             for(int j = 0; j < gridCount.z; j++)
@@ -177,7 +175,7 @@ public class RaycastUtils
 
                 Vector3 newPos = targetSocket.transform.position + unitOffset;
 
-                RaycastHit rayHit = GetRaycastHitFromPhysicsRaycast(newPos, lookDirection, raycastLength, false);
+                RaycastHit rayHit = GetRaycastHitFromPhysicsRaycast(newPos, lookDirection, RAY_LENGTH_FOR_GHOST_SNAPPING, true);
 
                 Debug.DrawRay(rayHit.point, rayHit.normal);
 

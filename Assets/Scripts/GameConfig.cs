@@ -15,7 +15,7 @@ public class GameConfig
 
     public static readonly float STUD_HEIGHT = 0.17f;
 
-    public static readonly float RAY_LENGTH_FOR_SNAPPING = 0.2f;
+    public static readonly float RAY_LENGTH_FOR_SNAPPING = 0.25f;
     public static readonly float RAY_LENGTH_FOR_GHOST_SNAPPING = 6f;
 
     //public static readonly float RAY_LENGTH_FOR_BRICK_SELECTION = 60f;

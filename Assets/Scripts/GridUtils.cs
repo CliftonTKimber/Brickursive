@@ -28,9 +28,9 @@ public class GridUtils
 
 
 
-    public void SnapObjectToGrid(GameObject targetObject, GameObject movableGrid,  bool objectIsHeld)
+    public void SnapObjectToGrid(GameObject targetObject, GameObject ghostBrick, GameObject movableGrid)
     {
-        if (!objectIsHeld || targetObject == null)
+        if (targetObject == null)
         {
             return;
         }
@@ -46,7 +46,21 @@ public class GridUtils
         GameObject hitObject = chosenSpecialHit.raycastHit.collider.gameObject;
 
         MoveGridToTargetObjectPositionAndOrientation(movableGrid, hitObject);
-        PutObjectOntoGrid(targetObject, hitObject, movableGrid, chosenSpecialHit);    
+
+        Quaternion endRotation = GetFinalRotation(targetObject, hitObject, chosenSpecialHit);
+        Vector3 endPosition = GetRotationAcountedGridPosition(targetObject, hitObject, movableGrid, chosenSpecialHit, endRotation);
+
+        float rayLength = chosenSpecialHit.raycastHit.distance;
+
+        if(rayLength <= RAY_LENGTH_FOR_GHOST_SNAPPING && rayLength > RAY_LENGTH_FOR_SNAPPING)
+        {
+            PutObjectOntoGrid(ghostBrick, hitObject.transform.parent, endPosition, endRotation);
+        }
+        if(rayLength <= RAY_LENGTH_FOR_SNAPPING)
+        {
+            PutObjectOntoGrid(targetObject, hitObject.transform.parent, endPosition, endRotation);
+        }
+
     }
 
     private static RaycastHitPlus ChooseClosestHitToObject(GameObject targetObject, List<RaycastHitPlus> hitList)
@@ -127,45 +141,55 @@ public class GridUtils
     }
 
 
-    public void PutObjectOntoGrid(GameObject targetObject, GameObject hitSocket, GameObject movableGrid, RaycastHitPlus rayHitPlus)
+    public void PutObjectOntoGrid(GameObject targetObject, Transform hitTransform, Vector3 endPosition, Quaternion endRotation)
     {
-        GameObject hitBrick = hitSocket.transform.parent.gameObject;
 
         
-        Quaternion hitRotation = GetFinalRotation(targetObject, hitSocket, hitBrick, rayHitPlus);
-        Vector3 endPos = GetRotationAcountedGridPosition(targetObject, hitSocket, movableGrid, rayHitPlus, hitRotation);
 
+        if(targetObject.name != GHOST_BRICK_NAME)
+        {
+            targetObject.GetComponent<XRGrabInteractable>().interactionLayers = 1 << LAYER_MASK_ONLY_PLUCKABLE;
 
+            targetObject.transform.SetPositionAndRotation(endPosition, endRotation);
 
+            targetObject.GetComponent<BrickBehavior>().newParent = hitTransform;
+            targetObject.transform.SetParent(hitTransform);
 
-        targetObject.GetComponent<XRGrabInteractable>().interactionLayers = 1 << LAYER_MASK_ONLY_PLUCKABLE;
+            FreezeObjectSoItRemainsRelativeToParent(targetObject);
+            ReenableColliders(targetObject);
+        }
+        else
+        {
+            targetObject.transform.SetPositionAndRotation(endPosition, endRotation);
 
-        targetObject.transform.SetPositionAndRotation(endPos, hitRotation);
-        targetObject.GetComponent<BrickBehavior>().newParent = hitBrick.transform;
-        targetObject.transform.SetParent(hitBrick.transform);
-
-        FreezeObjectSoItRemainsRelativeToParent(targetObject);
-        ReenableColliders(targetObject);
+            targetObject.SetActive(true);
+        }
 
     }
 
-    public Quaternion GetFinalRotation(GameObject targetObject, GameObject hitSocket, GameObject hitBrick, RaycastHitPlus rayHitPlus)
+    /// <summary>
+    /// Returns the rotation of the Hit Socket as well as snapped orientation by 90 degrees.
+    /// 
+    /// NOTE: Rotation logic is incomplete. There are combinations of rotations that lead to an incorrect ending
+    /// rotation. I could not figure it out.
+    /// </summary>
+    /// <param name="targetObject"></param>
+    /// <param name="hitSocket"></param>
+    /// <param name="rayHitPlus"></param>
+    /// <returns></returns>
+    public Quaternion GetFinalRotation(GameObject targetObject, GameObject hitSocket, RaycastHitPlus rayHitPlus)
     {
 
-        /// NOTE: Rotation logic is incomplete. There are combinations of rotations that lead to an incorrect ending
-        /// rotation. I could not figure it out.
 
         GameObject originSocket = rayHitPlus.originSocket;
 
         Quaternion originRotation = targetObject.transform.rotation;
 
-        Quaternion isolatedORotation = Quaternion.Inverse(originRotation) * originSocket.transform.rotation;
-
+        originRotation *= originSocket.transform.localRotation;
 
         Quaternion hitRotation = hitSocket.transform.rotation;
 
-        hitRotation *= GetGridRotationOfObject(originSocket, hitSocket);
-
+        hitRotation *= GetGridRotationOfObject(targetObject, originRotation, hitRotation);
 
 
 
@@ -173,17 +197,11 @@ public class GridUtils
 
     }
 
-    public Quaternion GetGridRotationOfObject(GameObject targetSocket, GameObject hitSocket)
+    public Quaternion GetGridRotationOfObject(GameObject targetObject, Quaternion targetSocketRotation, Quaternion hitSocketRotation)
     {
-
-
-        Quaternion targetSocketRotation = targetSocket.transform.rotation;
-        Quaternion hitSocketRotation = hitSocket.transform.rotation;
-
 
         Quaternion gridRotation = Quaternion.Inverse(hitSocketRotation) * targetSocketRotation;
 
-    
         Vector3 eulerRotation = new( (gridRotation.eulerAngles.x - 0) / 90f,
                                      (gridRotation.eulerAngles.y - 0) / 90f,
                                      (gridRotation.eulerAngles.z - 0) / 90f);
@@ -210,7 +228,7 @@ public class GridUtils
         eulerRotation.z = Mathf.Round(eulerRotation.z);
 
         // HACK in order to get desired rotations that I couldn't figure out how to get to.
-        eulerRotation += targetSocket.transform.parent.GetComponent<BrickBehavior>().extraRotation;
+        eulerRotation += targetObject.GetComponent<BrickBehavior>().extraRotation;
 
 
         Quaternion finalGridRotation = Quaternion.Euler( new Vector3( eulerRotation.x * 90f,
@@ -219,6 +237,8 @@ public class GridUtils
 
         return finalGridRotation;
     }
+
+  
 
     public Vector3 GetRotationAcountedGridPosition(GameObject targetObject, GameObject hitSocket, GameObject movableGrid, RaycastHitPlus rayHitPlus, Quaternion hitRotation)
     {
@@ -240,7 +260,7 @@ public class GridUtils
 
 
         Vector3 gridHitOrigin =  objectPos - originPos; 
-        gridHitOrigin = Quaternion.Inverse(originSocket.transform.rotation) * gridHitOrigin;
+        gridHitOrigin = Quaternion.Inverse((originSocket.transform.localRotation * targetObject.transform.rotation )) * gridHitOrigin;
 
         Quaternion rotationDiff = Quaternion.Inverse(targetObject.transform.rotation) * hitSocket.transform.rotation;
 
