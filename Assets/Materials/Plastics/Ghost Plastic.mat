@@ -162,7 +162,7 @@ Material:
     - _DstBlendAlpha: 0
     - _Emission: 1
     - _EmissionEnabled: 1
-    - _EmmisionStrength: 0.6
+    - _EmmisionStrength: 0.29
     - _EnvironmentReflections: 1
     - _Exposure: 1
     - _FlipbookMode: 0
@@ -173,14 +173,14 @@ Material:
     - _Metallic: 0
     - _Mode: 3
     - _OcclusionStrength: 1
-    - _Opacity: 70.76
+    - _Opacity: -4.36
     - _Parallax: 0.02
     - _QueueControl: 0
     - _QueueOffset: 0
     - _ReceiveShadows: 1
     - _Rotation: 0
     - _SampleGI: 0
-    - _ShimmerStrength: -0.4
+    - _ShimmerStrength: 1.72
     - _Shininess: 0.2
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 1
@@ -212,7 +212,7 @@ Material:
     - _DotColor: {r: 0, g: 0, b: 0, a: 0}
     - _EmissionColor: {r: 0.42335126, g: 0.5256919, b: 0.55795145, a: 0}
     - _ReflectColor: {r: 1, g: 1, b: 1, a: 0.5}
-    - _ShimmerColor: {r: 0.19676542, g: 0.06125713, b: 0.1693767, a: 0}
+    - _ShimmerColor: {r: 1, g: 1, b: 1, a: 0}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
     - _SpecColor: {r: 1, g: 1, b: 1, a: 1}
     - _Specular: {r: 0, g: 0, b: 0, a: 0}

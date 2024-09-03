@@ -28,11 +28,11 @@ public class RaycastUtils
     }
 
 
-    public static RaycastHit GetRaycastHitFromPhysicsRaycast(Vector3 startPos, Vector3 lookDirection, float rayLength = 5f, bool doDraw = false, int rayColorInt = 0)
+    public static RaycastHit GetRaycastHitFromPhysicsRaycast(Vector3 startPos, Vector3 lookDirection, LayerMask layerMask, float rayLength = 5f,  bool doDraw = false)
     {
-        Color rayColor = ChooseColor(rayColorInt);
+        Color rayColor = ChooseColor(0);
 
-        if (Physics.Raycast(startPos, lookDirection, out RaycastHit hitInfo, rayLength))
+        if (Physics.Raycast(startPos, lookDirection, out RaycastHit hitInfo, rayLength, layerMask))
         {
             if (doDraw)
             {
@@ -86,7 +86,7 @@ public class RaycastUtils
     {
         List<RaycastHitPlus> hitList = new();
 
-        List<GameObject> allSockets = GetChildSocketsRecursive(targetObject);
+        List<GameObject> allSockets = GetChildSocketsRecursive(targetObject); // --- May have better performance with GetComponentInChildren<>()
         List<RaycastHitPlus> cellHits = new();
     
         for(int i = 0; i < allSockets.Count; i++)
@@ -130,7 +130,7 @@ public class RaycastUtils
 
             else if (child.CompareTag(BASE_BRICK_TAG))
             {
-                Debug.Log("Getting child");
+                //Debug.Log("Getting child");
                 List<GameObject> grandChildren = GetChildSocketsRecursive(child);
                 for(int j = 0; j < grandChildren.Count; j++)
                 {
@@ -165,6 +165,10 @@ public class RaycastUtils
 
         Vector3 gridCount = GridUtils.ScaleToGridUnits(GridUtils.ObjectMeshSizeToLossyScale(targetSocket));
 
+        LayerMask socketLayerMask = 1 << SOCKET_LAYER_MASK;
+        socketLayerMask += 1 << BRICK_LAYER_MASK; //So raycasts do not go through bricks
+        socketLayerMask -= 1 << LayerMask.NameToLayer("Ignore Raycast");
+
         for(int i = 0; i < gridCount.x; i++)
         {
             for(int j = 0; j < gridCount.z; j++)
@@ -175,7 +179,7 @@ public class RaycastUtils
 
                 Vector3 newPos = targetSocket.transform.position + unitOffset;
 
-                RaycastHit rayHit = GetRaycastHitFromPhysicsRaycast(newPos, lookDirection, RAY_LENGTH_FOR_GHOST_SNAPPING, true);
+                RaycastHit rayHit = GetRaycastHitFromPhysicsRaycast(newPos, lookDirection, socketLayerMask, RAY_LENGTH_FOR_GHOST_SNAPPING, true);
 
                 Debug.DrawRay(rayHit.point, rayHit.normal);
 

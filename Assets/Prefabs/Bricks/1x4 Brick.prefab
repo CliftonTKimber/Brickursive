@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2056737581502628310}
   - component: {fileID: 8045931514752755298}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Male
   m_TagString: Male
   m_Icon: {fileID: 0}
@@ -45,9 +45,9 @@ BoxCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 1024
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -63,7 +63,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1431141820644472903}
   - component: {fileID: 425660033256409277}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Female
   m_TagString: Female
   m_Icon: {fileID: 0}
@@ -98,9 +98,9 @@ BoxCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 1024
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -212,10 +212,10 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 3.12, y: 0.96, z: 0.76}
-  m_Center: {x: 0.00012493134, y: -0.05401118, z: -0.00013238192}
+  m_Size: {x: 2.8, y: 0.8, z: 0.7}
+  m_Center: {x: 0, y: -0.04, z: 0}
 --- !u!54 &5931080962423616737
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -255,7 +255,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b0a8dd70f7d7624e968da4883e15941, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  newParent: {fileID: 0}
+  highestParent: {fileID: 0}
   extraRotation: {x: 0, y: 0, z: 0}
 --- !u!114 &-3277257556734098857
 MonoBehaviour:

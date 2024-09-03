@@ -10,6 +10,7 @@ using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.Events;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
 using Unity.XR.CoreUtils;
+using UnityEngine.XR.Interaction.Toolkit.Transformers;
 
 public class BrickManager : MonoBehaviour
 {
@@ -151,29 +152,7 @@ public class BrickManager : MonoBehaviour
 
     }
   
-    private GameObject MakeGhostVersionOfCurrentBrick(GameObject chosenBrick, GameObject ghostBrick)
-    {
-        if(chosenBrick == null)
-        {
-            return null;
-        }
-
-        if (ghostBrick != null)
-        {
-            Destroy(ghostBrick);
-        }
-
-        ghostBrick = Instantiate(chosenBrick, transform.position, transform.rotation);
-        ghostBrick.name = GHOST_BRICK_NAME;
-
-        ghostBrick.SetActive(false);
-
-
-        SetObjectAndChildrenColliderEnabled(ghostBrick, false);
-        SetObjectAndChildrenMaterial(ghostBrick, ghostMaterial);
-
-        return ghostBrick;
-    }
+ 
 
     void ChangeBrickOnKeyboardInput()
     {
@@ -386,6 +365,88 @@ public class BrickManager : MonoBehaviour
             SetObjectAndChildrenColliderEnabled(ghostBrick, false);
 
    
+    }
+
+     #region Ghost Brick
+    private GameObject MakeGhostVersionOfCurrentBrick(GameObject chosenBrick, GameObject ghostBrick)
+    {
+        if(chosenBrick == null)
+        {
+            return null;
+        }
+
+        if (ghostBrick != null)
+        {
+            Destroy(ghostBrick);
+        }
+
+        ghostBrick = Instantiate(chosenBrick, transform.position, transform.rotation);
+        ghostBrick.name = GHOST_BRICK_NAME;
+
+        ghostBrick.SetActive(false);
+
+        StripObjectAndChildren(ghostBrick);
+        SetObjectAndChildrenColliderEnabled(ghostBrick, false);
+        SetObjectAndChildrenMaterial(ghostBrick, ghostMaterial);
+
+        return ghostBrick;
+    }
+
+    #endregion
+
+    public static void StripObjectAndChildren(GameObject targetObject)
+    {
+        if (targetObject == null)
+        {
+            return;
+        }
+
+    
+        for(int i = 0; i < targetObject.transform.childCount; i++)
+        {
+            GameObject child = targetObject.transform.GetChild(i).gameObject;
+
+            if(child == null)
+            { 
+                continue;
+            }
+            if(!child.CompareTag(BASE_BRICK_TAG))
+            {
+                Destroy(child);
+            }
+
+            if(child.transform.childCount > 0)
+            {
+                StripObjectAndChildren(child);
+            }
+
+            Destroy(child.GetComponent<XRGeneralGrabTransformer>());
+            Destroy(child.GetComponent<XRGrabInteractable>());
+            Destroy(child.GetComponent<BlackboxBehavior>());
+            Destroy(child.GetComponent<BrickBehavior>());
+            Destroy(child.GetComponent<Rigidbody>());
+            Destroy(child.GetComponent<Collider>());
+
+            child.tag = "Untagged";
+            
+            
+            
+            
+        }
+
+        Destroy(targetObject.GetComponent<XRGeneralGrabTransformer>());
+        Destroy(targetObject.GetComponent<XRGrabInteractable>());
+        Destroy(targetObject.GetComponent<BlackboxBehavior>());
+        Destroy(targetObject.GetComponent<BrickBehavior>());
+        Destroy(targetObject.GetComponent<Rigidbody>());
+        Destroy(targetObject.GetComponent<Collider>());
+
+        targetObject.tag = "Untagged";
+        
+        
+
+       
+
     }
     
     public static GameObject IfChildReturnUpperMostParentBesidesRoot(GameObject targetObject)

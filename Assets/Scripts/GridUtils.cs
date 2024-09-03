@@ -5,6 +5,7 @@ using System.Linq;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
+using static UnityEngine.XR.Interaction.Toolkit.XRInteractionUpdateOrder;
 using static GameConfig;
 
 public class GridUtils
@@ -43,26 +44,30 @@ public class GridUtils
         }
    
         RaycastHitPlus chosenSpecialHit = ChooseClosestHitToObject(targetObject, hitList);
-        GameObject hitObject = chosenSpecialHit.raycastHit.collider.gameObject;
+        GameObject hitSocket = chosenSpecialHit.raycastHit.collider.gameObject;
 
-        MoveGridToTargetObjectPositionAndOrientation(movableGrid, hitObject);
+        MoveGridToTargetObjectPositionAndOrientation(movableGrid, hitSocket);
 
-        Quaternion endRotation = GetFinalRotation(targetObject, hitObject, chosenSpecialHit);
-        Vector3 endPosition = GetRotationAcountedGridPosition(targetObject, hitObject, movableGrid, chosenSpecialHit, endRotation);
+        Quaternion endRotation = GetFinalRotation(targetObject, hitSocket, chosenSpecialHit);
+        Vector3 endPosition = GetRotationAcountedGridPosition(targetObject, hitSocket, movableGrid, chosenSpecialHit, endRotation);
 
         float rayLength = chosenSpecialHit.raycastHit.distance;
 
         if(rayLength <= RAY_LENGTH_FOR_GHOST_SNAPPING && rayLength > RAY_LENGTH_FOR_SNAPPING)
         {
-            PutObjectOntoGrid(ghostBrick, hitObject.transform.parent, endPosition, endRotation);
+            PutObjectOntoGrid(ghostBrick, hitSocket.transform.parent, endPosition, endRotation);
         }
         if(rayLength <= RAY_LENGTH_FOR_SNAPPING)
         {
-            PutObjectOntoGrid(targetObject, hitObject.transform.parent, endPosition, endRotation);
+            PutObjectOntoGrid(targetObject, hitSocket.transform.parent, endPosition, endRotation);
+
+
+            AddCollidersToXRInteractable(targetObject, hitSocket.transform.parent.gameObject);
         }
 
     }
 
+    #region Snapping Logic
     private static RaycastHitPlus ChooseClosestHitToObject(GameObject targetObject, List<RaycastHitPlus> hitList)
     {
         RaycastHitPlus chosenHit = hitList[0];
@@ -154,6 +159,8 @@ public class GridUtils
 
             targetObject.GetComponent<BrickBehavior>().newParent = hitTransform;
             targetObject.transform.SetParent(hitTransform);
+            targetObject.GetComponent<BrickBehavior>().highestParent = hitTransform.GetComponent<BrickBehavior>().highestParent;
+            targetObject.GetComponentInChildren<BrickBehavior>().highestParent = hitTransform.GetComponent<BrickBehavior>().highestParent;
 
             FreezeObjectSoItRemainsRelativeToParent(targetObject);
             ReenableColliders(targetObject);
@@ -299,22 +306,21 @@ public class GridUtils
         return rotatedRayOriginPosition;
     }
 
+    #endregion
+     
+    #region After-Snapping Commands
      private static void FreezeObjectSoItRemainsRelativeToParent(GameObject targetObject)
     {
         Rigidbody targetRb = targetObject.GetComponent<Rigidbody>();
         targetRb.angularVelocity = Vector3.zero;
         targetRb.velocity = Vector3.zero; 
         targetRb.constraints = RigidbodyConstraints.FreezeAll;
-        targetRb.excludeLayers = 1 << BRICK_LAYER;
+        //targetRb.excludeLayers = 1 << BRICK_LAYER_MASK;
 
     }
    
     private void ReenableColliders(GameObject targetObject)
     {
-        //if (targetObject.name != GHOST_BRICK_NAME)
-        {
-            //gameController.SetObjectAndChildrenColliderEnabled(targetObject, true);
-        }
 
         if(targetObject.name == GHOST_BRICK_NAME)
         {
@@ -324,6 +330,50 @@ public class GridUtils
     }
 
 
+    /// <summary>
+    /// Allows XR controller to use child colliders to grab the parent
+    /// </summary>
+    private void AddCollidersToXRInteractable(GameObject child, GameObject futureParent)
+    {
+        List<Collider> childColliders = child.GetComponent<XRGrabInteractable>().colliders;
+
+        Transform highestParent = futureParent.GetComponent<BrickBehavior>().highestParent;
+        XRBaseInteractable hPInteractable = highestParent.GetComponent<XRBaseInteractable>();
+
+        child.GetComponent<XRBaseInteractable>().enabled = false;
+
+        for(int i = 0; i < childColliders.Count; i++)
+        {
+            Collider collider = childColliders[i];
+
+            hPInteractable.colliders.Add(collider);
+            //highestParent.GetComponent<XRBaseInteractable>().Col
+        }
+
+
+        // 1) uses object as base to use coroutine
+        // 2) reregisters the interactables
+        highestParent.GetComponent<BrickBehavior>().StartCoroutine(ReregisterInteractable(hPInteractable));
+
+        
+    }
+
+    private IEnumerator ReregisterInteractable(XRBaseInteractable inter)
+    {
+        yield return new WaitForEndOfFrame();
+        inter.interactionManager.UnregisterInteractable(inter as IXRInteractable);
+
+        yield return new WaitForEndOfFrame();
+        inter.interactionManager.RegisterInteractable(inter as IXRInteractable);
+
+        yield return null;
+    }
+
+
+
+    #endregion
+
+    #region Grid-Data Manipulation
     
     private static Vector3 GetTopOfClosestLeftCornerOfObject(GameObject targetObject)
     {
@@ -488,6 +538,8 @@ public class GridUtils
 
         return localGridPosition;
     }
+
+    #endregion
 
 
 

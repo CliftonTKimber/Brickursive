@@ -22,7 +22,9 @@ public class GameConfig
 
     public static readonly float PICKUP_GRACE_TIME = 0.3f;
 
-    public static readonly int BRICK_LAYER;
+    public static readonly int BRICK_LAYER_MASK = LayerMask.NameToLayer("Bricks");
+
+    public static readonly LayerMask SOCKET_LAYER_MASK = LayerMask.NameToLayer("Brick Sockets");
 
     public static readonly string GHOST_BRICK_NAME = "Ghost Brick";
 

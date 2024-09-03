@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5346226320140034053}
   - component: {fileID: 3972011374457179227}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Male
   m_TagString: Male
   m_Icon: {fileID: 0}
@@ -63,7 +63,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2580044490560335932}
   - component: {fileID: 4027023698500699083}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Female
   m_TagString: Female
   m_Icon: {fileID: 0}
@@ -78,13 +78,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6252863101113497648}
   serializedVersion: 2
-  m_LocalRotation: {x: 1, y: 0, z: 0, w: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -0.51, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3183943347766803361}
-  m_LocalEulerAnglesHint: {x: 180, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &4027023698500699083
 BoxCollider:
   m_ObjectHideFlags: 0

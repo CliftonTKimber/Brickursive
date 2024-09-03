@@ -14,7 +14,11 @@ public class BrickBehavior : MonoBehaviour
     [NonSerialized]
     public GameObject gameController;
 
+    [NonSerialized]
     public Transform newParent;
+
+    //[NonSerialized]
+    public Transform highestParent;
 
     [NonSerialized]
     public Vector3 trueScale;
@@ -27,6 +31,7 @@ public class BrickBehavior : MonoBehaviour
     {
         extraRotation = new();
         gameController = GameObject.Find("Game Controller");
+        highestParent = transform;
 
         SetTrueScale();
 

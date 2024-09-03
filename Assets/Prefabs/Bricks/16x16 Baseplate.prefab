@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9137013591910031963}
   - component: {fileID: 8578477560640954831}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Male
   m_TagString: Male
   m_Icon: {fileID: 0}
@@ -360,7 +360,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6939710733609503036}
   - component: {fileID: 5216013846012162654}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Female
   m_TagString: Female
   m_Icon: {fileID: 0}

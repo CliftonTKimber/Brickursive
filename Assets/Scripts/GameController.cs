@@ -126,8 +126,6 @@ public class GameController : MonoBehaviour
 
             Convert all Brick BoxColliders with Mesh colliders (Plane)
 
-            Ghost Brick needs to be placed based on the original bricks raycast. As it stands, I'm sending twice as many raycasts 
-        as nesccessary.
 
 
 
