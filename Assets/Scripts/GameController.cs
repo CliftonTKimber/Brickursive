@@ -111,9 +111,9 @@ public class GameController : MonoBehaviour
 
         /// For some reason allColliders is acting exaclty like the other list. Removing from one is the same are 
         /// removing from the other. if these two can be decoupled, I have it.
-        List<Collider> allColliders = originalInteractable.colliders;
-        Collider originalCollider = originalInteractable.transform.GetComponent<Collider>();
-        allColliders.Remove(originalCollider);
+        List<Collider> allColliders = new();
+        allColliders.AddRange(originalInteractable.colliders);
+        //allColliders.Remove(originalCollider);
 
         //Remove child colliders from Originial
         yield return new WaitForEndOfFrame();
@@ -122,6 +122,12 @@ public class GameController : MonoBehaviour
         for(int i = 0; i < chosenInteractable.colliders.Count; i++)
         {
             Collider collider = chosenInteractable.colliders[i];
+
+            if(collider == originalInteractable.transform.GetComponent<Collider>())
+            {
+                continue;
+            }
+
             originalInteractable.colliders.Remove(collider);
         }
 
@@ -129,7 +135,13 @@ public class GameController : MonoBehaviour
         yield return new WaitForEndOfFrame();
         for(int i = 0; i < allColliders.Count; i++)
         {
-            chosenInteractable.colliders.Add(allColliders[i]);
+            Collider collider = allColliders[i];
+
+            if(collider == originalInteractable.transform.GetComponent<Collider>())
+            {
+                continue;
+            }
+            chosenInteractable.colliders.Add(collider);
         }
 
         //Register

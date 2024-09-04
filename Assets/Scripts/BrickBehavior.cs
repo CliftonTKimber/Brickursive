@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.XR.CoreUtils;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
@@ -159,7 +160,7 @@ public class BrickBehavior : MonoBehaviour
 
         GameObject chosenObject = chosenCollider.gameObject;
 
-        if(!chosenObject.transform.parent.CompareTag(BASE_BRICK_TAG))
+        if(chosenObject.transform.parent == null || !chosenObject.transform.parent.CompareTag(BASE_BRICK_TAG))
         {
             return;
         }
@@ -170,6 +171,10 @@ public class BrickBehavior : MonoBehaviour
         }
 
         
+        //For Juice
+        Vector3 awayVector = (chosenObject.transform.position - chosenObject.transform.parent.position).normalized;
+        awayVector = Vector3.Scale(awayVector, chosenObject.transform.up);
+        ///
 
         chosenObject.GetComponent<XRGrabInteractable>().enabled = true;
 
@@ -185,12 +190,13 @@ public class BrickBehavior : MonoBehaviour
         XRBaseInteractable chosenBaseInteractable = chosenObject.GetComponent<XRBaseInteractable>();
         XRBaseInteractable originalBaseInteractable = GetComponent<XRBaseInteractable>();
 
-
+        //Reregisters colliders to correct objects
         StartCoroutine(GameController.RemoveCollidersAndRegisterInteractable(originalBaseInteractable, chosenBaseInteractable) );
 
         /// JUICE
         
-        chosenObject.GetComponent<Rigidbody>().AddForce(chosenObject.transform.up * 5f, ForceMode.Impulse);
+        
+        chosenObject.GetComponent<Rigidbody>().AddForce(awayVector * 5f, ForceMode.Impulse);
         
     }
 
