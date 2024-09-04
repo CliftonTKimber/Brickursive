@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.XR.Interaction.Toolkit.Interactables;
+using UnityEngine.XR.Interaction.Toolkit.Interactors;
 using static GameConfig;
 
 
@@ -24,6 +26,9 @@ public class BrickBehavior : MonoBehaviour
     public Vector3 trueScale;
 
     public Vector3 extraRotation;
+
+
+    private HoverEnterEventArgs hoverData = null;
 
 
 
@@ -48,10 +53,41 @@ public class BrickBehavior : MonoBehaviour
     {
 
         
-
+        HandelExtraInput();
     }
 
 
+
+    private void HandelExtraInput()
+    {
+
+        if(hoverData == null)
+        {
+            return;
+        }
+
+        NearFarInteractor hoverInteractor = hoverData.interactorObject.transform.GetComponent<NearFarInteractor>();
+        float activateValue = hoverInteractor.activateInput.ReadValue();
+
+        /*Debug.Log(
+            "Select: " + hoverInteractor.selectInput.ReadValue() +
+            "UI " + hoverInteractor.uiPressInput.ReadValue() +
+            "Activate " + hoverInteractor.activateInput.ReadValue()
+            
+            
+            );*/
+
+        if(activateValue <= 0)
+        {
+            return;
+        }
+
+
+        BreakAwayBrickFromBase(hoverData);
+
+
+
+    }
 
 
     public void CallSnappingMethods(SelectEnterEventArgs eventData)
@@ -62,19 +98,22 @@ public class BrickBehavior : MonoBehaviour
             Start();
         }
 
+
+
+        Transform nearFarInteractor = eventData.interactorObject.transform;
+        GameObject chosenObject = gameObject;
+        
+
         //transform.parent = GameObject.Find(OBJECT_FOLDER_NAME).transform;
 
-        Transform nfInteractorTransform = eventData.interactorObject.transform;
-        GameObject usedController = nfInteractorTransform.parent.gameObject;
-
-        GameObject chosenObject = this.gameObject;
+        GameObject usedController = nearFarInteractor.parent.gameObject;
 
         BrickManager brickManager = gameController.GetComponent<GameController>().brickManager;
 
         brickManager.BeginSnapping(chosenObject, usedController);
-
-
     }
+
+
 
     public void EndSnappingMethods(SelectExitEventArgs eventData)
     {
@@ -83,8 +122,11 @@ public class BrickBehavior : MonoBehaviour
             Start();
         }
 
-        Transform nfInteractorTransform = eventData.interactorObject.transform;
-        GameObject usedController = nfInteractorTransform.parent.gameObject;
+
+        Transform nearFarInteractor = eventData.interactorObject.transform;
+        GameObject chosenObject = gameObject;
+
+        GameObject usedController = nearFarInteractor.parent.gameObject;
 
         BrickManager brickManager = gameController.GetComponent<GameController>().brickManager;
 
@@ -100,14 +142,132 @@ public class BrickBehavior : MonoBehaviour
             transform.parent = newParent;
         }
 
+    }
+
+     public void BreakAwayBrickFromBase(HoverEnterEventArgs eventData)
+    {
 
 
-        ///The reason that the structure cannot be thrown is because this main piece, and its constituants
-        ///have IsKinematic set to true; Disable to allow throwing.
+        Transform nfInteractorTransform = eventData.interactorObject.transform;
+        List<Collider> colliders = eventData.interactableObject.colliders;
+
+        Collider chosenCollider = GetClosestCollider(colliders, nfInteractorTransform);
+        if(chosenCollider == null)
+        {
+            return;
+        }
+
+        GameObject chosenObject = chosenCollider.gameObject;
+
+        if(!chosenObject.transform.parent.CompareTag(BASE_BRICK_TAG))
+        {
+            return;
+        }
+
+        if(chosenObject.CompareTag(SOCKET_TAG_FEMALE) || chosenObject.CompareTag(SOCKET_TAG_MALE))
+        {
+            chosenObject = chosenObject.transform.parent.gameObject;
+        }
+
+        
+
+        chosenObject.GetComponent<XRGrabInteractable>().enabled = true;
+
+        Transform gameFolder = GameObject.Find(OBJECT_FOLDER_NAME).transform;
+
+        chosenObject.transform.parent = gameFolder;
+        chosenObject.GetComponent<BrickBehavior>().newParent = gameFolder;
+        chosenObject.GetComponent<BrickBehavior>().highestParent = chosenObject.transform;
+
+        chosenObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+        chosenObject.GetComponent<Rigidbody>().isKinematic = false;
+
+        XRBaseInteractable chosenBaseInteractable = chosenObject.GetComponent<XRBaseInteractable>();
+        XRBaseInteractable originalBaseInteractable = GetComponent<XRBaseInteractable>();
+
+
+        StartCoroutine(GameController.RemoveCollidersAndRegisterInteractable(originalBaseInteractable, chosenBaseInteractable) );
+
+        /// JUICE
+        
+        chosenObject.GetComponent<Rigidbody>().AddForce(chosenObject.transform.up * 5f, ForceMode.Impulse);
+        
+    }
+
+    public void ReplaceBrickOnBase(DeactivateEventArgs eventData)
+    {
+
+        /*Transform nfInteractorTransform = eventData.interactorObject.transform;
+
+        List<Collider> colliders = eventData.interactableObject.colliders;
+
+        GameObject chosenObject = GetClosestCollider(colliders, nfInteractorTransform).gameObject;
+        if(chosenObject.CompareTag(SOCKET_TAG_FEMALE) || chosenObject.CompareTag(SOCKET_TAG_MALE))
+        {
+            chosenObject = chosenObject.transform.parent.gameObject;
+        }*/
+
+    }
+
+    public void SetHoverData(HoverEnterEventArgs eventData)
+    {
+        hoverData = eventData;
+    }
+
+    public void NullifyHoverData(HoverExitEventArgs eventData)
+    {
+        hoverData = null;
+    }
+
+
+    public void PrimeBrickForPlucking(HoverEnterEventArgs eventData)
+    {
+
+        Debug.Log("called!");
+        NearFarInteractor nearFarInteractor = eventData.interactorObject.transform.GetComponent<NearFarInteractor>();
+
+        float activateInput = nearFarInteractor.activateInput.ReadValue();
+
+        //Debug.Log(activateInput);
+
+        if(activateInput > 0 )
+        {
+            BreakAwayBrickFromBase(eventData);
+        }
+        
+
 
     }
 
 
+
+    private Collider GetClosestCollider(List<Collider> colliders, Transform nearFarInteractor)
+    {
+        if(colliders.Count <= 0)
+        {
+            Debug.Log("There were no colliders in this list!");
+            return null;
+        }
+
+
+        Collider closestCollider = colliders[0];
+        float colliderDistance = (closestCollider.transform.position - nearFarInteractor.position).magnitude;
+        for(int i = 1; i < colliders.Count; i++)
+        {
+            Collider nextCollider = colliders[i];
+            float nextColliderDistance = (nextCollider.transform.position - nearFarInteractor.position).magnitude;
+
+            if(nextColliderDistance < colliderDistance)
+            {
+                colliderDistance = nextColliderDistance;
+                closestCollider = nextCollider;
+            }
+        }
+
+        return closestCollider;
+
+    }
+    
     public void ToggleRigidbodyIsKinematic()
     {
         GetComponent<Rigidbody>().isKinematic = !GetComponent<Rigidbody>().isKinematic;

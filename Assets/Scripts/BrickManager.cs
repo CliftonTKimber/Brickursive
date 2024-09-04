@@ -283,7 +283,7 @@ public class BrickManager : MonoBehaviour
 
         if(activateInput.ReadValue() > 0)
         {
-            nfInteractor.interactionLayers = 1 << LAYER_MASK_ONLY_PLUCKABLE;
+            //nfInteractor.interactionLayers = 1 << LAYER_MASK_ONLY_PLUCKABLE;
         }
 
         if(selectInput.ReadValue() > 0)
@@ -566,6 +566,8 @@ public class BrickManager : MonoBehaviour
             children[i].material = material;
         }
     }
+
+  
     private GameObject CreateMovableGrid()
     {
         GameObject gridObject = new()

@@ -153,7 +153,7 @@ public class GridUtils
 
         if(targetObject.name != GHOST_BRICK_NAME)
         {
-            targetObject.GetComponent<XRGrabInteractable>().interactionLayers = 1 << LAYER_MASK_ONLY_PLUCKABLE;
+            //targetObject.GetComponent<XRGrabInteractable>().interactionLayers = 1 << LAYER_MASK_ONLY_PLUCKABLE;
 
             targetObject.transform.SetPositionAndRotation(endPosition, endRotation);
 
@@ -335,39 +335,41 @@ public class GridUtils
     /// </summary>
     private void AddCollidersToXRInteractable(GameObject child, GameObject futureParent)
     {
+
         List<Collider> childColliders = child.GetComponent<XRGrabInteractable>().colliders;
 
         Transform highestParent = futureParent.GetComponent<BrickBehavior>().highestParent;
         XRBaseInteractable hPInteractable = highestParent.GetComponent<XRBaseInteractable>();
 
-        child.GetComponent<XRBaseInteractable>().enabled = false;
+        XRBaseInteractable childInteractable = child.GetComponent<XRBaseInteractable>();
+        XRBaseInteractable fPInteractable = futureParent.GetComponent<XRBaseInteractable>();
 
-        for(int i = 0; i < childColliders.Count; i++)
+        childInteractable.enabled = false;
+
+        /*for(int i = 0; i < childColliders.Count; i++)
         {
             Collider collider = childColliders[i];
 
             hPInteractable.colliders.Add(collider);
-            //highestParent.GetComponent<XRBaseInteractable>().Col
-        }
+            //futureParent.GetComponent<XRBaseInteractable>().colliders.Add(collider); //Done for Plucking
+        }*/
 
 
         // 1) uses object as base to use coroutine
         // 2) reregisters the interactables
-        highestParent.GetComponent<BrickBehavior>().StartCoroutine(ReregisterInteractable(hPInteractable));
+
+
+        /*futureParent.GetComponent<BrickBehavior>().StartCoroutine(
+            GameController.AddCollidersAndRegisterInteractable(fPInteractable, childInteractable));*/
+
+
+        highestParent.GetComponent<BrickBehavior>().StartCoroutine(
+            GameController.AddCollidersAndRegisterInteractable(hPInteractable, childInteractable));
 
         
     }
 
-    private IEnumerator ReregisterInteractable(XRBaseInteractable inter)
-    {
-        yield return new WaitForEndOfFrame();
-        inter.interactionManager.UnregisterInteractable(inter as IXRInteractable);
-
-        yield return new WaitForEndOfFrame();
-        inter.interactionManager.RegisterInteractable(inter as IXRInteractable);
-
-        yield return null;
-    }
+    
 
 
 

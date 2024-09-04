@@ -30,8 +30,6 @@ public class GameConfig
 
     public static readonly string OBJECT_FOLDER_NAME = "Objects";
 
-    public static readonly InteractionLayerMask LAYER_MASK_ONLY_PLUCKABLE = InteractionLayerMask.NameToLayer("onlyPluckable");
-
     public static readonly InteractionLayerMask LAYER_MASK_INTERACT = InteractionLayerMask.NameToLayer("Interact");
 
     //12FPS to match with typical animations

@@ -70,6 +70,118 @@ public class GameController : MonoBehaviour
     }
 
 
+
+      #region XR
+
+
+
+    public static IEnumerator ReregisterInteractable(XRBaseInteractable inter)
+    {
+        yield return new WaitForEndOfFrame();
+        inter.interactionManager.UnregisterInteractable(inter as IXRInteractable);
+
+        yield return new WaitForEndOfFrame();
+        inter.interactionManager.RegisterInteractable(inter as IXRInteractable);
+
+        yield return null;
+    }
+
+    public static IEnumerator ReregisterInteractableDelayed(XRBaseInteractable inter, float waitSeconds = 0.25f)
+    {
+        yield return new WaitForSeconds(waitSeconds);
+        inter.interactionManager.UnregisterInteractable(inter as IXRInteractable);
+
+        yield return new WaitForSeconds(waitSeconds);
+        inter.interactionManager.RegisterInteractable(inter as IXRInteractable);
+
+        yield return null;
+    }
+
+    public static IEnumerator RemoveCollidersAndRegisterInteractable(XRBaseInteractable originalInteractable, XRBaseInteractable chosenInteractable)
+    {
+        //Unregister
+        yield return new WaitForEndOfFrame();
+        chosenInteractable.interactionManager.UnregisterInteractable(chosenInteractable as IXRInteractable);
+
+        yield return new WaitForEndOfFrame();
+        originalInteractable.interactionManager.UnregisterInteractable(originalInteractable as IXRInteractable);
+
+        //Get full list minus the base brick
+        yield return new WaitForEndOfFrame();
+
+        /// For some reason allColliders is acting exaclty like the other list. Removing from one is the same are 
+        /// removing from the other. if these two can be decoupled, I have it.
+        List<Collider> allColliders = originalInteractable.colliders;
+        Collider originalCollider = originalInteractable.transform.GetComponent<Collider>();
+        allColliders.Remove(originalCollider);
+
+        //Remove child colliders from Originial
+        yield return new WaitForEndOfFrame();
+
+
+        for(int i = 0; i < chosenInteractable.colliders.Count; i++)
+        {
+            Collider collider = chosenInteractable.colliders[i];
+            originalInteractable.colliders.Remove(collider);
+        }
+
+        //Add all child colliders to recent child
+        yield return new WaitForEndOfFrame();
+        for(int i = 0; i < allColliders.Count; i++)
+        {
+            chosenInteractable.colliders.Add(allColliders[i]);
+        }
+
+        //Register
+        yield return new WaitForEndOfFrame();
+        chosenInteractable.interactionManager.RegisterInteractable(chosenInteractable as IXRInteractable);
+
+        yield return new WaitForEndOfFrame();
+        originalInteractable.interactionManager.RegisterInteractable(originalInteractable as IXRInteractable);
+
+
+
+        yield return null;
+    }
+
+    public static IEnumerator AddCollidersAndRegisterInteractable(XRBaseInteractable originalInteractable, XRBaseInteractable chosenInteractable)
+    {
+        //Unregister
+        yield return new WaitForEndOfFrame();
+        originalInteractable.interactionManager.UnregisterInteractable(originalInteractable as IXRInteractable);
+
+        //Add Colliders
+        yield return new WaitForEndOfFrame();
+        for(int i = 0; i < chosenInteractable.colliders.Count; i++)
+        {
+            Collider collider = chosenInteractable.colliders[i];
+            originalInteractable.colliders.Add(collider);
+        }
+
+
+        //Register
+        yield return new WaitForEndOfFrame();
+        originalInteractable.interactionManager.RegisterInteractable(originalInteractable as IXRInteractable);
+
+
+        
+
+
+
+        yield return null;
+    }
+
+    public static IEnumerator UnregisterInteractable(XRBaseInteractable inter)
+    {
+        yield return new WaitForEndOfFrame();
+        inter.interactionManager.UnregisterInteractable(inter as IXRInteractable);
+
+        yield return null;
+    }
+
+    #endregion
+
+
     /*
         TODO:
 
@@ -125,6 +237,8 @@ public class GameController : MonoBehaviour
 
 
             Convert all Brick BoxColliders with Mesh colliders (Plane)
+
+            Replace Recursive functions with GetComponentInChildren<>().
 
 
 

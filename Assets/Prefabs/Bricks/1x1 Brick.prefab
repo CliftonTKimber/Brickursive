@@ -47,7 +47,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -100,7 +100,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -255,7 +255,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b0a8dd70f7d7624e968da4883e15941, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  newParent: {fileID: 0}
+  highestParent: {fileID: 0}
   extraRotation: {x: 0, y: 0, z: 0}
 --- !u!114 &-7336904046206081932
 MonoBehaviour:
