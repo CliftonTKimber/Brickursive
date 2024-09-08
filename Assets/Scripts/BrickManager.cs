@@ -80,6 +80,11 @@ public class BrickManager : MonoBehaviour
     {   
         NearFarInteractor nearFarInteractor = xrController.GetComponentInChildren<NearFarInteractor>();
 
+        if(xrController == null || nearFarInteractor == null)
+        {
+            return;
+        }
+
         if (!nearFarInteractor.hasSelection && nearFarInteractor.selectInput.ReadValue() == 0)
             nearFarInteractor.allowSelect = true;
     }
@@ -109,6 +114,7 @@ public class BrickManager : MonoBehaviour
             nfInteractor.interactionLayers =  1 << LAYER_MASK_INTERACT;
             targetBrick.GetComponent<XRGrabInteractable>().interactionLayers = 1 << LAYER_MASK_INTERACT;
 
+
             DelaySnapping();
 
         }
@@ -122,6 +128,8 @@ public class BrickManager : MonoBehaviour
             leftTargetedBrick = null;
             GameObject.Destroy(leftGhostBrick);
             leftController = null;
+
+            
 
             
 
@@ -236,8 +244,55 @@ public class BrickManager : MonoBehaviour
     {
 
 
-        XRDirectInteractor leftInteractor = leftController.GetComponentInChildren<XRDirectInteractor>();
-        //NearFarInteractor rightInteractor = rightController.GetComponentInChildren<NearFarInteractor>();
+        UnityEngine.XR.InputDevice leftInputDevice = UnityEngine.XR.InputDevices.GetDeviceAtXRNode(UnityEngine.XR.XRNode.LeftHand);
+        UnityEngine.XR.InputDevice rightInputDevice = UnityEngine.XR.InputDevices.GetDeviceAtXRNode(UnityEngine.XR.XRNode.RightHand);
+
+        bool triggerValue;
+        if (rightInputDevice.TryGetFeatureValue(UnityEngine.XR.CommonUsages.primaryButton, out triggerValue) && triggerValue)
+        {
+            //NOTE: Does not work with the XR simulator. Needs a different Method?
+         
+            Debug.Log("right button!");
+            Transform grabSphere = controllers[1].transform.GetChild(0);
+            Vector3 spawnPos = grabSphere.position;
+
+            Transform objectFolder = GameObject.Find("Objects").transform;
+
+            Instantiate(brick, spawnPos, transform.rotation, objectFolder);
+
+            
+        
+        }
+
+        if (rightInputDevice.TryGetFeatureValue(UnityEngine.XR.CommonUsages.primary2DAxisClick, out triggerValue) && triggerValue)
+        {
+
+            brickSelector++;
+
+            if(brickSelector > availableBricks.Count)
+            {brickSelector = availableBricks.Count;}
+
+            brick = availableBricks[brickSelector];
+            leftGhostBrick = MakeGhostVersionOfCurrentBrick(brick, leftGhostBrick);
+
+        }
+
+        //LEFT
+
+        if (leftInputDevice.TryGetFeatureValue(UnityEngine.XR.CommonUsages.primary2DAxisClick, out triggerValue) && triggerValue)
+        {
+
+            brickSelector--;  
+
+            if(brickSelector < 0)
+            {brickSelector = 0;}
+
+            brick = availableBricks[brickSelector];
+            leftGhostBrick = MakeGhostVersionOfCurrentBrick(brick, leftGhostBrick);
+
+        }
+
+
 
         //.Log(Input.GetButtonDown());
 
@@ -276,7 +331,18 @@ public class BrickManager : MonoBehaviour
 
     void ChangeInteractorLayerMaskOnTrigger(GameObject xrController)
     {
+        if(xrController == null)
+        {
+            return;
+        }
+
+
         NearFarInteractor nfInteractor = xrController.GetComponentInChildren<NearFarInteractor>();
+
+        if(nfInteractor == null)
+        {
+            return;
+        }
 
         UnityEngine.XR.Interaction.Toolkit.Inputs.Readers.XRInputButtonReader activateInput = nfInteractor.activateInput;
         UnityEngine.XR.Interaction.Toolkit.Inputs.Readers.XRInputButtonReader selectInput = nfInteractor.selectInput;
@@ -330,8 +396,11 @@ public class BrickManager : MonoBehaviour
             EndSnapping(xrController);
             xrController.GetComponentInChildren<NearFarInteractor>().allowSelect = false;
 
+
             BrickBehavior targetedBrickBehavior = targetedBrick.GetComponent<BrickBehavior>();
             targetedBrickBehavior.InvokeBrickMethod("ToggleRigidbodyIsKinematic", 0.1f);
+
+
 
             //targetedBrick.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
             //targetedBrick.GetComponent<Rigidbody>().velocity = Vector3.zero; 

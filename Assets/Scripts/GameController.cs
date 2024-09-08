@@ -168,6 +168,8 @@ public class GameController : MonoBehaviour
         {
             Collider collider = chosenInteractable.colliders[i];
             originalInteractable.colliders.Add(collider);
+
+
         }
 
 
@@ -189,6 +191,7 @@ public class GameController : MonoBehaviour
         inter.interactionManager.UnregisterInteractable(inter as IXRInteractable);
 
         yield return null;
+        
     }
 
     #endregion
@@ -196,6 +199,15 @@ public class GameController : MonoBehaviour
 
     /*
         TODO:
+
+
+            CODE CLEANUP:
+
+                The grabs, and ungrabs nned to be cleaned up.
+
+                Replace unselecting working around with InteractionManager.CancelInteractableSelection()
+
+
 
             For two-handed grabs - perhaps access the colliders that XRGrab script uses, and add child colliders to the list?
 

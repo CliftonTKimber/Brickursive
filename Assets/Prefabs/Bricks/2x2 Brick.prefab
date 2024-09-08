@@ -257,6 +257,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   highestParent: {fileID: 0}
   extraRotation: {x: 0, y: 0, z: 0}
+  belts: []
 --- !u!114 &5246927049052159999
 MonoBehaviour:
   m_ObjectHideFlags: 0

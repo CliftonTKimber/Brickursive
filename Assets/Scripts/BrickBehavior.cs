@@ -31,6 +31,8 @@ public class BrickBehavior : MonoBehaviour
 
     private HoverEnterEventArgs hoverData = null;
 
+    //[NonSerialized]
+    public List<GameObject> belts = new();
 
 
     void Start()
@@ -55,6 +57,25 @@ public class BrickBehavior : MonoBehaviour
 
         
         HandelExtraInput();
+
+        
+
+    }
+
+
+
+  
+    public void TranslateBrick(GameObject sourceObject, Vector3 translation)
+    {
+        if(belts.Last<GameObject>() != sourceObject)
+        {
+            return;
+        }
+
+
+        transform.Translate(translation);
+        
+
     }
 
 
@@ -133,6 +154,10 @@ public class BrickBehavior : MonoBehaviour
 
 
         brickManager.EndSnapping(usedController);
+
+
+        GetComponent<Rigidbody>().useGravity = false;
+
 
         if(newParent == null)
         {

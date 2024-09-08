@@ -34,6 +34,8 @@ public class BlackboxBehavior : MonoBehaviour
     /// </summary>
     public int spawnTime = 1;
 
+    public int powerLevel = 1;
+
 
     [SerializeField]
     private List<GameObject> detectedBricks;
@@ -47,12 +49,18 @@ public class BlackboxBehavior : MonoBehaviour
     void Start()
     {
         detectedBricks = new();
+
+      
     }
 
     void FixedUpdate()
     {
-        //In Fixed update it is delayed already. Make sure to consider this .
-        Invoke(nameof(RunBehaviorByStructureType), spawnTime * ANIMATION_UPDATE_TIME);
+
+        if(powerLevel > 0)
+        {
+            //In Fixed update it is delayed already. Make sure to consider this .
+            Invoke(nameof(RunBehaviorByStructureType), spawnTime * ANIMATION_UPDATE_TIME);
+        }
 
 
 
@@ -106,7 +114,7 @@ public class BlackboxBehavior : MonoBehaviour
         Rigidbody newBrickRB = newBrick.GetComponent<Rigidbody>();
 
         newBrickRB.isKinematic = false;
-        //newBrickRB.useGravity = true;
+        newBrickRB.useGravity = true;
         newBrickRB.excludeLayers = 0;
         //newBrickRB.AddForce(transform.forward * 3, ForceMode.VelocityChange);
         //newBrickRB.AddTorque(Vector3.one, ForceMode.Impulse);
@@ -117,10 +125,7 @@ public class BlackboxBehavior : MonoBehaviour
 
     private void RunBeltBehavior()
     {
-        /*if(!IsAvailableDetector())
-        {
-            CreateDetector();
-        }*/
+        SetupBelt();
 
         if(detectedBricks.Count <= 0)
         {
@@ -141,23 +146,46 @@ public class BlackboxBehavior : MonoBehaviour
 
             Rigidbody brickRb = brick.GetComponent<Rigidbody>();
 
-            //brickRb.useGravity = false;
-            //brickRb.drag = 0;
-            //brickRb.angularDrag = 0.8f;
-            //brickRb.isKinematic = false;
-            brickRb.constraints = 0;
-            //brickRb.angularVelocity = Vector3.zero;
-            //brickRb.AddForce(transform.forward, ForceMode.VelocityChange);
+            brickRb.useGravity = false;
+            brickRb.constraints = RigidbodyConstraints.FreezeAll;
+
+
+            if(brick.GetComponent<BlackboxBehavior>() == null)
+            {
+                brickRb.AddForce(Vector3.Scale(transform.up, -brickRb.velocity), ForceMode.VelocityChange);
+            }
 
             Vector3 moveDirection = Quaternion.Inverse(brick.transform.rotation) * transform.forward;
 
-            brick.transform.Translate(moveDirection * 400f * BASE_CELL_SIZE.x * Time.deltaTime * ANIMATION_UPDATE_TIME);
+            brick.GetComponent<BrickBehavior>().TranslateBrick(gameObject, 
+            moveDirection * 100f * BASE_CELL_SIZE.y  * Time.deltaTime);
+
+            //TranslateBrick(gameObject, moveDirection * 400f * BASE_CELL_SIZE.x * Time.deltaTime * ANIMATION_UPDATE_TIME);
 
 
         }
 
 
 
+
+
+    }
+
+    private void SetupBelt()
+    {
+        if(GetComponents<Collider>().Length <= 1)
+        {
+            Vector3 trueScale = GetComponent<BrickBehavior>().trueScale;
+
+            BoxCollider detector = gameObject.AddComponent<BoxCollider>();
+
+            detector.center = new Vector3(0f, trueScale.y / 2f, 0f);
+            detector.size = new Vector3(trueScale.x - (STUD_HEIGHT * 2),
+                                        trueScale.y - (STUD_HEIGHT * 2),
+                                        trueScale.z - (STUD_HEIGHT * 2));
+
+            detector.isTrigger = true;
+        } 
 
 
     }
@@ -283,69 +311,100 @@ public class BlackboxBehavior : MonoBehaviour
         return isAvailable;
 
     }
-    /*private void CreateDetector()
+
+
+
+    void OnTriggerEnter(Collider collider)
     {
-        Vector3 posOffset = Vector3.Scale(transform.up, BASE_CELL_SIZE);
-        posOffset.y *= 2;
-        Vector3 spawnPos = transform.position + posOffset;
-
-        GameObject detector = Instantiate(new GameObject(), spawnPos, transform.rotation);
-
-        detector.name = "Detector";
-
-        detector.AddComponent<BoxCollider>();
-        detector.GetComponent<BoxCollider>().isTrigger = true;
-    }*/
-
-
-    void OnTriggerEnter(Collider collider){
         
+        if(collider.isTrigger)
+        {
+            return;
+        }
 
         GameObject hitBrick = collider.gameObject;
-        if(collider.CompareTag(SOCKET_TAG_FEMALE) || collider.CompareTag(SOCKET_TAG_MALE))
+        /*if(collider.CompareTag(SOCKET_TAG_FEMALE) || collider.CompareTag(SOCKET_TAG_MALE))
         {
             hitBrick = hitBrick.transform.parent.gameObject;
-        }
+        }*/
 
-        //Debug.Log(hitBrick.name);
         
-        if(hitBrick.CompareTag(BASE_BRICK_TAG))
+        if(!hitBrick.CompareTag(BASE_BRICK_TAG))
         {
-            if( hitBrick.transform.parent != null && hitBrick.transform.parent.gameObject == gameObject)
-                {
-                    return;
-                }
-                //Debug.Log(hitBrick.transform.parent.gameObject.name);
-                if(hitBrick == transform.parent.gameObject)
-                {
-                    return;
-                }
-                //Debug.Log(transform.parent.gameObject.name);
-                //CONT. if share a highest parent besides Objects
-
-
-            for (int i = 0; i < detectedBricks.Count; i++)
-            {
-                if(hitBrick == detectedBricks[i])
-                {
-                    return;
-                }  
-            }
-
-            detectedBricks.Add(hitBrick);
+            return;
         }
+
+        if(hitBrick.GetComponent<BrickBehavior>().highestParent == GetComponent<BrickBehavior>().highestParent)
+        {
+            return;
+        }
+
+        if( hitBrick.transform.parent != null && hitBrick.transform.parent.gameObject == gameObject)
+        {
+            return;
+        }
+
+        if(hitBrick.transform.parent != null && hitBrick == transform.parent.gameObject)
+        {
+            return;
+        }
+
+        
+        
+
+
+        for (int i = 0; i < detectedBricks.Count; i++)
+        {
+            if(hitBrick == detectedBricks[i])
+            {
+                return;
+            }  
+        }
+
+        detectedBricks.Add(hitBrick);
+
+        if(structureType == StructureType.Belt)
+        {
+            hitBrick.GetComponent<BrickBehavior>().belts.Add(gameObject);
+        }
+
+        
+        
     }
 
     void OnTriggerExit(Collider collider)
     {
 
+
         GameObject hitBrick = collider.gameObject;
-        if(collider.CompareTag(SOCKET_TAG_FEMALE) || collider.CompareTag(SOCKET_TAG_MALE))
+        if(!collider.CompareTag(BASE_BRICK_TAG))
         {
-            hitBrick = hitBrick.transform.parent.gameObject;
+            return;
+        }
+
+        if(hitBrick.GetComponent<BrickBehavior>().highestParent == GetComponent<BrickBehavior>().highestParent)
+        {
+            return;
         }
 
         detectedBricks.Remove(hitBrick);
+
+        if(structureType == StructureType.Belt)
+        {
+            hitBrick.GetComponent<BrickBehavior>().belts.Remove(gameObject);
+
+            Debug.Log(hitBrick.GetComponent<BrickBehavior>().belts.Count);
+            if(hitBrick.GetComponent<BrickBehavior>().belts.Count <= 0)
+            {
+
+                Rigidbody brickRb = hitBrick.GetComponent<Rigidbody>();
+
+                brickRb.useGravity = true;
+                brickRb.constraints = RigidbodyConstraints.None;
+                //brickRb.AddForce(transform.forward * 15f, ForceMode.Impulse);
+            }
+        }
+
 
     }
 

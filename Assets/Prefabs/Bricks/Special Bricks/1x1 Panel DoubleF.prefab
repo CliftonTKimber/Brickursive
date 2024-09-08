@@ -149,8 +149,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b0a8dd70f7d7624e968da4883e15941, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  newParent: {fileID: 0}
+  highestParent: {fileID: 0}
   extraRotation: {x: 0, y: 0, z: 0}
+  belts: []
 --- !u!114 &-1222041906776538989
 MonoBehaviour:
   m_ObjectHideFlags: 0

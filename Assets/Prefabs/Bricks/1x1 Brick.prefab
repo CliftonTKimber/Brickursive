@@ -212,7 +212,7 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 3
   m_Size: {x: 0.7817962, y: 0.7962589, z: 0.7817962}
   m_Center: {x: 0, y: 0.002231419, z: 0}
@@ -257,6 +257,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   highestParent: {fileID: 0}
   extraRotation: {x: 0, y: 0, z: 0}
+  belts: []
 --- !u!114 &-7336904046206081932
 MonoBehaviour:
   m_ObjectHideFlags: 0

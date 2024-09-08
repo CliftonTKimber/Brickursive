@@ -442,7 +442,7 @@ Rigidbody:
   serializedVersion: 4
   m_Mass: 1
   m_Drag: 1
-  m_AngularDrag: 0.05
+  m_AngularDrag: 1
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -471,8 +471,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b0a8dd70f7d7624e968da4883e15941, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  newParent: {fileID: 0}
+  highestParent: {fileID: 0}
   extraRotation: {x: 0, y: 0, z: 0}
+  belts: []
 --- !u!114 &-7336904046206081932
 MonoBehaviour:
   m_ObjectHideFlags: 0
