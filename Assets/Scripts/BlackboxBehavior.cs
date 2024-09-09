@@ -197,6 +197,7 @@ public class BlackboxBehavior : MonoBehaviour
             return;
         }
 
+
         for(int i = 0; i < detectedBricks.Count; i++)
         {
             GameObject brick = detectedBricks[i];
@@ -204,7 +205,7 @@ public class BlackboxBehavior : MonoBehaviour
             detectedBricks.Remove(brick);
             Destroy(brick);
 
-            Debug.Log("Sucked up a " + brick.name);
+            //Debug.Log("Sucked up a " + brick.name);
 
 
         }
@@ -323,11 +324,7 @@ public class BlackboxBehavior : MonoBehaviour
         }
 
         GameObject hitBrick = collider.gameObject;
-        /*if(collider.CompareTag(SOCKET_TAG_FEMALE) || collider.CompareTag(SOCKET_TAG_MALE))
-        {
-            hitBrick = hitBrick.transform.parent.gameObject;
-        }*/
-
+        
         
         if(!hitBrick.CompareTag(BASE_BRICK_TAG))
         {
@@ -339,12 +336,14 @@ public class BlackboxBehavior : MonoBehaviour
             return;
         }
 
-        if( hitBrick.transform.parent != null && hitBrick.transform.parent.gameObject == gameObject)
+        if(hitBrick.transform.parent != null &&
+           hitBrick.transform.parent.gameObject == gameObject)
         {
             return;
         }
 
-        if(hitBrick.transform.parent != null && hitBrick == transform.parent.gameObject)
+        if(transform.parent != null &&
+          hitBrick == transform.parent.gameObject)
         {
             return;
         }
@@ -393,7 +392,6 @@ public class BlackboxBehavior : MonoBehaviour
         {
             hitBrick.GetComponent<BrickBehavior>().belts.Remove(gameObject);
 
-            Debug.Log(hitBrick.GetComponent<BrickBehavior>().belts.Count);
             if(hitBrick.GetComponent<BrickBehavior>().belts.Count <= 0)
             {
 

@@ -336,33 +336,16 @@ public class GridUtils
     private void AddCollidersToXRInteractable(GameObject child, GameObject futureParent)
     {
 
-        List<Collider> childColliders = child.GetComponent<XRGrabInteractable>().colliders;
-
+        
         Transform highestParent = futureParent.GetComponent<BrickBehavior>().highestParent;
         XRBaseInteractable hPInteractable = highestParent.GetComponent<XRBaseInteractable>();
 
         XRBaseInteractable childInteractable = child.GetComponent<XRBaseInteractable>();
-        XRBaseInteractable fPInteractable = futureParent.GetComponent<XRBaseInteractable>();
 
         childInteractable.enabled = false;
 
-        /*for(int i = 0; i < childColliders.Count; i++)
-        {
-            Collider collider = childColliders[i];
-
-            hPInteractable.colliders.Add(collider);
-            //futureParent.GetComponent<XRBaseInteractable>().colliders.Add(collider); //Done for Plucking
-        }*/
-
-
         // 1) uses object as base to use coroutine
         // 2) reregisters the interactables
-
-
-        /*futureParent.GetComponent<BrickBehavior>().StartCoroutine(
-            GameController.AddCollidersAndRegisterInteractable(fPInteractable, childInteractable));*/
-
-
         highestParent.GetComponent<BrickBehavior>().StartCoroutine(
             GameController.AddCollidersAndRegisterInteractable(hPInteractable, childInteractable));
 

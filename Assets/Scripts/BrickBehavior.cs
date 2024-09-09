@@ -83,6 +83,7 @@ public class BrickBehavior : MonoBehaviour
     private void HandelExtraInput()
     {
 
+
         if(hoverData == null)
         {
             return;
@@ -91,21 +92,14 @@ public class BrickBehavior : MonoBehaviour
         NearFarInteractor hoverInteractor = hoverData.interactorObject.transform.GetComponent<NearFarInteractor>();
         float activateValue = hoverInteractor.activateInput.ReadValue();
 
-        /*Debug.Log(
-            "Select: " + hoverInteractor.selectInput.ReadValue() +
-            "UI " + hoverInteractor.uiPressInput.ReadValue() +
-            "Activate " + hoverInteractor.activateInput.ReadValue()
-            
-            
-            );*/
-
         if(activateValue <= 0)
         {
             return;
         }
 
 
-        BreakAwayBrickFromBase(hoverData);
+
+        BreakAwayBrick(hoverData);
 
 
 
@@ -170,7 +164,7 @@ public class BrickBehavior : MonoBehaviour
 
     }
 
-     public void BreakAwayBrickFromBase(HoverEnterEventArgs eventData)
+     public void BreakAwayBrick(HoverEnterEventArgs eventData)
     {
 
 
@@ -185,17 +179,48 @@ public class BrickBehavior : MonoBehaviour
 
         GameObject chosenObject = chosenCollider.gameObject;
 
-        if(chosenObject.transform.parent == null || !chosenObject.transform.parent.CompareTag(BASE_BRICK_TAG))
+        /*if(chosenObject.transform.parent == null)
         {
             return;
-        }
+        }*/
 
         if(chosenObject.CompareTag(SOCKET_TAG_FEMALE) || chosenObject.CompareTag(SOCKET_TAG_MALE))
         {
             chosenObject = chosenObject.transform.parent.gameObject;
         }
 
+        /*if(!chosenObject.transform.parent.CompareTag(BASE_BRICK_TAG))
+        {
+            return;
+        }*/
+
+        if(!chosenObject.transform.parent.CompareTag(BASE_BRICK_TAG))
+        {
+            for(int i = 0; i < transform.childCount; i++)
+            {
+                Transform child = transform.GetChild(i);
+                if(child.GetComponent<XRGrabInteractable>() == null )
+                {
+                    continue;
+                }
+
+                BreakAwayBrickFromBase(child.gameObject, chosenObject);
+
+            }
+
+        }
+        else
+        {
+            BreakAwayBrickFromBase(chosenObject, gameObject);
+        }
+
         
+        
+        
+    }
+
+    private void BreakAwayBrickFromBase(GameObject chosenObject, GameObject originalObject)
+    {
         //For Juice
         Vector3 awayVector = (chosenObject.transform.position - chosenObject.transform.parent.position).normalized;
         awayVector = Vector3.Scale(awayVector, chosenObject.transform.up);
@@ -203,26 +228,19 @@ public class BrickBehavior : MonoBehaviour
 
         chosenObject.GetComponent<XRGrabInteractable>().enabled = true;
 
-        Transform gameFolder = GameObject.Find(OBJECT_FOLDER_NAME).transform;
-
-        chosenObject.transform.parent = gameFolder;
-        chosenObject.GetComponent<BrickBehavior>().newParent = gameFolder;
-        chosenObject.GetComponent<BrickBehavior>().highestParent = chosenObject.transform;
-
         chosenObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
         chosenObject.GetComponent<Rigidbody>().isKinematic = false;
 
         XRBaseInteractable chosenBaseInteractable = chosenObject.GetComponent<XRBaseInteractable>();
-        XRBaseInteractable originalBaseInteractable = GetComponent<XRBaseInteractable>();
+        XRBaseInteractable originalBaseInteractable = originalObject.GetComponent<XRBaseInteractable>();
 
         //Reregisters colliders to correct objects
         StartCoroutine(GameController.RemoveCollidersAndRegisterInteractable(originalBaseInteractable, chosenBaseInteractable) );
 
+
         /// JUICE
-        
-        
-        chosenObject.GetComponent<Rigidbody>().AddForce(awayVector * 5f, ForceMode.Impulse);
-        
+        chosenObject.GetComponent<Rigidbody>().AddForce(awayVector * 2f, ForceMode.Impulse);
+
     }
 
     public void ReplaceBrickOnBase(DeactivateEventArgs eventData)
@@ -251,24 +269,6 @@ public class BrickBehavior : MonoBehaviour
     }
 
 
-    public void PrimeBrickForPlucking(HoverEnterEventArgs eventData)
-    {
-
-        Debug.Log("called!");
-        NearFarInteractor nearFarInteractor = eventData.interactorObject.transform.GetComponent<NearFarInteractor>();
-
-        float activateInput = nearFarInteractor.activateInput.ReadValue();
-
-        //Debug.Log(activateInput);
-
-        if(activateInput > 0 )
-        {
-            BreakAwayBrickFromBase(eventData);
-        }
-        
-
-
-    }
 
 
 

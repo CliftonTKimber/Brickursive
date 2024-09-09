@@ -13,6 +13,7 @@ using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.Events;
 using UnityEngine.XR.Interaction.Toolkit.Interactors;
 using Unity.XR.CoreUtils;
+using System.Linq;
 
 
 
@@ -106,43 +107,9 @@ public class GameController : MonoBehaviour
         yield return new WaitForEndOfFrame();
         originalInteractable.interactionManager.UnregisterInteractable(originalInteractable as IXRInteractable);
 
-        //Get full list minus the base brick
+        //Remove child colliders from Original
         yield return new WaitForEndOfFrame();
-
-        /// For some reason allColliders is acting exaclty like the other list. Removing from one is the same are 
-        /// removing from the other. if these two can be decoupled, I have it.
-        List<Collider> allColliders = new();
-        allColliders.AddRange(originalInteractable.colliders);
-        //allColliders.Remove(originalCollider);
-
-        //Remove child colliders from Originial
-        yield return new WaitForEndOfFrame();
-
-
-        for(int i = 0; i < chosenInteractable.colliders.Count; i++)
-        {
-            Collider collider = chosenInteractable.colliders[i];
-
-            if(collider == originalInteractable.transform.GetComponent<Collider>())
-            {
-                continue;
-            }
-
-            originalInteractable.colliders.Remove(collider);
-        }
-
-        //Add all child colliders to recent child
-        yield return new WaitForEndOfFrame();
-        for(int i = 0; i < allColliders.Count; i++)
-        {
-            Collider collider = allColliders[i];
-
-            if(collider == originalInteractable.transform.GetComponent<Collider>())
-            {
-                continue;
-            }
-            chosenInteractable.colliders.Add(collider);
-        }
+        RemoveCollidersFromEachParentInHeirarchy(chosenInteractable);
 
         //Register
         yield return new WaitForEndOfFrame();
@@ -151,6 +118,10 @@ public class GameController : MonoBehaviour
         yield return new WaitForEndOfFrame();
         originalInteractable.interactionManager.RegisterInteractable(originalInteractable as IXRInteractable);
 
+        
+        //Set new Paretns for brick
+        yield return new WaitForEndOfFrame();
+        SetParentParams(chosenInteractable.gameObject);
 
 
         yield return null;
@@ -164,23 +135,11 @@ public class GameController : MonoBehaviour
 
         //Add Colliders
         yield return new WaitForEndOfFrame();
-        for(int i = 0; i < chosenInteractable.colliders.Count; i++)
-        {
-            Collider collider = chosenInteractable.colliders[i];
-            originalInteractable.colliders.Add(collider);
-
-
-        }
-
+        AddCollidersToEachParentInHeirarchy(chosenInteractable);
 
         //Register
         yield return new WaitForEndOfFrame();
         originalInteractable.interactionManager.RegisterInteractable(originalInteractable as IXRInteractable);
-
-
-        
-
-
 
         yield return null;
     }
@@ -192,6 +151,53 @@ public class GameController : MonoBehaviour
 
         yield return null;
         
+    }
+
+    public static void SetParentParams(GameObject chosenObject)
+    {
+
+        Transform gameFolder = GameObject.Find(OBJECT_FOLDER_NAME).transform;
+
+        chosenObject.transform.parent = gameFolder;
+        chosenObject.GetComponent<BrickBehavior>().newParent = gameFolder;
+        chosenObject.GetComponent<BrickBehavior>().highestParent = chosenObject.transform;
+
+    }
+
+
+    public static void AddCollidersToEachParentInHeirarchy(XRBaseInteractable startingInteractable)
+    {
+
+        XRBaseInteractable[] allParents = startingInteractable.GetComponentsInParent<XRBaseInteractable>();
+        List<Collider> startingColliders = startingInteractable.colliders;
+
+        for(int i = 1; i <  allParents.Length; i++)
+        {
+           XRBaseInteractable nextParent = allParents[i];
+
+           nextParent.colliders.AddRange(startingColliders);
+        }
+    }
+
+    public static void RemoveCollidersFromEachParentInHeirarchy(XRBaseInteractable startingInteractable)
+    {
+
+        XRBaseInteractable[] allParents = startingInteractable.GetComponentsInParent<XRBaseInteractable>();
+        List<Collider> startingColliders = startingInteractable.colliders;
+
+        for(int i = 1; i <  allParents.Length; i++)
+        {
+           XRBaseInteractable nextParent = allParents[i];
+
+            for(int j = 0; j < nextParent.colliders.Count; j++)
+            {
+                if(nextParent.colliders[j] == startingColliders[0])
+                {
+                    nextParent.colliders.RemoveRange(j, startingColliders.Count);
+                    break;   
+                }     
+            }         
+        }
     }
 
     #endregion
@@ -216,21 +222,13 @@ public class GameController : MonoBehaviour
 
             MOVEMENT:
 
-            #1 Should be able to hold a lego structure from any point.
 
-            #2 Should be able to extract a lego from a structure.
 
             All around Polish and Bugfix
 
 
 
-            STRUCTURES
 
-            Blackbox Raycasts come from wrong place. Fix.
-
-            Because Blackbox has multiple Male sockets, the grid origin can alter placement in unsusal ways. fix.
-
-            Make the Replicator
 
 
 
@@ -239,8 +237,6 @@ public class GameController : MonoBehaviour
 
         ///Other Notes:
         
-        Bugs. - Ghost Brick - Disable all scripts that do behavior beyond placement.
-
         Bugs - Ghost brick flickers down when an axis of rotation increases (doesn't happen when it decreases)
 
         
@@ -259,6 +255,11 @@ public class GameController : MonoBehaviour
                 Cull Rays that would begin too far outside of camera view frustrum. (be careful to include ones that aren't seen, as the brick
                 the player is holding may obscure the view. But the ray should still be cast)
 
+
+            Belts:
+
+                Turn off adjacent belts, and create a single, long BoxCollider for detection 
+                --- should reduce collision checks, and other operations
 
             Convert all Brick BoxColliders with Mesh colliders (Plane)
 
