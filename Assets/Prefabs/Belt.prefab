@@ -411,7 +411,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   structureType: 1
   spawnTime: 1
-  powerLevel: 1
+  powerLevel: 0
   detectedBricks: []
   oneByOne: {fileID: 0}
   oneByFour: {fileID: 0}

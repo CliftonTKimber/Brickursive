@@ -31,8 +31,10 @@ public class BrickBehavior : MonoBehaviour
 
     private HoverEnterEventArgs hoverData = null;
 
-    //[NonSerialized]
+    [NonSerialized]
     public List<GameObject> belts = new();
+
+    public float buildPoints = 1f;
 
 
     void Start()

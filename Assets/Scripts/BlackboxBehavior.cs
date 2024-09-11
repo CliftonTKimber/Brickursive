@@ -8,6 +8,7 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using static GameConfig;
 
+
 public class BlackboxBehavior : MonoBehaviour
 {    public enum StructureType
     {
@@ -34,21 +35,26 @@ public class BlackboxBehavior : MonoBehaviour
     /// </summary>
     public int spawnTime = 1;
 
-    public int powerLevel = 1;
+    public int powerLevel = 0;
+
+    private int[] inventory;
 
 
     [SerializeField]
     private List<GameObject> detectedBricks;
 
-    private int joinerBrickCount = 0;
+    private BrickLibrary brickLibrary;
 
-    public GameObject oneByOne;
-    public GameObject oneByFour;
 
 
     void Start()
     {
         detectedBricks = new();
+
+        brickLibrary = GameObject.Find("Brick Library").GetComponent<BrickLibrary>();
+        inventory = new int[brickLibrary.allBricks.Count];
+
+       // Debug.Log("Inventory Length: " + inventory.Length);
 
       
     }
@@ -146,21 +152,38 @@ public class BlackboxBehavior : MonoBehaviour
 
             Rigidbody brickRb = brick.GetComponent<Rigidbody>();
 
-            brickRb.useGravity = false;
-            brickRb.constraints = RigidbodyConstraints.FreezeAll;
+            
 
 
             if(brick.GetComponent<BlackboxBehavior>() == null)
             {
                 brickRb.AddForce(Vector3.Scale(transform.up, -brickRb.velocity), ForceMode.VelocityChange);
+                brickRb.rotation = transform.rotation;
+
             }
+
+            
+
+            /*Vector3 newPos = transform.position;
+            newPos.x = brick.transform.position.x;
+            newPos.z = brick.transform.position.z;
+            Vector3 scaleThing = Vector3.Scale(GetComponent<BrickBehavior>().trueScale, -transform.up);
+            Vector3 targetScaleThing = Vector3.Scale(brick.GetComponent<BrickBehavior>().trueScale, -transform.up);
+            newPos.y += scaleThing.y / 2;
+            newPos.y += targetScaleThing.y / 2;
+
+            Debug.Log(transform.up);
+
+
+
+            brick.transform.position = newPos;*/
+
+            //Alter Move direction so that a brick aligns itself with the belt as it moves.
 
             Vector3 moveDirection = Quaternion.Inverse(brick.transform.rotation) * transform.forward;
 
             brick.GetComponent<BrickBehavior>().TranslateBrick(gameObject, 
             moveDirection * 100f * BASE_CELL_SIZE.y  * Time.deltaTime);
-
-            //TranslateBrick(gameObject, moveDirection * 400f * BASE_CELL_SIZE.x * Time.deltaTime * ANIMATION_UPDATE_TIME);
 
 
         }
@@ -168,6 +191,17 @@ public class BlackboxBehavior : MonoBehaviour
 
 
 
+
+    }
+
+
+    private void PrimeBrickForMovement(Rigidbody brickRb)
+    {
+
+        brickRb.useGravity = false;
+        brickRb.constraints = RigidbodyConstraints.FreezeAll;
+
+        //AlignWithBelt(brickRb);
 
     }
 
@@ -215,55 +249,172 @@ public class BlackboxBehavior : MonoBehaviour
 
     private void RunJoinerBehavior()
     {
+        int yDiff = 0;
+        int xDiff = 0;
+
+        //Quaternion parentInverse = Quaternion.Inverse(GetComponent<BrickBehavior>().highestParent.rotation);
+        Quaternion parentInverse = Quaternion.Inverse(GameObject.Find(OBJECT_FOLDER_NAME).transform.rotation);
+        
+        Quaternion diff = parentInverse * transform.rotation;
+
+        Vector3 diffEuler = diff.eulerAngles;
+
+        // 90 or 270
+        if (diffEuler.y >= 45 && 
+            diffEuler.y < 135 || 
+            diffEuler.y >= 225 && 
+            diffEuler.y < 315)
+        {
+            yDiff = 1;
+        }
+
+        if (diffEuler.x >= 45 && 
+            diffEuler.x < 135 || 
+            diffEuler.x >= 225 &&
+            diffEuler.x < 315)
+        {
+            xDiff = 1;
+        }
+
+        //Vector3 spawnPos = transform.position + Vector3.Scale(-transform.forward, GetComponent<BrickBehavior>().trueScale );
+        Vector3 spawnPos = transform.position - (transform.forward * 2);
+
+
+        if(xDiff == 1)
+        {
+            JoinBricksByYAxis(spawnPos);
+            return;
+        }
+
+        if(yDiff == 1)
+        {
+            JoinBricksByZAxis(spawnPos);
+            return;
+        }
+
+        JoinBricksByXAxis(spawnPos);
 
         
+      
 
-        for(int i = 0; i < detectedBricks.Count; i++)
+
+    }
+
+    private void JoinBricksByXAxis(Vector3 spawnPos)
+    {
+
+        if(inventory[1] >= 3)
+        {//1x1 brick
+            Instantiate(brickLibrary.allBricks[2], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
+            inventory[1] -= 3;
+            return;
+        }
+        if(inventory[2] >= 4)
+        {//1x4
+            Instantiate(brickLibrary.allBricks[3], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
+            inventory[2] -= 4;
+            return;
+        }
+        Debug.Log(inventory[3]);
+        if(inventory[3] >= 2)
+        {//2x2 brick
+            Instantiate(brickLibrary.allBricks[5], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
+            inventory[3] -= 2;
+            return;
+        }
+
+
+    }
+
+    private void JoinBricksByYAxis(Vector3 spawnPos)
+    {
+        if(inventory[1] >= 1)
+        {//1x1 Stud
+
+            Instantiate(brickLibrary.allBricks[0], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
+            inventory[1] -= 1;
+            return;
+        }
+        /*if(inventory[2] >= 4)
+        {//4x1 pillar
+
+            GameObject newBrick = Instantiate(brickLibrary.allBricks[4], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
+            Vector3 scale = newBrick.GetComponent<BrickBehavior>().trueScale;          
+            newBrick.transform.position += Vector3.Scale(-transform.forward, scale);
+            inventory[2] -= 4;
+            return;
+        }*/
+
+        if(AddArrayToItself(inventory) >= 25)
+        {//16x16
+
+            Instantiate(brickLibrary.allBricks[6], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
+            inventory = new int[inventory.Length];
+            return;
+        }
+        
+    }
+
+    private void JoinBricksByZAxis(Vector3 spawnPos)
+    {
+        if(inventory[0] >= 4)
+        {//2x2 Universal Female 
+
+            Instantiate(brickLibrary.allBricks[7], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
+            inventory[0] -= 4;
+            return;
+        }
+        if(inventory[1] >= 4)
+        {//2x2 Universal Male 
+
+            Instantiate(brickLibrary.allBricks[8], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
+            inventory[1] -= 4;
+            return;
+        }
+
+        if(inventory[2] >= 1)
+        {//1x1 Panel
+
+            Instantiate(brickLibrary.allBricks[1], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
+            inventory[2] -= 1;
+            return;
+        }
+
+        
+    }
+
+    private int AddArrayToItself(int[] array)
+    {
+        int total = 0;
+        for (int i = 0; i < array.Length; i++)
         {
-            GameObject brick = detectedBricks[i];
-            if(brick.GetComponent<BlackboxBehavior>() != null || 
-               brick.GetComponentInChildren<BlackboxBehavior>() != null)
-               {
+            total += array[i];
+        }
+
+        return total;
+
+    }
+
+    private void AddBrickToInventory(GameObject brick)
+    {
+
+        for(int i = 0; i < brickLibrary.allBricks.Count; i++)
+        {
+            string libBrickName = brickLibrary.allBricks[i].name;
+            libBrickName += "(Clone)";
+
+            string brickName = brick.name;
+            if(brickName == libBrickName)
+            {
+                inventory[i] += 1;
+                Destroy(brick);
                 return;
-               }
-        }
-
-
-
-
-        if(joinerBrickCount > 3 )
-        {
-            Vector3 spawnPos = transform.position + Vector3.Scale(transform.forward, GetComponent<BrickBehavior>().trueScale );
-            
-            
-            GameObject newBrick = Instantiate(oneByFour, spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
-
-            joinerBrickCount = 0;
-
-            return;
+            }
 
         }
 
-        if(detectedBricks.Count <= 0)
-        {
-            return;
-        }
-
-        for(int i = 0; i < detectedBricks.Count; i++)
-        {
-            GameObject brick = detectedBricks[i];
-            if(brick.name == "1x1 Brick(Clone)")
-                { joinerBrickCount++;}
-
-            detectedBricks.Remove(brick);
-            Destroy(brick);
-
-            
-
-
-        }
-
-
+        Debug.Log("Triggering Object not found in Brick Library");
+        
     }
     private Transform GetFirstValidChildTransformInHeirarchy()
     {
@@ -360,12 +511,25 @@ public class BlackboxBehavior : MonoBehaviour
             }  
         }
 
+        if(structureType == StructureType.Joiner)
+        {
+            AddBrickToInventory(hitBrick);
+            return; 
+        }
+
+
+
+
+
         detectedBricks.Add(hitBrick);
 
         if(structureType == StructureType.Belt)
         {
+            PrimeBrickForMovement(hitBrick.GetComponent<Rigidbody>());
             hitBrick.GetComponent<BrickBehavior>().belts.Add(gameObject);
         }
+
+        
 
         
         
@@ -402,6 +566,8 @@ public class BlackboxBehavior : MonoBehaviour
                 //brickRb.AddForce(transform.forward * 15f, ForceMode.Impulse);
             }
         }
+
+        
 
 
     }

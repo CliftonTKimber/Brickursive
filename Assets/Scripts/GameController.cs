@@ -207,6 +207,17 @@ public class GameController : MonoBehaviour
         TODO:
 
 
+            1: Get Hammer working
+                Joining Pieces
+                Squishing Pieces
+
+            2: Unlocking Structures. Need a way to get more into the build.
+
+            3: Inventory
+
+
+            ///DO THE VERY MOST BASIC VERSIONS FOR NOW
+
             CODE CLEANUP:
 
                 The grabs, and ungrabs nned to be cleaned up.
@@ -215,7 +226,6 @@ public class GameController : MonoBehaviour
 
 
 
-            For two-handed grabs - perhaps access the colliders that XRGrab script uses, and add child colliders to the list?
 
             Rigidbody LayerMasks needs adjusting -- make all socket colliders triggers?
         

@@ -300,6 +300,10 @@ PrefabInstance:
       propertyPath: m_Center.y
       value: 0.54
       objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
       value: Belt (33)
@@ -372,6 +376,10 @@ PrefabInstance:
     - target: {fileID: 3666329967906745040, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Center.y
       value: 0.54
+      objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
@@ -451,6 +459,10 @@ PrefabInstance:
       propertyPath: m_Center.y
       value: 0.54
       objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
       value: Belt (47)
@@ -528,6 +540,10 @@ PrefabInstance:
     - target: {fileID: 3666329967906745040, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Center.y
       value: 0.54
+      objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
@@ -607,6 +623,10 @@ PrefabInstance:
       propertyPath: m_Center.y
       value: 0.54
       objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
       value: Belt (53)
@@ -684,6 +704,10 @@ PrefabInstance:
     - target: {fileID: 3666329967906745040, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Center.y
       value: 0.54
+      objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
@@ -1214,6 +1238,10 @@ PrefabInstance:
       propertyPath: m_Center.y
       value: 0.54
       objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
       value: Belt (31)
@@ -1287,6 +1315,10 @@ PrefabInstance:
       propertyPath: m_Center.y
       value: 0.54
       objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
       value: Belt (52)
@@ -1300,6 +1332,63 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+--- !u!1001 &283608552
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3183943347766803361, guid: 97c20ca649cbac543a1d5465e6bc4800, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -17.383192
+      objectReference: {fileID: 0}
+    - target: {fileID: 3183943347766803361, guid: 97c20ca649cbac543a1d5465e6bc4800, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 6.1946836
+      objectReference: {fileID: 0}
+    - target: {fileID: 3183943347766803361, guid: 97c20ca649cbac543a1d5465e6bc4800, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -6.3064275
+      objectReference: {fileID: 0}
+    - target: {fileID: 3183943347766803361, guid: 97c20ca649cbac543a1d5465e6bc4800, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3183943347766803361, guid: 97c20ca649cbac543a1d5465e6bc4800, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3183943347766803361, guid: 97c20ca649cbac543a1d5465e6bc4800, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3183943347766803361, guid: 97c20ca649cbac543a1d5465e6bc4800, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3183943347766803361, guid: 97c20ca649cbac543a1d5465e6bc4800, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3183943347766803361, guid: 97c20ca649cbac543a1d5465e6bc4800, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3183943347766803361, guid: 97c20ca649cbac543a1d5465e6bc4800, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8262784558417465510, guid: 97c20ca649cbac543a1d5465e6bc4800, type: 3}
+      propertyPath: m_Name
+      value: Battery
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 97c20ca649cbac543a1d5465e6bc4800, type: 3}
 --- !u!4 &300570466 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3183943347766803361, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
@@ -1380,6 +1469,10 @@ PrefabInstance:
       propertyPath: m_Center.y
       value: 0.54
       objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
       value: Belt (20)
@@ -1458,6 +1551,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8687057884351839553, guid: 4417a495e2227c24a88b32d8a56efe26, type: 3}
+      propertyPath: m_SelectExited.m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8687057884351839553, guid: 4417a495e2227c24a88b32d8a56efe26, type: 3}
+      propertyPath: m_SelectEntered.m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1522,6 +1623,10 @@ PrefabInstance:
     - target: {fileID: 3666329967906745040, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Center.y
       value: 0.54
+      objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
@@ -1596,6 +1701,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8687057884351839553, guid: 4417a495e2227c24a88b32d8a56efe26, type: 3}
+      propertyPath: m_SelectExited.m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8687057884351839553, guid: 4417a495e2227c24a88b32d8a56efe26, type: 3}
+      propertyPath: m_SelectEntered.m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1660,6 +1773,10 @@ PrefabInstance:
     - target: {fileID: 3666329967906745040, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Center.y
       value: 0.54
+      objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
@@ -1733,6 +1850,10 @@ PrefabInstance:
     - target: {fileID: 3666329967906745040, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Center.y
       value: 0.54
+      objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
@@ -1945,6 +2066,10 @@ PrefabInstance:
       propertyPath: m_Center.y
       value: 0.54
       objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
       value: Belt (24)
@@ -2027,6 +2152,10 @@ PrefabInstance:
     - target: {fileID: 3666329967906745040, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Center.y
       value: 0.54
+      objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
@@ -2116,6 +2245,10 @@ PrefabInstance:
       propertyPath: m_Center.y
       value: 0.54
       objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
       value: Belt (9)
@@ -2188,6 +2321,10 @@ PrefabInstance:
     - target: {fileID: 3666329967906745040, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Center.y
       value: 0.54
+      objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
@@ -2372,6 +2509,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8687057884351839553, guid: 4417a495e2227c24a88b32d8a56efe26, type: 3}
+      propertyPath: m_SelectExited.m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8687057884351839553, guid: 4417a495e2227c24a88b32d8a56efe26, type: 3}
+      propertyPath: m_SelectEntered.m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2476,6 +2621,10 @@ PrefabInstance:
       propertyPath: m_Center.y
       value: 0.54
       objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
       value: Belt (45)
@@ -2537,6 +2686,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3201514541050232520, guid: 88a335fd66674bf4f86e08d0003d4781, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: -5495902117074765545, guid: 9ac3bc19d3e26674bb88a2c592f10e9e, type: 3}
     - target: {fileID: 8262784558417465510, guid: 88a335fd66674bf4f86e08d0003d4781, type: 3}
       propertyPath: m_Name
       value: 1x1 Brick
@@ -2605,6 +2758,10 @@ PrefabInstance:
     - target: {fileID: 3666329967906745040, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Center.y
       value: 0.54
+      objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
@@ -2684,6 +2841,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8687057884351839553, guid: 4417a495e2227c24a88b32d8a56efe26, type: 3}
+      propertyPath: m_SelectExited.m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8687057884351839553, guid: 4417a495e2227c24a88b32d8a56efe26, type: 3}
+      propertyPath: m_SelectEntered.m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2753,6 +2918,10 @@ PrefabInstance:
     - target: {fileID: 3666329967906745040, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Center.y
       value: 0.54
+      objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
@@ -2913,6 +3082,10 @@ PrefabInstance:
       propertyPath: m_Center.y
       value: 0.54
       objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
       value: Belt (43)
@@ -2991,6 +3164,10 @@ PrefabInstance:
       propertyPath: m_Center.y
       value: 0.54
       objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
       value: Belt (13)
@@ -3063,6 +3240,10 @@ PrefabInstance:
     - target: {fileID: 3666329967906745040, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Center.y
       value: 0.54
+      objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
@@ -3174,6 +3355,10 @@ PrefabInstance:
     - target: {fileID: 3666329967906745040, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Center.y
       value: 0.54
+      objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
@@ -3422,6 +3607,10 @@ PrefabInstance:
       propertyPath: m_Center.y
       value: 0.54
       objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
       value: Belt (22)
@@ -3577,6 +3766,10 @@ PrefabInstance:
       propertyPath: m_Center.y
       value: 0.54
       objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
       value: Belt (10)
@@ -3649,6 +3842,10 @@ PrefabInstance:
     - target: {fileID: 3666329967906745040, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Center.y
       value: 0.54
+      objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
@@ -3723,6 +3920,10 @@ PrefabInstance:
       propertyPath: m_Center.y
       value: 0.54
       objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
       value: Belt (49)
@@ -3736,6 +3937,67 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+--- !u!1001 &1107189490
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3183943347766803361, guid: 27231c167c8ed014aba93fd8a7d8642d, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 1.17
+      objectReference: {fileID: 0}
+    - target: {fileID: 3183943347766803361, guid: 27231c167c8ed014aba93fd8a7d8642d, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 5.8099236
+      objectReference: {fileID: 0}
+    - target: {fileID: 3183943347766803361, guid: 27231c167c8ed014aba93fd8a7d8642d, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -11.906356
+      objectReference: {fileID: 0}
+    - target: {fileID: 3183943347766803361, guid: 27231c167c8ed014aba93fd8a7d8642d, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3183943347766803361, guid: 27231c167c8ed014aba93fd8a7d8642d, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3183943347766803361, guid: 27231c167c8ed014aba93fd8a7d8642d, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3183943347766803361, guid: 27231c167c8ed014aba93fd8a7d8642d, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3183943347766803361, guid: 27231c167c8ed014aba93fd8a7d8642d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3183943347766803361, guid: 27231c167c8ed014aba93fd8a7d8642d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3183943347766803361, guid: 27231c167c8ed014aba93fd8a7d8642d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4485686275091422862, guid: 27231c167c8ed014aba93fd8a7d8642d, type: 3}
+      propertyPath: otherHalf
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 8262784558417465510, guid: 27231c167c8ed014aba93fd8a7d8642d, type: 3}
+      propertyPath: m_Name
+      value: Wire Output
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 27231c167c8ed014aba93fd8a7d8642d, type: 3}
 --- !u!1001 &1115207839
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3795,6 +4057,10 @@ PrefabInstance:
     - target: {fileID: 3666329967906745040, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Center.y
       value: 0.54
+      objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
@@ -3874,6 +4140,10 @@ PrefabInstance:
       propertyPath: m_Center.y
       value: 0.54
       objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
       value: Belt (39)
@@ -3903,7 +4173,7 @@ GameObject:
   - component: {fileID: 1162025715}
   - component: {fileID: 1162025716}
   m_Layer: 0
-  m_Name: Global Volume
+  m_Name: Post Processing
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4467,6 +4737,10 @@ PrefabInstance:
       propertyPath: m_Center.y
       value: 0.54
       objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
       value: Belt (6)
@@ -4550,6 +4824,10 @@ PrefabInstance:
       propertyPath: m_Center.y
       value: 0.54
       objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
       value: Belt (29)
@@ -4622,6 +4900,10 @@ PrefabInstance:
     - target: {fileID: 3666329967906745040, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Center.y
       value: 0.54
+      objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
@@ -4811,6 +5093,10 @@ PrefabInstance:
       propertyPath: m_Center.y
       value: 0.54
       objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
       value: Belt (44)
@@ -4883,6 +5169,10 @@ PrefabInstance:
     - target: {fileID: 3666329967906745040, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Center.y
       value: 0.54
+      objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
@@ -4962,6 +5252,10 @@ PrefabInstance:
       propertyPath: m_Center.y
       value: 0.54
       objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
       value: Belt (41)
@@ -4985,15 +5279,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3183943347766803361, guid: 74276915828587843b6ae6d19f8aea54, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 7.42
+      value: 6.74
       objectReference: {fileID: 0}
     - target: {fileID: 3183943347766803361, guid: 74276915828587843b6ae6d19f8aea54, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 7.0100007
+      value: 9.05
       objectReference: {fileID: 0}
     - target: {fileID: 3183943347766803361, guid: 74276915828587843b6ae6d19f8aea54, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -12.46
+      value: -12.19
       objectReference: {fileID: 0}
     - target: {fileID: 3183943347766803361, guid: 74276915828587843b6ae6d19f8aea54, type: 3}
       propertyPath: m_LocalRotation.w
@@ -5026,6 +5320,10 @@ PrefabInstance:
     - target: {fileID: 6791561692217330325, guid: 74276915828587843b6ae6d19f8aea54, type: 3}
       propertyPath: spawnTime
       value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 74276915828587843b6ae6d19f8aea54, type: 3}
+      propertyPath: powerLevel
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 74276915828587843b6ae6d19f8aea54, type: 3}
       propertyPath: m_Name
@@ -5107,6 +5405,10 @@ PrefabInstance:
       propertyPath: m_Center.y
       value: 0.54
       objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
       value: Belt (25)
@@ -5179,6 +5481,10 @@ PrefabInstance:
     - target: {fileID: 3666329967906745040, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Center.y
       value: 0.54
+      objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
@@ -5448,6 +5754,10 @@ PrefabInstance:
     - target: {fileID: 3666329967906745040, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Center.y
       value: 0.54
+      objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
@@ -5728,6 +6038,10 @@ PrefabInstance:
       propertyPath: m_Center.y
       value: 0.54
       objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
       value: Belt
@@ -5806,6 +6120,10 @@ PrefabInstance:
       propertyPath: m_Center.y
       value: 0.54
       objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
       value: Belt (16)
@@ -5878,6 +6196,10 @@ PrefabInstance:
     - target: {fileID: 3666329967906745040, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Center.y
       value: 0.54
+      objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
@@ -6341,6 +6663,10 @@ PrefabInstance:
       propertyPath: m_Center.y
       value: 0.54
       objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
       value: Belt (38)
@@ -6418,6 +6744,10 @@ PrefabInstance:
     - target: {fileID: 3666329967906745040, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Center.y
       value: 0.54
+      objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
@@ -6497,6 +6827,10 @@ PrefabInstance:
       propertyPath: m_Center.y
       value: 0.54
       objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
       value: Belt (48)
@@ -6564,7 +6898,7 @@ MonoBehaviour:
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
-  m_RenderPostProcessing: 0
+  m_RenderPostProcessing: 1
   m_Antialiasing: 0
   m_AntialiasingQuality: 2
   m_StopNaN: 0
@@ -6645,6 +6979,10 @@ PrefabInstance:
       propertyPath: m_Center.y
       value: 0.54
       objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
       value: Belt (14)
@@ -6717,6 +7055,10 @@ PrefabInstance:
     - target: {fileID: 3666329967906745040, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Center.y
       value: 0.54
+      objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
@@ -6791,6 +7133,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8687057884351839553, guid: 4417a495e2227c24a88b32d8a56efe26, type: 3}
+      propertyPath: m_SelectExited.m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8687057884351839553, guid: 4417a495e2227c24a88b32d8a56efe26, type: 3}
+      propertyPath: m_SelectEntered.m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -6855,6 +7205,10 @@ PrefabInstance:
     - target: {fileID: 3666329967906745040, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Center.y
       value: 0.54
+      objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
@@ -6939,6 +7293,10 @@ PrefabInstance:
       propertyPath: m_Center.y
       value: 0.54
       objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
       value: Belt (50)
@@ -7021,6 +7379,10 @@ PrefabInstance:
     - target: {fileID: 3666329967906745040, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Center.y
       value: 0.54
+      objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
@@ -7108,6 +7470,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4879001213690342024, guid: 4417a495e2227c24a88b32d8a56efe26, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8687057884351839553, guid: 4417a495e2227c24a88b32d8a56efe26, type: 3}
+      propertyPath: m_SelectExited.m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8687057884351839553, guid: 4417a495e2227c24a88b32d8a56efe26, type: 3}
+      propertyPath: m_SelectEntered.m_PersistentCalls.m_Calls.Array.size
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -7280,6 +7650,10 @@ PrefabInstance:
       propertyPath: m_Center.y
       value: 0.54
       objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
       value: Belt
@@ -7352,6 +7726,10 @@ PrefabInstance:
     - target: {fileID: 3666329967906745040, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Center.y
       value: 0.54
+      objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
@@ -7537,6 +7915,10 @@ PrefabInstance:
       propertyPath: m_Center.y
       value: 0.54
       objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
       value: Belt (28)
@@ -7609,6 +7991,10 @@ PrefabInstance:
     - target: {fileID: 3666329967906745040, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Center.y
       value: 0.54
+      objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
@@ -7703,6 +8089,10 @@ PrefabInstance:
       propertyPath: m_Center.y
       value: 0.54
       objectReference: {fileID: 0}
+    - target: {fileID: 6791561692217330325, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
+      propertyPath: powerLevel
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8262784558417465510, guid: 9f50d6b5d341507468057760f7d75418, type: 3}
       propertyPath: m_Name
       value: Belt (8)
@@ -7725,3 +8115,5 @@ SceneRoots:
   - {fileID: 1478629892}
   - {fileID: 699209683}
   - {fileID: 995524138}
+  - {fileID: 283608552}
+  - {fileID: 1107189490}
