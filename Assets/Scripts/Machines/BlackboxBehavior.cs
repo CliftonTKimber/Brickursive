@@ -314,7 +314,7 @@ public class BlackboxBehavior : MonoBehaviour
     {
 
         if(inventory[1] >= 3)
-        {//1x1 brick
+        {//1x1Panel -> 1x1 brick
             Instantiate(brickLibrary.allBricks[2], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
             inventory[1] -= 3;
             return;
@@ -338,7 +338,7 @@ public class BlackboxBehavior : MonoBehaviour
     private void JoinBricksByYAxis(Vector3 spawnPos)
     {
         if(inventory[1] >= 1)
-        {//1x1 Stud
+        {//1x1Panel -> 1x1 Stud
 
             Instantiate(brickLibrary.allBricks[0], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
             inventory[1] -= 1;
@@ -382,7 +382,7 @@ public class BlackboxBehavior : MonoBehaviour
         }
 
         if(inventory[2] >= 1)
-        {//1x1 Panel
+        {//1x1Brick -> 1x1 Panel
 
             Instantiate(brickLibrary.allBricks[1], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
             inventory[2] -= 1;
@@ -521,51 +521,43 @@ public class BlackboxBehavior : MonoBehaviour
     {
         
         if(!this.enabled)
-        {
             return;
-        }
 
         if(collider.isTrigger)
-        {
             return;
-        }
+
 
         GameObject hitBrick = collider.gameObject;
         
         
         if(!hitBrick.CompareTag(BASE_BRICK_TAG))
-        {
             return;
-        }
+        
+
+        if(hitBrick.GetComponent<BlackboxBehavior>() != null)
+            return;
+
+        if(hitBrick.isStatic)
+            return;
 
         if(hitBrick.GetComponent<BrickBehavior>().highestParent == GetComponent<BrickBehavior>().highestParent)
-        {
-            return;
-        }
-
-        if(hitBrick.transform.parent != null &&
-           hitBrick.transform.parent.gameObject == gameObject)
-        {
-            return;
-        }
-
-        if(transform.parent != null &&
-          hitBrick == transform.parent.gameObject)
-        {
-            return;
-        }
-
         
+            return;
         
+        if(hitBrick.transform.parent != null && hitBrick.transform.parent.gameObject == gameObject)
+            return;
+        
+
+        if(transform.parent != null && hitBrick == transform.parent.gameObject)
+            return;
 
 
         for (int i = 0; i < detectedBricks.Count; i++)
         {
             if(hitBrick == detectedBricks[i])
-            {
                 return;
-            }  
         }
+        ///End of Checks
 
 
         if(structureType == StructureType.Vacuum)
@@ -583,18 +575,15 @@ public class BlackboxBehavior : MonoBehaviour
 
         
 
+        
+
         detectedBricks.Add(hitBrick);
 
         if(structureType == StructureType.Belt)
         {
             PrimeBrickForMovement(hitBrick.GetComponent<Rigidbody>());
             hitBrick.GetComponent<BrickBehavior>().belts.Add(gameObject);
-        }
-
-        
-
-        
-        
+        }    
     }
 
     void OnTriggerExit(Collider collider)

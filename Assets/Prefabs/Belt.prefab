@@ -224,9 +224,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b0a8dd70f7d7624e968da4883e15941, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  highestParent: {fileID: 0}
   extraRotation: {x: 0, y: 0, z: 0}
-  belts: []
 --- !u!114 &-7336904046206081932
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -411,7 +409,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   structureType: 1
   spawnTime: 1
-  powerLevel: 0
+  powerLevel: 1
   detectedBricks: []
-  oneByOne: {fileID: 0}
-  oneByFour: {fileID: 0}

@@ -23,8 +23,7 @@ public class BrickBehavior : MonoBehaviour
     [NonSerialized]
     public Transform highestParent;
 
-    //[NonSerialized]
-    public bool isOnWrist = false;
+
 
     [NonSerialized]
     public Vector3 trueScale;
@@ -133,13 +132,6 @@ public class BrickBehavior : MonoBehaviour
 
         brickManager.BeginSnapping(chosenObject, usedController);
 
-        ///Wrist Inventory Stuff
-        ///
-        if(isOnWrist)
-        {
-            brickLibrary.wristToolBehavior.DecrementInventoryOnSelect(chosenObject);
-            isOnWrist = false;
-        }
 
     }
 
