@@ -33,8 +33,8 @@ Material:
     - _SecondaryRotation_1: 90
     - _Secondary_Line_size_1: -20.43
     m_Colors:
-    - _Base_Color: {r: 0.5372549, g: 0.928013, b: 0.92941177, a: 1}
-    - _Color: {r: 0.6431373, g: 0.9441074, b: 0.945098, a: 0}
+    - _Base_Color: {r: 0.24608581, g: 0.52021563, b: 0.52021563, a: 1}
+    - _Color: {r: 0.273676, g: 0.554, b: 0.554, a: 1}
     - _Glow_color: {r: 0.5, g: 1, b: 0.55068755, a: 0}
     - _Line_Color: {r: 0.95687324, g: 0.95687324, b: 0.95687324, a: 0}
     - _Primary_Offset: {r: 0.5, g: 0.2, b: 0, a: 0}

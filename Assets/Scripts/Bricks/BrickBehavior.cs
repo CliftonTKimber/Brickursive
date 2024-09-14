@@ -28,6 +28,8 @@ public class BrickBehavior : MonoBehaviour
     [NonSerialized]
     public Vector3 trueScale;
 
+    public bool canBeMovedByMachines = true;
+
     public Vector3 extraRotation;
 
 

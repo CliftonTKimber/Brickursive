@@ -109,9 +109,10 @@ public class BlackboxBehavior : MonoBehaviour
         Transform childToReplicate = GetFirstValidChildTransformInHeirarchy();
 
         if(childToReplicate == null)
-        {
             return;
-        }
+
+        if(childToReplicate.GetComponent<BlackboxBehavior>() != null)
+            return;
 
         Vector3 spawnPos = transform.position + Vector3.Scale(transform.forward, GetComponent<BrickBehavior>().trueScale );
 
@@ -121,9 +122,14 @@ public class BlackboxBehavior : MonoBehaviour
 
         newBrickRB.isKinematic = false;
         newBrickRB.useGravity = true;
-        newBrickRB.excludeLayers = 0;
+        //newBrickRB.excludeLayers = 0;
+        newBrickRB.constraints = RigidbodyConstraints.None;
         //newBrickRB.AddForce(transform.forward * 3, ForceMode.VelocityChange);
         //newBrickRB.AddTorque(Vector3.one, ForceMode.Impulse);
+
+        newBrick.GetComponent<XRGrabInteractable>().enabled = true;
+
+        newBrick.name = childToReplicate.name;
 
 
 
@@ -134,17 +140,10 @@ public class BlackboxBehavior : MonoBehaviour
         SetupBelt();
 
 
-        if(powerLevel > 0)
-        {
-
-            //GetComponent<Material>().SetKeyword(_ALLOWANIMATION, true);
-        }
-
 
         if(detectedBricks.Count <= 0)
-        {
             return;
-        }
+
 
         for(int i = 0; i < detectedBricks.Count; i++)
         {
@@ -170,23 +169,6 @@ public class BlackboxBehavior : MonoBehaviour
 
             }
 
-            
-
-            /*Vector3 newPos = transform.position;
-            newPos.x = brick.transform.position.x;
-            newPos.z = brick.transform.position.z;
-            Vector3 scaleThing = Vector3.Scale(GetComponent<BrickBehavior>().trueScale, -transform.up);
-            Vector3 targetScaleThing = Vector3.Scale(brick.GetComponent<BrickBehavior>().trueScale, -transform.up);
-            newPos.y += scaleThing.y / 2;
-            newPos.y += targetScaleThing.y / 2;
-
-            Debug.Log(transform.up);
-
-
-
-            brick.transform.position = newPos;*/
-
-            //Alter Move direction so that a brick aligns itself with the belt as it moves.
 
             Vector3 moveDirection = Quaternion.Inverse(brick.transform.rotation) * transform.forward;
 
@@ -202,37 +184,7 @@ public class BlackboxBehavior : MonoBehaviour
 
     }
 
-
-    private void PrimeBrickForMovement(Rigidbody brickRb)
-    {
-
-        brickRb.useGravity = false;
-        brickRb.constraints = RigidbodyConstraints.FreezeAll;
-
-        //AlignWithBelt(brickRb);
-
-    }
-
-    private void SetupBelt()
-    {
-        if(GetComponents<Collider>().Length <= 1)
-        {
-            Vector3 trueScale = GetComponent<BrickBehavior>().trueScale;
-
-            BoxCollider detector = gameObject.AddComponent<BoxCollider>();
-
-            detector.center = new Vector3(0f, trueScale.y / 2f, 0f);
-            detector.size = new Vector3(trueScale.x - (STUD_HEIGHT * 2),
-                                        trueScale.y - (STUD_HEIGHT * 2),
-                                        trueScale.z - (STUD_HEIGHT * 2));
-
-            detector.isTrigger = true;
-        } 
-
-
-    }
-
-    private void RunVacuumBehavior()
+  private void RunVacuumBehavior()
     {
         if(detectedBricks.Count <= 0)
         {
@@ -310,25 +262,61 @@ public class BlackboxBehavior : MonoBehaviour
 
     }
 
+    private void PrimeBrickForMovement(Rigidbody brickRb)
+    {
+
+        brickRb.useGravity = false;
+        brickRb.constraints = RigidbodyConstraints.FreezeAll;
+
+        //AlignWithBelt(brickRb);
+
+    }
+
+    private void SetupBelt()
+    {
+        if(GetComponents<Collider>().Length <= 1)
+        {
+            Vector3 trueScale = GetComponent<BrickBehavior>().trueScale;
+
+            BoxCollider detector = gameObject.AddComponent<BoxCollider>();
+
+            detector.center = new Vector3(0f, trueScale.y / 2f, 0f);
+            detector.size = new Vector3(trueScale.x - (STUD_HEIGHT * 2),
+                                        trueScale.y - (STUD_HEIGHT * 2),
+                                        trueScale.z - (STUD_HEIGHT * 2));
+
+            detector.isTrigger = true;
+        } 
+
+
+    }
+
+  
     private void JoinBricksByXAxis(Vector3 spawnPos)
     {
 
         if(inventory[1] >= 3)
         {//1x1Panel -> 1x1 brick
-            Instantiate(brickLibrary.allBricks[2], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
+            GameObject newBrick = Instantiate(brickLibrary.allBricks[2], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
             inventory[1] -= 3;
+            newBrick.name = brickLibrary.allBricks[2].name;
+
             return;
         }
-        if(inventory[2] >= 4)
+        else if(inventory[2] >= 4)
         {//1x4
-            Instantiate(brickLibrary.allBricks[3], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
+            GameObject newBrick = Instantiate(brickLibrary.allBricks[3], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
             inventory[2] -= 4;
+            newBrick.name = brickLibrary.allBricks[3].name;
+
             return;
         }
-        if(inventory[3] >= 2)
+        else if(inventory[3] >= 2)
         {//2x2 brick
-            Instantiate(brickLibrary.allBricks[5], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
+            GameObject newBrick = Instantiate(brickLibrary.allBricks[5], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
             inventory[3] -= 2;
+            newBrick.name = brickLibrary.allBricks[5].name;
+
             return;
         }
 
@@ -340,8 +328,10 @@ public class BlackboxBehavior : MonoBehaviour
         if(inventory[1] >= 1)
         {//1x1Panel -> 1x1 Stud
 
-            Instantiate(brickLibrary.allBricks[0], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
+            GameObject newBrick = Instantiate(brickLibrary.allBricks[0], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
             inventory[1] -= 1;
+            newBrick.name = brickLibrary.allBricks[0].name;
+
             return;
         }
         /*if(inventory[2] >= 4)
@@ -354,11 +344,14 @@ public class BlackboxBehavior : MonoBehaviour
             return;
         }*/
 
-        if(AddArrayToItself(inventory) >= 25)
+        else if(AddArrayToItself(inventory) >= 25)
         {//16x16
 
-            Instantiate(brickLibrary.allBricks[6], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
+            GameObject newBrick = Instantiate(brickLibrary.allBricks[6], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
             inventory = new int[inventory.Length];
+
+            newBrick.name = brickLibrary.allBricks[6].name;
+
             return;
         }
         
@@ -369,23 +362,29 @@ public class BlackboxBehavior : MonoBehaviour
         if(inventory[0] >= 4)
         {//2x2 Universal Female 
 
-            Instantiate(brickLibrary.allBricks[7], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
-            inventory[0] -= 4;
+            GameObject newBrick = Instantiate(brickLibrary.allBricks[7], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
+            inventory[0] -= 4;    
+            newBrick.name = brickLibrary.allBricks[7].name;
+
             return;
         }
-        if(inventory[1] >= 4)
+        else if(inventory[1] >= 4)
         {//2x2 Universal Male 
 
-            Instantiate(brickLibrary.allBricks[8], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
+            GameObject newBrick = Instantiate(brickLibrary.allBricks[8], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
             inventory[1] -= 4;
+            newBrick.name = brickLibrary.allBricks[8].name;
+
             return;
         }
 
-        if(inventory[2] >= 1)
+        else if(inventory[2] >= 1)
         {//1x1Brick -> 1x1 Panel
 
-            Instantiate(brickLibrary.allBricks[1], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
+            GameObject newBrick = Instantiate(brickLibrary.allBricks[1], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
             inventory[2] -= 1;
+            newBrick.name = brickLibrary.allBricks[1].name;
+
             return;
         }
 
@@ -415,7 +414,7 @@ public class BlackboxBehavior : MonoBehaviour
         for(int i = 0; i < brickLibrary.allBricks.Count; i++)
         {
             string libBrickName = brickLibrary.allBricks[i].name;
-            libBrickName += "(Clone)";
+            //libBrickName += "(Clone)";
 
             string brickName = brick.name;
             if(brickName == libBrickName)
@@ -437,7 +436,7 @@ public class BlackboxBehavior : MonoBehaviour
         for(int i = 0; i < brickLibrary.allBricks.Count; i++)
         {
             string libBrickName = brickLibrary.allBricks[i].name;
-            libBrickName += "(Clone)";
+            //libBrickName += "(Clone)";
 
             string brickName = brick.name;
             if(brickName == libBrickName)
@@ -452,7 +451,7 @@ public class BlackboxBehavior : MonoBehaviour
         for(int i = 0; i < brickLibrary.allMachines.Count; i++)
         {
             string libBrickName = brickLibrary.allMachines[i].name;
-            libBrickName += "(Clone)";
+            //libBrickName += "(Clone)";
 
             string brickName = brick.name;
             if(brickName == libBrickName)
@@ -529,16 +528,23 @@ public class BlackboxBehavior : MonoBehaviour
 
         GameObject hitBrick = collider.gameObject;
         
+        if(hitBrick == gameObject)
+            return;
         
         if(!hitBrick.CompareTag(BASE_BRICK_TAG))
             return;
         
 
-        if(hitBrick.GetComponent<BlackboxBehavior>() != null)
+        /*if(hitBrick.GetComponent<BlackboxBehavior>() != null)
+            return;*/
+
+        if(!hitBrick.GetComponent<BrickBehavior>().canBeMovedByMachines)
             return;
 
         if(hitBrick.isStatic)
             return;
+
+
 
         if(hitBrick.GetComponent<BrickBehavior>().highestParent == GetComponent<BrickBehavior>().highestParent)
         
@@ -599,6 +605,9 @@ public class BlackboxBehavior : MonoBehaviour
         {
             return;
         }
+
+        if(!hitBrick.GetComponent<BrickBehavior>().canBeMovedByMachines)
+            return;
 
         if(hitBrick.GetComponent<BrickBehavior>().highestParent == GetComponent<BrickBehavior>().highestParent)
         {

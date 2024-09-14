@@ -24,6 +24,10 @@ public class BrickLibrary : MonoBehaviour
         brickInventory = new int[allBricks.Count];
         machineInventory = new int[allMachines.Count];
 
+        brickInventory[0] = 6;
+        brickInventory[1] = 6;
+        brickInventory[2] = 6;
+
     }
 
 
