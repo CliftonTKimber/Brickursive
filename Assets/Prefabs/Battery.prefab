@@ -337,7 +337,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 0958e3c28f1bfca479889d8df8c46a8e, type: 2}
+  - {fileID: 2100000, guid: 32a7377154dca3c42b3b0400fcce8691, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -419,9 +419,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b0a8dd70f7d7624e968da4883e15941, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  highestParent: {fileID: 0}
+  canBeMovedByMachines: 1
   extraRotation: {x: 0, y: 0, z: 0}
-  belts: []
 --- !u!114 &-7336904046206081932
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -606,7 +605,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   powerLevel: 1
   otherHalf: {fileID: 0}
-  wireComponent: 2
+  powerComponent: 0
 --- !u!1 &8663153622914176951
 GameObject:
   m_ObjectHideFlags: 0

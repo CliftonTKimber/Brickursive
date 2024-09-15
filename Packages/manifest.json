@@ -2,6 +2,7 @@
   "dependencies": {
     "com.unity.collab-proxy": "2.4.3",
     "com.unity.feature.development": "1.0.1",
+    "com.unity.hlsl-templates": "file:C:/Users/clift/Downloads/com.unity.hlsl-templates-main",
     "com.unity.render-pipelines.universal": "14.0.11",
     "com.unity.shadergraph": "14.0.11",
     "com.unity.textmeshpro": "3.0.6",

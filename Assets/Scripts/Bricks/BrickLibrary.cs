@@ -28,6 +28,15 @@ public class BrickLibrary : MonoBehaviour
         brickInventory[1] = 6;
         brickInventory[2] = 6;
 
+        brickInventory[3] = 6;
+        brickInventory[4] = 6;
+
+        brickInventory[5] = 6;
+        brickInventory[6] = 6;
+
+        brickInventory[7] = 0;
+        brickInventory[8] = 6;
+
     }
 
 

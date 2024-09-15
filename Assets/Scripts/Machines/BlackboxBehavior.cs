@@ -313,9 +313,9 @@ public class BlackboxBehavior : MonoBehaviour
         }
         else if(inventory[3] >= 2)
         {//2x2 brick
-            GameObject newBrick = Instantiate(brickLibrary.allBricks[5], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
+            GameObject newBrick = Instantiate(brickLibrary.allBricks[4], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
             inventory[3] -= 2;
-            newBrick.name = brickLibrary.allBricks[5].name;
+            newBrick.name = brickLibrary.allBricks[4].name;
 
             return;
         }
@@ -325,7 +325,7 @@ public class BlackboxBehavior : MonoBehaviour
 
     private void JoinBricksByYAxis(Vector3 spawnPos)
     {
-        if(inventory[1] >= 1)
+        if(inventory[2] >= 1)
         {//1x1Panel -> 1x1 Stud
 
             GameObject newBrick = Instantiate(brickLibrary.allBricks[0], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
@@ -334,23 +334,15 @@ public class BlackboxBehavior : MonoBehaviour
 
             return;
         }
-        /*if(inventory[2] >= 4)
-        {//4x1 pillar
 
-            GameObject newBrick = Instantiate(brickLibrary.allBricks[4], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
-            Vector3 scale = newBrick.GetComponent<BrickBehavior>().trueScale;          
-            newBrick.transform.position += Vector3.Scale(-transform.forward, scale);
-            inventory[2] -= 4;
-            return;
-        }*/
 
-        else if(AddArrayToItself(inventory) >= 25)
+        else if(inventory[1] >= 16)
         {//16x16
 
-            GameObject newBrick = Instantiate(brickLibrary.allBricks[6], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
-            inventory = new int[inventory.Length];
+            GameObject newBrick = Instantiate(brickLibrary.allBricks[8], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
+            inventory[1] -= 16;
 
-            newBrick.name = brickLibrary.allBricks[6].name;
+            newBrick.name = brickLibrary.allBricks[8].name;
 
             return;
         }
@@ -362,18 +354,18 @@ public class BlackboxBehavior : MonoBehaviour
         if(inventory[0] >= 4)
         {//2x2 Universal Female 
 
-            GameObject newBrick = Instantiate(brickLibrary.allBricks[7], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
+            GameObject newBrick = Instantiate(brickLibrary.allBricks[5], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
             inventory[0] -= 4;    
-            newBrick.name = brickLibrary.allBricks[7].name;
+            newBrick.name = brickLibrary.allBricks[5].name;
 
             return;
         }
         else if(inventory[1] >= 4)
         {//2x2 Universal Male 
 
-            GameObject newBrick = Instantiate(brickLibrary.allBricks[8], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
+            GameObject newBrick = Instantiate(brickLibrary.allBricks[6], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
             inventory[1] -= 4;
-            newBrick.name = brickLibrary.allBricks[8].name;
+            newBrick.name = brickLibrary.allBricks[6].name;
 
             return;
         }

@@ -35,6 +35,8 @@ public class GameConfig
     //12FPS to match with typical animations
     public static readonly float ANIMATION_UPDATE_TIME = 0.0833333333333f;
 
+    public static readonly float HEIGHT_ADJUSTMENT = 5f;
+
 
     
 }

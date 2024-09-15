@@ -204,6 +204,10 @@ public class GameController : MonoBehaviour
 
 
     /*
+
+
+        1x1Panels -> 1x1Bricks ->
+
         TODO:
 
 

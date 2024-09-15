@@ -27,6 +27,8 @@ public class WristToolBehavior : MonoBehaviour
 
     private GameObject mainCamera;
 
+    public int rowNum = 0;
+
     void Start()
     {
         brickLibrary = GameObject.Find("Brick Library").GetComponent<BrickLibrary>();
@@ -81,7 +83,14 @@ public class WristToolBehavior : MonoBehaviour
     }
     void DisplayBrickInventory()
     {
-       
+
+        int steppedChildCount = (rowNum * 4) + 4;
+        if(steppedChildCount > transform.childCount)
+        {
+            steppedChildCount = transform.childCount;
+        }
+
+       //Make sure child count is in line with these numbers.
         for(int i = 0; i < transform.childCount; i++)
         {
             Transform child = transform.GetChild(i);
@@ -93,18 +102,17 @@ public class WristToolBehavior : MonoBehaviour
             TMP_Text childText = childTextTransform.GetComponent<TMP_Text>();
 
             childText.text = brickLibrary.brickInventory[i].ToString();
-
-
-
             
             //Brick
             if(brickLibrary.brickInventory[i] <= 0)
-            {
                 child.GetComponent<MeshRenderer>().material = displayMaterials[0];
-                continue;
-            }
+            else
+                child.GetComponent<MeshRenderer>().material = displayMaterials[1];
 
-            child.GetComponent<MeshRenderer>().material = displayMaterials[1];
+            if(i >= rowNum * 4 && i < steppedChildCount)
+                child.gameObject.SetActive(true);
+            else
+                child.gameObject.SetActive(false);
 
         }
     }
@@ -183,6 +191,24 @@ public class WristToolBehavior : MonoBehaviour
         InstantiateBrick(siblingIndex, spawnPose);
         brickLibrary.brickInventory[siblingIndex] -= 1;        
     }
+
+    public void IncrementOnSelection(SelectEnterEventArgs eventData)
+    {
+        rowNum += 1;
+
+        if(rowNum > 2)
+            rowNum = 2;
+
+    }
+
+    public void DecrementOnSelection(SelectEnterEventArgs eventData)
+    {
+        rowNum -= 1;
+
+        if(rowNum < 0)
+            rowNum = 0;
+    }
+
 
 #endregion
 
