@@ -37,6 +37,10 @@ public class GameConfig
 
     public static readonly float HEIGHT_ADJUSTMENT = 5f;
 
+    public static readonly Vector3 NORMAL_SCALE = new(60,60,60);
+
+    public static readonly Vector3 TINY_SCALE = new(10,10,10);
+
 
     
 }

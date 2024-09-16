@@ -59,9 +59,6 @@ public class BrickManager : MonoBehaviour
     void /*Fixed*/Update()
     {
 
-        ChangeBrickOnKeyboardInput();
-        SpawnBrickIntoTheAirOnKeyDown();
-        SpawnBrickIntoTheAirOnControllerButtonDown(controllers[0], controllers[1]);
 
         MoveBricksIfControllersGrab();
 
@@ -102,6 +99,9 @@ public class BrickManager : MonoBehaviour
             nfInteractor.interactionLayers = 1 <<  LAYER_MASK_INTERACT;
             targetBrick.GetComponent<XRGrabInteractable>().interactionLayers = 1 << LAYER_MASK_INTERACT;
 
+            if(targetBrick.GetComponent<BlackboxBehavior>() != null)
+                targetBrick.GetComponent<BlackboxBehavior>().powerLevel = 0;
+
             DelaySnapping();
 
         }
@@ -113,6 +113,9 @@ public class BrickManager : MonoBehaviour
 
             nfInteractor.interactionLayers =  1 << LAYER_MASK_INTERACT;
             targetBrick.GetComponent<XRGrabInteractable>().interactionLayers = 1 << LAYER_MASK_INTERACT;
+
+            if(targetBrick.GetComponent<BlackboxBehavior>() != null)
+                targetBrick.GetComponent<BlackboxBehavior>().powerLevel = 0;
 
 
             DelaySnapping();
@@ -240,94 +243,6 @@ public class BrickManager : MonoBehaviour
 
     }
 
-    private void SpawnBrickIntoTheAirOnControllerButtonDown(GameObject leftController, GameObject rightController)
-    {
-
-
-        UnityEngine.XR.InputDevice leftInputDevice = UnityEngine.XR.InputDevices.GetDeviceAtXRNode(UnityEngine.XR.XRNode.LeftHand);
-        UnityEngine.XR.InputDevice rightInputDevice = UnityEngine.XR.InputDevices.GetDeviceAtXRNode(UnityEngine.XR.XRNode.RightHand);
-
-        bool triggerValue;
-        if (rightInputDevice.TryGetFeatureValue(UnityEngine.XR.CommonUsages.primaryButton, out triggerValue) && triggerValue)
-        {
-            //NOTE: Does not work with the XR simulator. Needs a different Method?
-         
-            Debug.Log("right button!");
-            Transform grabSphere = controllers[1].transform.GetChild(0);
-            Vector3 spawnPos = grabSphere.position;
-
-            Transform objectFolder = GameObject.Find("Objects").transform;
-
-            Instantiate(brick, spawnPos, transform.rotation, objectFolder);
-
-            
-        
-        }
-
-        if (rightInputDevice.TryGetFeatureValue(UnityEngine.XR.CommonUsages.primary2DAxisClick, out triggerValue) && triggerValue)
-        {
-
-            brickSelector++;
-
-            if(brickSelector > availableBricks.Count)
-            {brickSelector = availableBricks.Count;}
-
-            brick = availableBricks[brickSelector];
-            leftGhostBrick = MakeGhostVersionOfCurrentBrick(brick, leftGhostBrick);
-
-        }
-
-        //LEFT
-
-        if (leftInputDevice.TryGetFeatureValue(UnityEngine.XR.CommonUsages.primary2DAxisClick, out triggerValue) && triggerValue)
-        {
-
-            brickSelector--;  
-
-            if(brickSelector < 0)
-            {brickSelector = 0;}
-
-            brick = availableBricks[brickSelector];
-            leftGhostBrick = MakeGhostVersionOfCurrentBrick(brick, leftGhostBrick);
-
-        }
-
-
-
-        //.Log(Input.GetButtonDown());
-
-
-
-
-        //Does not release from pressed state
-        //Debug.Log(Input.GetButtonDown("XRI_Left_PrimaryButton"));
-
-        /*if (Input.GetButtonDown("XRI_Left_PrimaryButton"))
-        if(Input.GetKeyDown("r"))
-        {
-            //Debug.Log("Left button!");
-            Transform grabSphere = controllers[0].transform.GetChild(0);
-            Vector3 spawnPos = grabSphere.position;
-
-            Transform objectFolder = GameObject.Find("Objects").transform;
-
-            Instantiate(brick, spawnPos, transform.rotation, objectFolder);
-        }
-
-        if (Input.GetButtonDown("XRI_Right_PrimaryButton"))
-        {
-            Debug.Log("right button!");
-            Transform grabSphere = controllers[1].transform.GetChild(0);
-            Vector3 spawnPos = grabSphere.position;
-
-            Transform objectFolder = GameObject.Find("Objects").transform;
-
-            Instantiate(brick, spawnPos, transform.rotation, objectFolder);
-
-            
-        }*/
-
-    }
 
     void ChangeInteractorLayerMaskOnTrigger(GameObject xrController)
     {
@@ -400,10 +315,10 @@ public class BrickManager : MonoBehaviour
             BrickBehavior targetedBrickBehavior = targetedBrick.GetComponent<BrickBehavior>();
             targetedBrickBehavior.InvokeBrickMethod("ToggleRigidbodyIsKinematic", 0.1f);
 
+            if(targetedBrick.GetComponent<BlackboxBehavior>() != null)
+                targetedBrick.GetComponent<BlackboxBehavior>().powerLevel = 1;
 
 
-            //targetedBrick.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
-            //targetedBrick.GetComponent<Rigidbody>().velocity = Vector3.zero; 
         }
     }
 

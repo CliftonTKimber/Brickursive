@@ -39,4 +39,18 @@ public class SettingsController : MonoBehaviour
     }
 
 
+     public void SetScaleNormalOnSelection(SelectEnterEventArgs eventData)
+    {
+
+        transform.localScale = NORMAL_SCALE;
+
+    }
+
+    public void SetScaleTinyOnOnSelection(SelectEnterEventArgs eventData)
+    {
+
+        transform.localScale = TINY_SCALE;
+    }
+
+
 }

@@ -51,7 +51,8 @@ public class BlackboxBehavior : MonoBehaviour
     {
         detectedBricks = new();
 
-        brickLibrary = GameObject.Find("Brick Library").GetComponent<BrickLibrary>();
+        CheckForLibrary();
+
         inventory = new int[brickLibrary.allBricks.Count];
 
        // Debug.Log("Inventory Length: " + inventory.Length);
@@ -62,11 +63,24 @@ public class BlackboxBehavior : MonoBehaviour
     void FixedUpdate()
     {
 
+        CheckForLibrary();
+
+
         if(powerLevel > 0)
         {
             //In Fixed update it is delayed already. Make sure to consider this .
             Invoke(nameof(RunBehaviorByStructureType), spawnTime * ANIMATION_UPDATE_TIME);
         }
+
+
+
+    }
+
+    void CheckForLibrary()
+    {
+
+        if(brickLibrary == null)
+                brickLibrary = GameObject.Find("Brick Library").GetComponent<BrickLibrary>();
 
 
 
@@ -157,7 +171,17 @@ public class BlackboxBehavior : MonoBehaviour
 
             }
 
+
             Rigidbody brickRb = brick.GetComponent<Rigidbody>();
+
+            //Is the brick currently being held?
+            if(brick.transform.parent == null)
+            {
+                //detectedBricks.Remove(brick);
+                brickRb.constraints = RigidbodyConstraints.None;
+                continue;
+
+            }
 
             
 
@@ -425,8 +449,14 @@ public class BlackboxBehavior : MonoBehaviour
     private void AddBrickToGlobalInventory(GameObject brick)
     {
 
+
         for(int i = 0; i < brickLibrary.allBricks.Count; i++)
         {
+            if(brickLibrary.allBricks[i] == null)
+                continue;
+
+
+
             string libBrickName = brickLibrary.allBricks[i].name;
             //libBrickName += "(Clone)";
 
@@ -448,7 +478,7 @@ public class BlackboxBehavior : MonoBehaviour
             string brickName = brick.name;
             if(brickName == libBrickName)
             {
-                brickLibrary.machineInventory[i] += 1;
+                brickLibrary.brickInventory[i] += 2;
                 Destroy(brick);
                 return;
             }

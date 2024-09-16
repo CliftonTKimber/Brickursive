@@ -134,6 +134,9 @@ public class BrickBehavior : MonoBehaviour
 
         brickManager.BeginSnapping(chosenObject, usedController);
 
+        if(GetComponent<BlackboxBehavior>() != null)
+                GetComponent<BlackboxBehavior>().powerLevel = 0;
+
 
     }
 
