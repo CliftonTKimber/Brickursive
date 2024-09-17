@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using Palmmedia.ReportGenerator.Core.Parser.Analysis;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.Assertions.Must;
@@ -21,7 +20,7 @@ public class BrickTester : MonoBehaviour
             RunThroughTests(theBrickToTest);
         }
 
-        UnityEditor.EditorApplication.isPlaying = false;
+        //UnityEditor.EditorApplication.isPlaying = false;
     }
 
 

@@ -22,7 +22,7 @@ public class MeshTester : MonoBehaviour
 
         DoAllMeshTests();
 
-        UnityEditor.EditorApplication.isPlaying = false;
+        //UnityEditor.EditorApplication.isPlaying = false;
         
     }
 

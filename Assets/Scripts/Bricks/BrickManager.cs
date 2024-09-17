@@ -4,7 +4,6 @@ using UnityEngine;
 using static GameConfig;
 
 using UnityEngine.EventSystems;
-using UnityEditor.XR.Interaction.Toolkit;
 using UnityEngine.InputSystem.XR;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.Events;

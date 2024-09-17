@@ -10,6 +10,7 @@ TagManager:
   - Female
   - Brick
   - Controller
+  - XRController
   layers:
   - Default
   - TransparentFX

@@ -7,7 +7,6 @@ using static GameConfig;
 //using System.Numerics;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEditor.XR.Interaction.Toolkit;
 using UnityEngine.InputSystem.XR;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.Events;
@@ -50,7 +49,6 @@ public class GameController : MonoBehaviour
 
         gridUtility.Start(this);
         raycastUtils.Start();
-
 
         
     }
@@ -205,28 +203,31 @@ public class GameController : MonoBehaviour
 
     /*
 
-
-        1x1Panels -> 1x1Bricks ->
-
         TODO:
 
 
-            1: Get Hammer working
-                Joining Pieces
-                Squishing Pieces
+            Priorities:
 
-            2: Unlocking Structures. Need a way to get more into the build.
+            DONE --- 1: Compiled so it can run outside of the editor.
 
-            3: Inventory
+                    ### NOTE: Build will be different than what functions in the unity editor.
+
+                    --- re-add generic poke-points, and put in an additional model so it can be displayed on-build.
+
+            2: Saves for progress continuity
+
+            3: SFX
+
+            3b: "MUNCHMUNCHMUCH"
 
 
             ///DO THE VERY MOST BASIC VERSIONS FOR NOW
 
             CODE CLEANUP:
 
-                The grabs, and ungrabs nned to be cleaned up.
+                The grabs, and ungrabs need to be cleaned up.
 
-                Replace unselecting working around with InteractionManager.CancelInteractableSelection()
+                Replace unselecting work-around with InteractionManager.CancelInteractableSelection()
 
 
 
@@ -234,26 +235,14 @@ public class GameController : MonoBehaviour
             Rigidbody LayerMasks needs adjusting -- make all socket colliders triggers?
         
 
-            MOVEMENT:
-
 
 
             All around Polish and Bugfix
 
 
 
-
-
-
-
-
-
-
         ///Other Notes:
-        
-        Bugs - Ghost brick flickers down when an axis of rotation increases (doesn't happen when it decreases)
-
-        
+ 
 
         
 
@@ -275,7 +264,6 @@ public class GameController : MonoBehaviour
                 Turn off adjacent belts, and create a single, long BoxCollider for detection 
                 --- should reduce collision checks, and other operations
 
-            Convert all Brick BoxColliders with Mesh colliders (Plane)
 
             Replace Recursive functions with GetComponentInChildren<>().
 
