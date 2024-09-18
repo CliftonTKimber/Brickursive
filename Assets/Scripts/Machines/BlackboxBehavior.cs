@@ -145,6 +145,10 @@ public class BlackboxBehavior : MonoBehaviour
         newBrick.name = childToReplicate.name;
 
 
+        ///SFX
+        GetComponent<BrickBehavior>().soundController.PlayMakeBrick(spawnPos);
+
+
 
     }
 
@@ -230,6 +234,7 @@ public class BlackboxBehavior : MonoBehaviour
         }
 
 
+
     }
 
     private void RunJoinerBehavior()
@@ -279,7 +284,7 @@ public class BlackboxBehavior : MonoBehaviour
 
         JoinBricksByXAxis(spawnPos);
 
-        
+      
       
 
 
@@ -324,6 +329,9 @@ public class BlackboxBehavior : MonoBehaviour
             inventory[1] -= 3;
             newBrick.name = brickLibrary.allBricks[2].name;
 
+            ///SFX
+            GetComponent<BrickBehavior>().soundController.PlayMakeBrick(spawnPos);
+
             return;
         }
         else if(inventory[2] >= 4)
@@ -332,6 +340,9 @@ public class BlackboxBehavior : MonoBehaviour
             inventory[2] -= 4;
             newBrick.name = brickLibrary.allBricks[3].name;
 
+            ///SFX
+            GetComponent<BrickBehavior>().soundController.PlayMakeBrick(spawnPos);
+
             return;
         }
         else if(inventory[3] >= 2)
@@ -339,6 +350,9 @@ public class BlackboxBehavior : MonoBehaviour
             GameObject newBrick = Instantiate(brickLibrary.allBricks[4], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
             inventory[3] -= 2;
             newBrick.name = brickLibrary.allBricks[4].name;
+
+            ///SFX
+            GetComponent<BrickBehavior>().soundController.PlayMakeBrick(spawnPos);
 
             return;
         }
@@ -355,6 +369,9 @@ public class BlackboxBehavior : MonoBehaviour
             inventory[1] -= 1;
             newBrick.name = brickLibrary.allBricks[0].name;
 
+            ///SFX
+            GetComponent<BrickBehavior>().soundController.PlayMakeBrick(spawnPos);
+
             return;
         }
 
@@ -366,6 +383,9 @@ public class BlackboxBehavior : MonoBehaviour
             inventory[1] -= 16;
 
             newBrick.name = brickLibrary.allBricks[8].name;
+
+            ///SFX
+            GetComponent<BrickBehavior>().soundController.PlayMakeBrick(spawnPos);
 
             return;
         }
@@ -381,6 +401,9 @@ public class BlackboxBehavior : MonoBehaviour
             inventory[0] -= 4;    
             newBrick.name = brickLibrary.allBricks[5].name;
 
+            ///SFX
+            GetComponent<BrickBehavior>().soundController.PlayMakeBrick(spawnPos);
+
             return;
         }
         else if(inventory[1] >= 4)
@@ -389,6 +412,9 @@ public class BlackboxBehavior : MonoBehaviour
             GameObject newBrick = Instantiate(brickLibrary.allBricks[6], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
             inventory[1] -= 4;
             newBrick.name = brickLibrary.allBricks[6].name;
+
+            ///SFX
+            GetComponent<BrickBehavior>().soundController.PlayMakeBrick(spawnPos);
 
             return;
         }
@@ -399,6 +425,9 @@ public class BlackboxBehavior : MonoBehaviour
             GameObject newBrick = Instantiate(brickLibrary.allBricks[1], spawnPos, Quaternion.identity, GameObject.Find(OBJECT_FOLDER_NAME).transform);
             inventory[2] -= 1;
             newBrick.name = brickLibrary.allBricks[1].name;
+
+            ///SFX
+            GetComponent<BrickBehavior>().soundController.PlayMakeBrick(spawnPos);
 
             return;
         }
@@ -436,6 +465,10 @@ public class BlackboxBehavior : MonoBehaviour
             {
                 inventory[i] += 1;
                 Destroy(brick);
+
+                ///SFX
+                GetComponent<BrickBehavior>().soundController.PlayVacuumBrick(brick.transform.position);
+
                 return;
             }
 
@@ -463,6 +496,10 @@ public class BlackboxBehavior : MonoBehaviour
             if(brickName == libBrickName)
             {
                 brickLibrary.brickInventory[i] += 1;
+
+                ///SFX
+                GetComponent<BrickBehavior>().soundController.PlayVacuumBrick(brick.transform.position);
+
                 Destroy(brick);
                 return;
             }
@@ -478,6 +515,11 @@ public class BlackboxBehavior : MonoBehaviour
             if(brickName == libBrickName)
             {
                 brickLibrary.brickInventory[i] += 2;
+
+                ///SFX
+                GetComponent<BrickBehavior>().soundController.PlayVacuumBrick(brick.transform.position);
+
+
                 Destroy(brick);
                 return;
             }

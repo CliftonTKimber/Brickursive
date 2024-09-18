@@ -40,9 +40,15 @@ public class BrickBehavior : MonoBehaviour
 
     private BrickLibrary brickLibrary;
 
+    [NonSerialized]
+    public SoundController soundController;
+
 
     void Start()
     {
+
+        soundController = GameObject.Find("Sound Controller").GetComponent<SoundController>();
+
         extraRotation = new();
         gameController = GameObject.Find("Game Controller");
         brickLibrary = GameObject.Find("Brick Library").GetComponent<BrickLibrary>();
@@ -251,6 +257,8 @@ public class BrickBehavior : MonoBehaviour
 
         /// JUICE
         chosenObject.GetComponent<Rigidbody>().AddForce(awayVector * 2f, ForceMode.Impulse);
+
+        soundController.PlayBrickPop(transform.position);
 
     }
 

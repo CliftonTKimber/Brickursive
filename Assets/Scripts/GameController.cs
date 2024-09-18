@@ -28,6 +28,7 @@ public class GameController : MonoBehaviour
     public BrickManager brickManager;
 
     public Camera gameCamera;
+    
 
 
     
@@ -37,8 +38,6 @@ public class GameController : MonoBehaviour
 
     void Start()
     {
-        
-        
         
         gridUtility = new GridUtils();
         raycastUtils = new RaycastUtils();
@@ -208,11 +207,8 @@ public class GameController : MonoBehaviour
 
             Priorities:
 
-            DONE --- 1: Compiled so it can run outside of the editor.
-
-                    ### NOTE: Build will be different than what functions in the unity editor.
-
-                    --- re-add generic poke-points, and put in an additional model so it can be displayed on-build.
+            Works on PC, NOT onQuest
+             --- 1: Compiled so it can run outside of the editor.
 
             2: Saves for progress continuity
 

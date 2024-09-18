@@ -45,9 +45,12 @@ public class BrickManager : MonoBehaviour
 
     public RaycastUtils raycastUtils;
 
+    private SoundController soundController;
+
     private bool canPickup = true;
     void Start()
     {
+        soundController = GameObject.Find("Sound Controller").GetComponent<SoundController>();
 
         brick = availableBricks[0];
         movableGrid = CreateMovableGrid();
@@ -164,83 +167,6 @@ public class BrickManager : MonoBehaviour
   
  
 
-    void ChangeBrickOnKeyboardInput()
-    {
-
-        if(Input.GetKeyDown("p"))
-        {
-            if(brickSelector < availableBricks.Count - 1)
-             {
-                brickSelector++;   
-                brick = availableBricks[brickSelector];
-                leftGhostBrick = MakeGhostVersionOfCurrentBrick(brick, leftGhostBrick);
-            }
-        }
-        else if(Input.GetKeyDown("o"))
-        {
-            if(brickSelector > 0)
-             {
-                brickSelector--;
-                brick = availableBricks[brickSelector];
-                rightGhostBrick = MakeGhostVersionOfCurrentBrick(brick, leftGhostBrick);
-             }
-        }
-
-        
-    }
-
-    public void SpawnBrickIntoTheAirOnKeyDown()
-    {
-        if (Input.GetKeyDown("space"))
-        {
-                Vector3 spawnPos = cameraScript.grabPoint.transform.position;
-
-                Transform objectFolder = GameObject.Find(OBJECT_FOLDER_NAME).transform;
-
-                Instantiate(brick, spawnPos, transform.rotation, objectFolder);
-        }
-
-        //
-
-        if(Input.GetKey("up"))
-        {
-
-            GameObject.Find("Camera Offset").transform.position -= new Vector3(0,1,0);
-
-        }
-        if(Input.GetKey("down"))
-        {
-
-            GameObject.Find("Camera Offset").transform.position += new Vector3(0,1,0);
-
-        }
-
-        if(leftTargetedBrick != null )
-        {
-            BrickBehavior brickScript = leftTargetedBrick.GetComponent<BrickBehavior>();
-            if(Input.GetKeyDown("l"))
-            {
-                brickScript.extraRotation.y++;
-            }
-            if(Input.GetKeyDown("i"))
-            {
-                brickScript.extraRotation.x++;
-            }
-            if(Input.GetKeyDown("k"))
-            {
-                brickScript.extraRotation.z++;
-            }
-            if(Input.GetKeyDown("j"))
-            {
-                brickScript.extraRotation.y--;
-            }
-        }
-        
-        
-        if(rightTargetedBrick !=null)
-        {}
-
-    }
 
 
     void ChangeInteractorLayerMaskOnTrigger(GameObject xrController)
@@ -316,6 +242,9 @@ public class BrickManager : MonoBehaviour
 
             if(targetedBrick.GetComponent<BlackboxBehavior>() != null)
                 targetedBrick.GetComponent<BlackboxBehavior>().powerLevel = 1;
+
+
+            soundController.PlayBrickSnap(targetedBrick.transform.position);
 
 
         }

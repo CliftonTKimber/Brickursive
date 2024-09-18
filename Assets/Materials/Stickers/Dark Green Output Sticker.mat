@@ -30,7 +30,7 @@ Material:
     m_Ints: []
     m_Floats: []
     m_Colors:
-    - _Sticker_Color: {r: 0.14351147, g: 0.538, b: 0.08715597, a: 0}
+    - _Sticker_Color: {r: 0.084758244, g: 0.38005382, b: 0.040463917, a: 0}
   m_BuildTextureStacks: []
 --- !u!114 &6728931874416234884
 MonoBehaviour:
