@@ -73,6 +73,16 @@ public class SoundController : MonoBehaviour
 
     }
 
+    public void PlayDevourBrick(Vector3 playPosition)
+    {
+        transform.position = playPosition;
+
+        source.pitch = Random.Range (lowPitchRange,highPitchRange);
+
+        source.PlayOneShot(audioClips[4], 1f);
+
+    }
+
     private float CalculateVolume(Vector3 playPosition)
     {
         

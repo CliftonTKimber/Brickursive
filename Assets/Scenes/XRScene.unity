@@ -8191,6 +8191,10 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1767192434, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.0391
+      objectReference: {fileID: 0}
     - target: {fileID: 1767192439, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
       propertyPath: m_HDR
       value: 0
@@ -8637,6 +8641,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1767192433, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1840615622}
+    - targetCorrespondingSourceObject: {fileID: 1767192433, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1840615625}
   m_SourcePrefab: {fileID: 100100000, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
 --- !u!4 &1181403457 stripped
 Transform:
@@ -10706,6 +10713,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 6da2be6d5080580489189901b3bbac41, type: 3}
   - {fileID: 8300000, guid: 8c452ca374c4f92488d680694d970c00, type: 3}
   - {fileID: 8300000, guid: e2ba2fc542827944098de8ec3be3f36e, type: 3}
+  - {fileID: 8300000, guid: f2a60cd8015b4a24b8aa202972a452e8, type: 3}
   volumeStarter: 10
 --- !u!82 &1569709378
 AudioSource:
@@ -13646,10 +13654,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ed69c0b24cb72e4d8625e33d1dd6c3a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cameraMoveSpeed: 5
-  speedH: 2
-  speedV: 2
-  grabPoint: {fileID: 0}
 --- !u!114 &1840615622
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13694,6 +13698,27 @@ MonoBehaviour:
     m_MipBias: 0
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
+--- !u!135 &1840615625
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1840615612}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.03
+  m_Center: {x: 0, y: -0.1, z: 0.07}
 --- !u!1001 &1844205118
 PrefabInstance:
   m_ObjectHideFlags: 0
