@@ -9,8 +9,8 @@ public class SoundController : MonoBehaviour
     public List<AudioClip> audioClips;
 
     private AudioSource source;
-    private float lowPitchRange = .9F;
-    private float highPitchRange = 1.1F;
+    private float lowPitchRange = .85F;
+    private float highPitchRange = 1.15F;
     public float volumeStarter = 10F;
 
     private Transform mainCamera;
@@ -67,7 +67,7 @@ public class SoundController : MonoBehaviour
     {
         transform.position = playPosition;
 
-        source.pitch = Random.Range (lowPitchRange,highPitchRange);
+        source.pitch = Random.Range (lowPitchRange,highPitchRange+0.1f);
 
         source.PlayOneShot(audioClips[3], CalculateVolume(playPosition));
 
@@ -77,7 +77,7 @@ public class SoundController : MonoBehaviour
     {
         transform.position = playPosition;
 
-        source.pitch = Random.Range (lowPitchRange,highPitchRange);
+        source.pitch = Random.Range (lowPitchRange-0.3f,highPitchRange+0.05f);
 
         source.PlayOneShot(audioClips[4], 1f);
 
@@ -90,6 +90,8 @@ public class SoundController : MonoBehaviour
         float distance = Vector3.Distance(mainCamera.position, playPosition);
 
         float volume = volumeStarter / distance;
+
+        volume *= mainCamera.parent.transform.lossyScale.x;
 
 
         if(volume > 1f)

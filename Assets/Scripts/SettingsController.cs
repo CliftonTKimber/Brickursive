@@ -7,9 +7,20 @@ using static GameConfig;
 
 public class SettingsController : MonoBehaviour
 {
-    // Start is called before the first frame update
+
+
+    private SoundController soundController;
+
+    private GameObject workbenchFolder;
+    private GameObject objectFolder;
+
     void Start()
     {
+
+        soundController = GameObject.Find("Sound Controller").GetComponent<SoundController>();
+        workbenchFolder = GameObject.Find("Workbenches");
+        objectFolder = GameObject.Find(OBJECT_FOLDER_NAME);
+
         
     }
 
@@ -22,20 +33,30 @@ public class SettingsController : MonoBehaviour
 
     public void IncrementHeightOnSelection(SelectEnterEventArgs eventData)
     {
-        Vector3 newScale = transform.lossyScale;
-        newScale.y += HEIGHT_ADJUSTMENT;
+        Vector3 newPos = workbenchFolder.transform.position;
+        newPos.y += HEIGHT_ADJUSTMENT;
 
-        transform.localScale = newScale;
+        workbenchFolder.transform.position = newPos;
+
+        newPos = objectFolder.transform.position;
+        newPos.y += HEIGHT_ADJUSTMENT;
+
+        objectFolder.transform.position = newPos;
 
     }
 
     public void DecrementHeightOnSelection(SelectEnterEventArgs eventData)
     {
 
-        Vector3 newScale = transform.lossyScale;
-        newScale.y -= HEIGHT_ADJUSTMENT;
+        Vector3 newPos = workbenchFolder.transform.position;
+        newPos.y -= HEIGHT_ADJUSTMENT;
 
-        transform.localScale = newScale;
+        workbenchFolder.transform.position = newPos;
+
+        newPos = objectFolder.transform.position;
+        newPos.y -= HEIGHT_ADJUSTMENT;
+
+        objectFolder.transform.position = newPos;
     }
 
 
@@ -50,6 +71,13 @@ public class SettingsController : MonoBehaviour
     {
 
         transform.localScale = TINY_SCALE;
+    }
+
+    public void ToggleSoundOnSelection(SelectEnterEventArgs eventData)
+    {
+
+        soundController.GetComponent<AudioSource>().mute = !soundController.GetComponent<AudioSource>().mute;
+
     }
 
 

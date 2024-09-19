@@ -9,6 +9,8 @@ public class WristToolBehavior : MonoBehaviour
 {
     private BrickLibrary brickLibrary;
 
+    private SoundController soundController;
+
     public enum DisplayType
     {
 
@@ -35,6 +37,8 @@ public class WristToolBehavior : MonoBehaviour
         brickLibrary.wristToolBehavior = this;
 
         mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
+
+        soundController = GameObject.Find("Sound Controller").GetComponent<SoundController>();
 
         SetScaleBasedOnXRScale();
         
@@ -173,6 +177,9 @@ public class WristToolBehavior : MonoBehaviour
 
         InstantiateMachine(siblingIndex, spawnPose);
         brickLibrary.brickInventory[siblingIndex] -= 2;        
+
+        soundController.PlayMakeBrick(eventData.interactableObject.transform.position);      
+
     }
 
     public void SpawnBrickOnSelection(SelectEnterEventArgs eventData)
@@ -189,7 +196,9 @@ public class WristToolBehavior : MonoBehaviour
             return;
 
         InstantiateBrick(siblingIndex, spawnPose);
-        brickLibrary.brickInventory[siblingIndex] -= 1;        
+        brickLibrary.brickInventory[siblingIndex] -= 1;  
+
+        soundController.PlayMakeBrick(eventData.interactableObject.transform.position);      
     }
 
     public void IncrementOnSelection(SelectEnterEventArgs eventData)

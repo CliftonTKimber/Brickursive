@@ -262,20 +262,6 @@ public class BrickBehavior : MonoBehaviour
 
     }
 
-    public void ReplaceBrickOnBase(DeactivateEventArgs eventData)
-    {
-
-        /*Transform nfInteractorTransform = eventData.interactorObject.transform;
-
-        List<Collider> colliders = eventData.interactableObject.colliders;
-
-        GameObject chosenObject = GetClosestCollider(colliders, nfInteractorTransform).gameObject;
-        if(chosenObject.CompareTag(SOCKET_TAG_FEMALE) || chosenObject.CompareTag(SOCKET_TAG_MALE))
-        {
-            chosenObject = chosenObject.transform.parent.gameObject;
-        }*/
-
-    }
 
     public void SetHoverData(HoverEnterEventArgs eventData)
     {

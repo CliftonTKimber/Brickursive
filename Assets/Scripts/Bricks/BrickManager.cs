@@ -23,12 +23,8 @@ public class BrickManager : MonoBehaviour
 
     private GameObject leftController;
 
-    public float spawnDistance = 5f;
-
     private GameObject leftTargetedBrick;
     public GameObject rightTargetedBrick;
-
-    private int brickSelector = 0;
 
     public GameObject leftGhostBrick;
     public GameObject rightGhostBrick;

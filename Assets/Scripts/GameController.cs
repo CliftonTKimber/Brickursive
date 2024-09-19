@@ -212,9 +212,6 @@ public class GameController : MonoBehaviour
 
             2: Saves for progress continuity
 
-            3: SFX
-
-            3b: "MUNCHMUNCHMUCH"
 
 
             ///DO THE VERY MOST BASIC VERSIONS FOR NOW
